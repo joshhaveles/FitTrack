@@ -302,6 +302,14 @@ select.finp{cursor:pointer;}
 
 .divider{height:1px;background:var(--border);margin:14px 0;}
 .hidden{display:none!important;}
+.log-perf-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px;background:var(--lime-dim);border:none;border-top:1px solid rgba(212,245,60,0.2);color:var(--lime);font-size:13px;font-weight:700;font-family:"Nunito",sans-serif;cursor:pointer;transition:background .15s;}
+.log-perf-btn:hover{background:rgba(212,245,60,0.2);}
+.completion-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--green-dim);color:var(--green);margin-left:8px;vertical-align:middle;}
+.perf-log-entry{background:var(--bg3);border-radius:var(--r-sm);padding:10px 12px;margin:0 16px 10px;border-left:2px solid var(--green);}
+.perf-log-date{font-family:"DM Mono",monospace;font-size:10px;color:var(--text3);margin-bottom:4px;}
+.perf-log-meta{font-size:12px;color:var(--text2);}
+.perf-ex-input-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:6px;margin-bottom:6px;}
+.perf-ex-input-row .finp{margin-bottom:0;padding:7px 9px;font-size:12px;}
 
 /* ── NOTIFICATION BADGE ── */
 .notif-badge{position:absolute;top:-3px;right:-3px;background:var(--red);color:#fff;font-size:9px;font-weight:800;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;pointer-events:none;line-height:1;}
@@ -1143,6 +1151,38 @@ select.finp{cursor:pointer;}
     <div id="pb-prev" style="font-size:12px;color:var(--text3);margin-bottom:20px;"></div>
     <div id="pb-confetti" style="position:absolute;inset:0;pointer-events:none;border-radius:20px;overflow:hidden;"></div>
     <button onclick="closePB()" style="background:var(--lime);color:#0a0a0a;border:none;border-radius:10px;padding:12px 32px;font-size:14px;font-weight:800;font-family:'Nunito',sans-serif;cursor:pointer;width:100%;">Let's go! 🔥</button>
+  </div>
+</div>
+
+<!-- LOG PERFORMANCE MODAL -->
+<div class="modal-overlay hidden" id="modal-log-perf" onclick="modalOutsideClose(event,'modal-log-perf')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="log-perf-title">Log Performance</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:14px;" id="log-perf-desc"></div>
+
+    <div class="flabel">Date completed</div>
+    <input class="finp" type="date" id="log-perf-date" style="margin-bottom:14px;"/>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+      <div class="flabel" style="margin-bottom:0;">Exercises completed</div>
+    </div>
+    <div class="ex-row-hdr" style="grid-template-columns:2fr 1fr 1fr 1fr;"><span>Exercise</span><span>Sets</span><span>Reps</span><span id="log-perf-wt-hdr">Wt.</span></div>
+    <div id="log-perf-ex-rows"></div>
+
+    <div class="flabel" style="margin-top:10px;">How did it feel? (RPE 1–10)</div>
+    <div class="rpe-wrap" style="margin-bottom:14px;">
+      <input type="range" min="1" max="10" value="7" id="log-perf-rpe" style="flex:1;accent-color:var(--lime);" oninput="document.getElementById('log-perf-rpe-val').textContent=this.value"/>
+      <span class="rpe-val" id="log-perf-rpe-val">7</span>
+    </div>
+
+    <div class="flabel">Notes</div>
+    <textarea class="finp" id="log-perf-notes" placeholder="How it went, what felt good or tough..."></textarea>
+
+    <div class="gap-8 mt-8">
+      <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-log-perf')">Cancel</button>
+      <button class="btn btn-primary" style="flex:2" onclick="saveClientPerformance()">Save Log</button>
+    </div>
   </div>
 </div>
 
@@ -2797,7 +2837,10 @@ function assignedCardHTML(a, viewerUnit, clientObj){
   const cObj = clientObj || DB.clients.find(x=>x.id===(currentClientId||activeClientPanel));
   return `<div class="assigned-card">
     <div class="assigned-head">
-      <div class="assigned-label">Assigned program</div>
+      <div style="display:flex;align-items:center;gap:0;">
+        <div class="assigned-label">Assigned program</div>
+        ${a.completions&&a.completions.length?`<span class="completion-badge">✓ ${a.completions.length}x done</span>`:''}
+      </div>
       <div class="assigned-title">${a.title}</div>
       ${a.desc?`<div class="assigned-desc">${a.desc}</div>`:''}
     </div>
@@ -2826,8 +2869,87 @@ function assignedCardHTML(a, viewerUnit, clientObj){
         </div>`;
       }).join('')}
     </div>`:''}
+
+  ${(activeRole==='client'&&currentClientId)?('<button class="log-perf-btn" onclick="openLogPerfModal(\''+a.id+'\',event)">\u2713 Log my performance</button>'):''}
   </div>`;
 }
+
+
+function openLogPerfModal(assignedId, e){
+  if(e) e.stopPropagation();
+  const c=DB.clients.find(x=>x.id===currentClientId);
+  if(!c) return;
+  const a=c.assigned.find(x=>x.id===assignedId);
+  if(!a) return;
+  document.getElementById('modal-log-perf').dataset.assignedId=assignedId;
+  document.getElementById('log-perf-title').textContent='Log: '+a.title;
+  document.getElementById('log-perf-desc').textContent=a.desc||'';
+  document.getElementById('log-perf-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('log-perf-rpe').value=7;
+  document.getElementById('log-perf-rpe-val').textContent='7';
+  document.getElementById('log-perf-notes').value='';
+  document.getElementById('log-perf-wt-hdr').textContent=clientUnit;
+  const rows=document.getElementById('log-perf-ex-rows');
+  rows.innerHTML='';
+  const exList=(a.exercises&&a.exercises.length)?a.exercises:[{name:'',sets:'',reps:'',weight:''}];
+  exList.forEach(function(ex){
+    const row=document.createElement('div');
+    row.className='perf-ex-input-row';
+    row.innerHTML=
+      '<input class="finp" value="'+ex.name+'" placeholder="Exercise" style="padding:7px 9px;font-size:12px;"/>'+
+      '<input class="finp" value="'+ex.sets+'" placeholder="3" type="number" style="padding:7px 9px;font-size:12px;text-align:center;"/>'+
+      '<input class="finp" value="'+ex.reps+'" placeholder="10" style="padding:7px 9px;font-size:12px;text-align:center;"/>'+
+      '<input class="finp" placeholder="'+clientUnit+'" style="padding:7px 9px;font-size:12px;text-align:center;"/>';
+    rows.appendChild(row);
+  });
+  openModal('modal-log-perf');
+}
+
+function saveClientPerformance(){
+  const c=DB.clients.find(x=>x.id===currentClientId);
+  if(!c) return;
+  const assignedId=document.getElementById('modal-log-perf').dataset.assignedId;
+  const a=c.assigned.find(x=>x.id===assignedId);
+  const date=document.getElementById('log-perf-date').value||new Date().toISOString().split('T')[0];
+  const rpe=parseInt(document.getElementById('log-perf-rpe').value)||7;
+  const notes=document.getElementById('log-perf-notes').value;
+  const rows=document.querySelectorAll('#log-perf-ex-rows .perf-ex-input-row');
+  const exercises=[];
+  rows.forEach(function(row){
+    const inps=row.querySelectorAll('input');
+    const name=(inps[0]&&inps[0].value.trim())||'';
+    if(name) exercises.push({name:name,sets:(inps[1]&&inps[1].value)||'-',reps:(inps[2]&&inps[2].value)||'-',weight:(inps[3]&&inps[3].value)||'-',unit:clientUnit});
+  });
+  if(!c.history) c.history=[];
+  c.history.unshift({id:'cp'+Date.now(),date:date,type:(a?a.title:'Self-logged')+' (self-logged)',duration:0,rpe:rpe,notes:notes,exercises:exercises,selfLogged:true,assignedId:assignedId});
+  if(a){if(!a.completions)a.completions=[];a.completions.unshift({date:date,rpe:rpe,notes:notes});}
+  c.sessions=(c.sessions||0)+1;
+  saveData(DB);
+  closeModal('modal-log-perf');
+  addNotification('trainer','session',c.name+' logged a workout','Completed: '+(a?a.title:'self-logged')+' \u00b7 RPE '+rpe);
+  const pbs=[];
+  exercises.forEach(function(ex){
+    const newW=parseFloat(ex.weight);
+    if(!newW||isNaN(newW)) return;
+    let prevBest=0;
+    c.history.slice(1).forEach(function(sess){
+      sess.exercises.forEach(function(e){if(e.name.toLowerCase()===ex.name.toLowerCase()){const w=parseFloat(e.weight);if(w>prevBest)prevBest=w;}});
+    });
+    if(newW>prevBest) pbs.push({name:ex.name,value:newW,prev:prevBest,unit:clientUnit,type:'exercise',icon:'\ud83c\udfc6'});
+  });
+  renderClientWorkouts(c);
+  renderClientFeed(c);
+  const statEl=document.querySelector('#c-stats .stat-n');
+  if(statEl) statEl.textContent=c.sessions;
+  if(pbs.length>0){
+    const best=pbs.sort(function(a,b){return b.value-a.value;})[0];
+    addNotification('trainer','pb',c.name+' hit a Personal Best!','New PB on '+best.name+': '+best.value+best.unit);
+    setTimeout(function(){showPB(best,c.name);},400);
+  } else {
+    showToast('Workout logged \u2713');
+  }
+}
+
 
 function playVideo(id,encoded){
   const v=JSON.parse(decodeURIComponent(encoded));
