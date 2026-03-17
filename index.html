@@ -1323,7 +1323,11 @@ function switchTab(role, tab){
   document.querySelectorAll(`[id^="${prefix}-tab-"]`).forEach(el=>el.classList.add('hidden'));
   document.getElementById(`${prefix}-tab-${tab}`).classList.remove('hidden');
   document.querySelectorAll(`[id^="${prefix}nav-"]`).forEach(el=>el.classList.remove('active'));
-  document.getElementById(`${prefix}nav-${tab}`).classList.add('active');
+  document.getElementById(`${prefix}nav-${tab}`)?.classList.add('active');
+  if(role==='t'&&tab==='schedule') renderSchedule();
+  if(role==='t'&&tab==='messages') initTrainerMessageTab();
+  if(role==='c'&&tab==='settings') loadClientSettingsTab();
+  if(role==='c'&&tab==='messages') renderClientMessages();
 }
 
 function openPanel(id){
