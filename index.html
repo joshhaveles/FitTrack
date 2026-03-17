@@ -49,10 +49,7 @@ input,select,textarea,button{font-family:'Plus Jakarta Sans',sans-serif;}
 #app{height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direction:column;}
 .screen{display:none;flex:1;flex-direction:column;overflow:hidden;}
 .screen.active{display:flex;}
-[id$="-tab-messages"]:not(.hidden){display:flex!important;}
 .scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
-[id$="-tab-messages"].scroll-area{overflow-y:hidden;}
-[id$="-tab-messages"] .scroll-area{flex:1;}
 .scroll-area::-webkit-scrollbar{width:3px;}
 .scroll-area::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px;}
 
@@ -306,29 +303,9 @@ select.finp{cursor:pointer;}
 .divider{height:1px;background:var(--border);margin:14px 0;}
 .hidden{display:none!important;}
 
-/* ── HOME MESSAGE STRIP ── */
-.home-msg-strip{margin:16px 16px 0;border-radius:var(--r);background:var(--bg2);border:1px solid var(--border2);overflow:hidden;}
-.home-msg-strip-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px 8px;}
-.home-msg-strip-title{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;}
-.home-msg-strip-see-all{font-size:12px;color:var(--lime);font-weight:600;cursor:pointer;}
-.home-msg-preview{padding:0 14px 10px;max-height:90px;overflow:hidden;}
-.home-msg-preview-item{font-size:12px;color:var(--text2);line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:2px 0;}
-.home-msg-preview-item b{color:var(--text);font-weight:600;}
-.home-msg-input-row{display:flex;gap:8px;padding:8px 10px;border-top:1px solid var(--border);background:var(--bg3);}
-.home-msg-inp{flex:1;background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:7px 12px;color:var(--text);font-size:12px;outline:none;font-family:"Plus Jakarta Sans",sans-serif;}
-.home-msg-inp:focus{border-color:var(--lime);}
-.home-msg-inp::placeholder{color:var(--text3);}
-.home-msg-send{width:30px;height:30px;border-radius:50%;background:var(--lime);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;align-self:center;}
-
-@media(min-width:768px){
-  .home-msg-strip{margin:16px 28px 0;}
-}
-
 /* ── NOTIFICATION BADGE ── */
 .notif-badge{position:absolute;top:-3px;right:-3px;background:var(--red);color:#fff;font-size:9px;font-weight:800;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;pointer-events:none;line-height:1;}
 .nav-tab{position:relative;}
-
-/* ── NOTIFICATION PANEL ── */
 .notif-panel{position:fixed;top:0;right:0;bottom:0;width:320px;max-width:95vw;background:var(--bg2);border-left:1px solid var(--border2);z-index:300;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);visibility:hidden;}
 .notif-panel.open{transform:translateX(0);visibility:visible;}
 .notif-header{padding:20px 16px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0;}
@@ -342,16 +319,13 @@ select.finp{cursor:pointer;}
 .notif-text{font-size:13px;color:var(--text);line-height:1.4;}
 .notif-time{font-size:11px;color:var(--text3);margin-top:3px;font-family:"DM Mono",monospace;}
 .notif-unread-dot{width:7px;height:7px;border-radius:50%;background:var(--lime);flex-shrink:0;margin-top:5px;}
-
-/* ── MESSAGES ── */
 .msg-feed{display:flex;flex-direction:column;gap:12px;padding:16px;}
 .msg-item{display:flex;gap:10px;align-items:flex-start;}
 .msg-item.mine{flex-direction:row-reverse;}
 .msg-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
-.msg-bubble{max-width:75%;background:var(--bg3);border-radius:14px;padding:10px 13px;position:relative;}
+.msg-bubble{max-width:75%;background:var(--bg3);border-radius:14px;padding:10px 13px;}
 .msg-item.mine .msg-bubble{background:var(--lime-dim);border:1px solid rgba(212,245,60,0.25);}
 .msg-text{font-size:13px;color:var(--text);line-height:1.5;}
-.msg-item.mine .msg-text{color:var(--text);}
 .msg-time{font-size:10px;color:var(--text3);margin-top:4px;font-family:"DM Mono",monospace;}
 .msg-input-bar{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--border);flex-shrink:0;background:var(--bg2);}
 .msg-input{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:9px 14px;color:var(--text);font-size:13px;outline:none;font-family:"Plus Jakarta Sans",sans-serif;resize:none;}
@@ -359,18 +333,15 @@ select.finp{cursor:pointer;}
 .msg-send{width:36px;height:36px;border-radius:50%;background:var(--lime);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;transition:background .15s;align-self:flex-end;}
 .msg-send:hover{background:var(--lime2);}
 .msg-day-divider{text-align:center;font-size:10px;color:var(--text3);font-family:"DM Mono",monospace;margin:4px 0;}
-
-/* ── IN-APP ALERT BANNER ── */
 .alert-banner{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:12px 16px;min-width:260px;max-width:90vw;z-index:600;box-shadow:0 8px 24px rgba(0,0,0,.5);display:flex;align-items:center;gap:12px;transition:transform .35s cubic-bezier(.34,1.56,.64,1);cursor:pointer;}
 .alert-banner.show{transform:translateX(-50%) translateY(0);}
 .alert-icon{font-size:20px;flex-shrink:0;}
 .alert-body{flex:1;min-width:0;}
 .alert-title{font-size:13px;font-weight:700;color:var(--text);}
 .alert-sub{font-size:11px;color:var(--text2);margin-top:1px;}
-
-@media(min-width:768px){
-  .notif-panel{top:0;right:0;width:360px;}
-}
+/* Messages tab needs flex layout */
+#t-tab-messages:not(.hidden),#c-tab-messages:not(.hidden){display:flex;flex-direction:column;}
+@media(min-width:768px){.notif-panel{width:360px;}}
 
 /* ── AVATAR DROPDOWN ── */
 .avatar-menu-wrap{position:relative;display:inline-flex;}
@@ -535,24 +506,6 @@ select.finp{cursor:pointer;}
         <div class="sec-action" onclick="switchTab('t','schedule')">See all</div>
       </div>
       <div id="t-today-sessions"></div>
-
-      <!-- Home message strip -->
-      <div class="home-msg-strip" id="t-home-msg-strip">
-        <div class="home-msg-strip-header">
-          <div class="home-msg-strip-title">Messages</div>
-          <div class="home-msg-strip-see-all" onclick="switchTab('t','messages')">See all →</div>
-        </div>
-        <div class="home-msg-preview" id="t-home-msg-preview">
-          <div style="font-size:12px;color:var(--text3);padding:2px 0;">Select a client in Messages to start chatting.</div>
-        </div>
-        <div class="home-msg-input-row">
-          <select style="background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r-sm);padding:5px 8px;color:var(--text);font-size:11px;outline:none;max-width:110px;flex-shrink:0;" id="t-home-msg-sel" onchange="refreshHomePreview()"></select>
-          <input class="home-msg-inp" id="t-home-msg-inp" placeholder="Quick message..." 
-            onkeydown="if(event.key==='Enter'){sendHomeTrainerMessage();}"/>
-          <button class="home-msg-send" onclick="sendHomeTrainerMessage()">➤</button>
-        </div>
-      </div>
-      <div style="height:16px;"></div>
     </div>
 
     <!-- TRAINER: SCHEDULE TAB -->
@@ -627,14 +580,12 @@ select.finp{cursor:pointer;}
     </div>
 
     <!-- TRAINER: MESSAGES TAB -->
-    <div id="t-tab-messages" class="scroll-area hidden" style="flex:1;display:flex!important;flex-direction:column;overflow:hidden;">
+    <div id="t-tab-messages" class="hidden" style="flex:1;flex-direction:column;overflow:hidden;">
       <div class="topbar" style="flex-shrink:0;">
         <div class="topbar-title">Messages</div>
       </div>
       <div style="padding:0 16px 10px;flex-shrink:0;">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <select class="finp" id="t-msg-client-sel" onchange="renderTrainerMessages()" style="margin-bottom:0;flex:1;"></select>
-        </div>
+        <select class="finp" id="t-msg-client-sel" onchange="renderTrainerMessages()" style="margin-bottom:0;"></select>
       </div>
       <div class="scroll-area" style="flex:1;" id="t-msg-feed"></div>
       <div class="msg-input-bar">
@@ -700,12 +651,7 @@ select.finp{cursor:pointer;}
     <div id="c-tab-home" class="scroll-area" style="flex:1;">
       <div class="topbar" style="padding-top:20px;">
         <div></div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div class="icon-btn" style="position:relative;" onclick="openNotifPanel('client')" id="c-notif-btn">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-            <span class="notif-badge" id="c-notif-badge" style="display:none;">0</span>
-          </div>
-          <div class="avatar-menu-wrap" id="client-avatar-wrap">
+        <div class="avatar-menu-wrap" id="client-avatar-wrap">
           <div class="avatar-sm" id="c-avatar" style="background:var(--lime-dim);color:var(--lime);cursor:pointer;" onclick="toggleAvatarMenu('client-menu')"></div>
           <div class="avatar-menu" id="client-menu">
             <div class="avatar-menu-header">
@@ -720,7 +666,6 @@ select.finp{cursor:pointer;}
             </div>
           </div>
         </div>
-        </div>
       </div>
       <div class="feed-hello">
         <div class="feed-hello-name" id="c-hello-name"></div>
@@ -729,23 +674,6 @@ select.finp{cursor:pointer;}
       <div class="stats-row" id="c-stats"></div>
       <div class="feed-section-label">FROM YOUR TRAINER</div>
       <div id="c-feed"></div>
-
-      <!-- Home message strip -->
-      <div class="home-msg-strip" id="c-home-msg-strip">
-        <div class="home-msg-strip-header">
-          <div class="home-msg-strip-title" id="c-home-msg-trainer-label">Trainer</div>
-          <div class="home-msg-strip-see-all" onclick="switchTab('c','messages')">See all →</div>
-        </div>
-        <div class="home-msg-preview" id="c-home-msg-preview">
-          <div style="font-size:12px;color:var(--text3);padding:2px 0;">No messages yet.</div>
-        </div>
-        <div class="home-msg-input-row">
-          <input class="home-msg-inp" id="c-home-msg-inp" placeholder="Message your trainer..."
-            onkeydown="if(event.key==='Enter'){sendHomeClientMessage();}"/>
-          <button class="home-msg-send" onclick="sendHomeClientMessage()">➤</button>
-        </div>
-      </div>
-      <div style="height:16px;"></div>
     </div>
 
     <!-- CLIENT: WORKOUTS TAB -->
@@ -857,7 +785,7 @@ select.finp{cursor:pointer;}
     </div>
 
     <!-- CLIENT: MESSAGES TAB -->
-    <div id="c-tab-messages" class="scroll-area hidden" style="flex:1;display:flex!important;flex-direction:column;overflow:hidden;">
+    <div id="c-tab-messages" class="hidden" style="flex:1;flex-direction:column;overflow:hidden;">
       <div class="topbar" style="flex-shrink:0;">
         <div class="topbar-title">Messages</div>
         <div style="font-size:12px;color:var(--text3);" id="c-msg-trainer-name"></div>
@@ -1230,8 +1158,6 @@ select.finp{cursor:pointer;}
   <div class="scroll-area" id="notif-list" style="flex:1;"></div>
 </div>
 <div id="notif-overlay" style="display:none;position:fixed;inset:0;z-index:299;" onclick="closeNotifPanel()"></div>
-
-<!-- IN-APP ALERT BANNER -->
 <div class="alert-banner" id="alert-banner" onclick="handleAlertClick()">
   <div class="alert-icon" id="alert-icon">🔔</div>
   <div class="alert-body">
@@ -1253,6 +1179,19 @@ const STORE = {
 function loadData(){
   let d = STORE.get('data');
   if(!d) d = defaultData();
+  // Migrate older saved data to include new fields
+  if(!d.messages) d.messages={};
+  if(!d.notifications) d.notifications={trainer:[],clients:{}};
+  if(!d.notifications.trainer) d.notifications.trainer=[];
+  if(!d.notifications.clients) d.notifications.clients={};
+  // Ensure all clients have required arrays
+  if(d.clients) d.clients.forEach(c=>{
+    if(!c.videos) c.videos=[];
+    if(!c.assigned) c.assigned=[];
+    if(!c.notes) c.notes=[];
+    if(!c.history) c.history=[];
+    if(!c.bodyComp) c.bodyComp=[];
+  });
   return d;
 }
 function saveData(d){STORE.set('data',d);}
@@ -1384,11 +1323,7 @@ function switchTab(role, tab){
   document.querySelectorAll(`[id^="${prefix}-tab-"]`).forEach(el=>el.classList.add('hidden'));
   document.getElementById(`${prefix}-tab-${tab}`).classList.remove('hidden');
   document.querySelectorAll(`[id^="${prefix}nav-"]`).forEach(el=>el.classList.remove('active'));
-  document.getElementById(`${prefix}nav-${tab}`)?.classList.add('active');
-  if(role==='t'&&tab==='schedule') renderSchedule();
-  if(role==='t'&&tab==='messages') initTrainerMessageTab();
-  if(role==='c'&&tab==='settings') loadClientSettingsTab();
-  if(role==='c'&&tab==='messages') renderClientMessages();
+  document.getElementById(`${prefix}nav-${tab}`).classList.add('active');
 }
 
 function openPanel(id){
@@ -1456,7 +1391,6 @@ function initTrainer(){
   if(tNsb) tNsb.textContent=DB.trainer.name;
   applyResponsiveLayout();
   updateNotifBadges();
-  initHomeStrips();
   switchTab('t','home');
 }
 
@@ -2130,7 +2064,7 @@ function saveAssignedWorkout(){
   saveData(DB);
   closeModal('modal-assign');
   renderPanelAssigned();
-  addNotification(activeClientPanel,'workout','New workout assigned','Your trainer assigned you: '+title);
+  addNotification(activeClientPanel,'workout','New workout assigned','Your trainer assigned you: '+document.getElementById('aw-title').value);
   showToast('Workout assigned ✓');
 }
 
@@ -2713,14 +2647,9 @@ function saveSession(){
   renderTrainerStats();
   renderClientGrid();
 
-  // Notify client — session logged
-  const sessionType=document.getElementById('log-type').value;
-  addNotification(clientId,'session','Session logged','Your trainer logged a '+sessionType+' session for you.');
-
   if(pbs.length>0){
+    // Show the most impressive PB (biggest absolute value)
     const best=pbs.sort((a,b)=>b.value-a.value)[0];
-    // Notify client of PB too
-    addNotification(clientId,'pb','Personal Best! 🏆',`New PB on ${best.name}: ${best.value}${best.unit}`);
     setTimeout(()=>showPB(best, c.name), 400);
   } else {
     showToast(`Session logged for ${c.name} ✓`);
@@ -2761,7 +2690,6 @@ function initClient(c){
   if(cNsb) cNsb.textContent=c.name;
   applyResponsiveLayout();
   updateNotifBadges();
-  refreshClientHomePreview();
   switchTab('c','home');
   // Apply saved unit pref to settings UI
   setTimeout(()=>setClientUnit(clientUnit), 50);
@@ -2933,91 +2861,8 @@ function formatDate(d){
   return new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
 }
 
-// ── HOME TAB MESSAGE STRIP ───────────────────────────
-function initHomeStrips(){
-  // Trainer: populate client selector
-  const sel=document.getElementById('t-home-msg-sel');
-  if(sel){
-    sel.innerHTML='<option value="">Pick client</option>'+DB.clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
-    sel.value=DB.clients.length?DB.clients[0].id:'';
-    refreshHomePreview();
-  }
-}
-
-function refreshHomePreview(){
-  // Trainer home preview
-  const sel=document.getElementById('t-home-msg-sel');
-  const clientId=sel?sel.value:'';
-  const prev=document.getElementById('t-home-msg-preview');
-  if(prev){
-    if(!clientId){
-      prev.innerHTML='<div style="font-size:12px;color:var(--text3);padding:2px 0;">Pick a client to preview messages.</div>';
-    } else {
-      const msgs=getMessages(clientId).slice(-3);
-      const c=DB.clients.find(x=>x.id===clientId);
-      if(!msgs.length){
-        prev.innerHTML=`<div style="font-size:12px;color:var(--text3);padding:2px 0;">No messages with ${c?c.name:'this client'} yet.</div>`;
-      } else {
-        prev.innerHTML=msgs.map(m=>{
-          const sender=m.sender==='trainer'?'You':(c?c.name:'Client');
-          return `<div class="home-msg-preview-item"><b>${sender}:</b> ${escapeHtml(m.text)}</div>`;
-        }).join('');
-      }
-    }
-  }
-}
-
-function refreshClientHomePreview(){
-  if(!currentClientId) return;
-  const msgs=getMessages(currentClientId).slice(-3);
-  const prev=document.getElementById('c-home-msg-preview');
-  const lbl=document.getElementById('c-home-msg-trainer-label');
-  if(lbl) lbl.textContent=DB.trainer.name;
-  if(prev){
-    if(!msgs.length){
-      prev.innerHTML='<div style="font-size:12px;color:var(--text3);padding:2px 0;">No messages yet. Say hello!</div>';
-    } else {
-      prev.innerHTML=msgs.map(m=>{
-        const sender=m.sender==='trainer'?DB.trainer.name:'You';
-        return `<div class="home-msg-preview-item"><b>${sender}:</b> ${escapeHtml(m.text)}</div>`;
-      }).join('');
-    }
-  }
-}
-
-function sendHomeTrainerMessage(){
-  const sel=document.getElementById('t-home-msg-sel');
-  const clientId=sel?sel.value:'';
-  const inp=document.getElementById('t-home-msg-inp');
-  const text=(inp?inp.value:'').trim();
-  if(!text||!clientId){if(!clientId)showToast('Pick a client first');return;}
-  addMessage(clientId,'trainer',text);
-  inp.value='';
-  refreshHomePreview();
-  // Also refresh full messages tab if open
-  renderTrainerMessages();
-  const c=DB.clients.find(x=>x.id===clientId);
-  if(c) addNotification(clientId,'message',`New message from your trainer`,text.slice(0,60)+(text.length>60?'...':''));
-}
-
-function sendHomeClientMessage(){
-  const inp=document.getElementById('c-home-msg-inp');
-  const text=(inp?inp.value:'').trim();
-  if(!text||!currentClientId) return;
-  addMessage(currentClientId,'client',text);
-  inp.value='';
-  refreshClientHomePreview();
-  renderClientMessages();
-  const c=DB.clients.find(x=>x.id===currentClientId);
-  if(c) addNotification('trainer','message',`New message from ${c.name}`,text.slice(0,60)+(text.length>60?'...':''));
-}
-
-// ══════════════════════════════════════════════════
-//  NOTIFICATIONS SYSTEM
-// ══════════════════════════════════════════════════
-// type: 'message'|'workout'|'pb'|'session'|'reminder'
-// target: 'trainer' | clientId
-function addNotification(target, type, title, body, actionData){
+// ══ NOTIFICATIONS ═══════════════════════════════════
+function addNotification(target,type,title,body,actionData){
   if(!DB.notifications) DB.notifications={trainer:[],clients:{}};
   const notif={id:'n'+Date.now()+Math.random().toString(36).slice(2,6),type,title,body,ts:Date.now(),read:false,actionData:actionData||null};
   if(target==='trainer'){
@@ -3030,9 +2875,8 @@ function addNotification(target, type, title, body, actionData){
   }
   saveData(DB);
   updateNotifBadges();
-  // Show in-app banner if the recipient is currently logged in
-  if(target==='trainer' && activeRole==='trainer') showAlertBanner(notif);
-  if(target!=='trainer' && activeRole==='client' && target===currentClientId) showAlertBanner(notif);
+  if(target==='trainer'&&activeRole==='trainer') showAlertBanner(notif);
+  if(target!=='trainer'&&activeRole==='client'&&target===currentClientId) showAlertBanner(notif);
 }
 
 function getNotifs(target){
@@ -3041,32 +2885,20 @@ function getNotifs(target){
   return (DB.notifications.clients&&DB.notifications.clients[target])||[];
 }
 
-function unreadCount(target){
-  return getNotifs(target).filter(n=>!n.read).length;
-}
+function unreadCount(target){return getNotifs(target).filter(n=>!n.read).length;}
 
 function updateNotifBadges(){
-  // Trainer bell
   const tc=activeRole==='trainer'?unreadCount('trainer'):0;
   const tb=document.getElementById('t-notif-badge');
   if(tb){tb.textContent=tc;tb.style.display=tc>0?'flex':'none';}
-  // Trainer messages nav badge
   const tmb=document.getElementById('tnav-msg-badge');
-  if(tmb){
-    const tmc=(DB.notifications&&DB.notifications.trainer)?DB.notifications.trainer.filter(n=>!n.read&&n.type==='message').length:0;
-    tmb.textContent=tmc;tmb.style.display=tmc>0?'flex':'none';
-  }
-  // Client bell
+  if(tmb){const tmc=(DB.notifications&&DB.notifications.trainer)?DB.notifications.trainer.filter(n=>!n.read&&n.type==='message').length:0;tmb.textContent=tmc;tmb.style.display=tmc>0?'flex':'none';}
   if(activeRole==='client'&&currentClientId){
     const cc=unreadCount(currentClientId);
     const cb=document.getElementById('c-notif-badge');
     if(cb){cb.textContent=cc;cb.style.display=cc>0?'flex':'none';}
-    // Client messages nav badge
     const cmb=document.getElementById('cnav-msg-badge');
-    if(cmb){
-      const cmc=getNotifs(currentClientId).filter(n=>!n.read&&n.type==='message').length;
-      cmb.textContent=cmc;cmb.style.display=cmc>0?'flex':'none';
-    }
+    if(cmb){const cmc=getNotifs(currentClientId).filter(n=>!n.read&&n.type==='message').length;cmb.textContent=cmc;cmb.style.display=cmc>0?'flex':'none';}
   }
 }
 
@@ -3101,24 +2933,16 @@ function closeNotifPanel(){
   document.getElementById('notif-overlay').style.display='none';
 }
 
-function handleNotifClick(target, notifId){
-  const notifs=getNotifs(target);
-  const n=notifs.find(x=>x.id===notifId);
+function handleNotifClick(target,notifId){
+  const n=getNotifs(target).find(x=>x.id===notifId);
   if(n) n.read=true;
   saveData(DB);
   updateNotifBadges();
   closeNotifPanel();
-  // Navigate to relevant section
   if(n){
-    if(n.type==='message'){
-      if(target==='trainer') switchTab('t','messages');
-      else switchTab('c','messages');
-    } else if(n.type==='workout'||n.type==='session'){
-      if(target!=='trainer') switchTab('c','workouts');
-    }
+    if(n.type==='message'){if(target==='trainer')switchTab('t','messages');else switchTab('c','messages');}
+    else if(n.type==='workout'||n.type==='session'){if(target!=='trainer')switchTab('c','workouts');}
   }
-  openNotifPanel(target==='trainer'?'trainer':'client');
-  closeNotifPanel();
 }
 
 function markAllNotifsRead(){
@@ -3129,9 +2953,7 @@ function markAllNotifsRead(){
   openNotifPanel(activeRole);
 }
 
-// ── IN-APP ALERT BANNER ──────────────────────────────
-let alertTimeout=null;
-let alertAction=null;
+let alertTimeout=null,alertAction=null;
 function showAlertBanner(notif){
   const icons={message:'💬',workout:'📋',pb:'🏆',session:'✅',reminder:'⏰'};
   document.getElementById('alert-icon').textContent=icons[notif.type]||'🔔';
@@ -3147,17 +2969,13 @@ function showAlertBanner(notif){
 function handleAlertClick(){
   document.getElementById('alert-banner').classList.remove('show');
   if(alertAction){
-    if(alertAction.type==='message'){
-      if(activeRole==='trainer') switchTab('t','messages');
-      else switchTab('c','messages');
-    }
+    if(alertAction.type==='message'){if(activeRole==='trainer')switchTab('t','messages');else switchTab('c','messages');}
     alertAction=null;
   }
 }
 
 function timeAgo(ts){
-  const diff=Date.now()-ts;
-  const mins=Math.floor(diff/60000);
+  const diff=Date.now()-ts,mins=Math.floor(diff/60000);
   if(mins<1) return 'Just now';
   if(mins<60) return `${mins}m ago`;
   const hrs=Math.floor(mins/60);
@@ -3165,15 +2983,13 @@ function timeAgo(ts){
   return `${Math.floor(hrs/24)}d ago`;
 }
 
-// ══════════════════════════════════════════════════
-//  MESSAGING SYSTEM
-// ══════════════════════════════════════════════════
+// ══ MESSAGING ════════════════════════════════════════
 function getMessages(clientId){
   if(!DB.messages) DB.messages={};
   return DB.messages[clientId]||[];
 }
 
-function addMessage(clientId, senderRole, text){
+function addMessage(clientId,senderRole,text){
   if(!DB.messages) DB.messages={};
   if(!DB.messages[clientId]) DB.messages[clientId]=[];
   const msg={id:'m'+Date.now(),sender:senderRole,text,ts:Date.now()};
@@ -3182,23 +2998,27 @@ function addMessage(clientId, senderRole, text){
   return msg;
 }
 
-function renderMessages(clientId, feedEl, myRole, myColor, myInitials, theirColor, theirInitials){
+function escapeHtml(t){
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderMessages(clientId,myRole,feed){
   const msgs=getMessages(clientId);
+  const c=DB.clients.find(x=>x.id===clientId);
+  if(!c) return;
+  const trainerInitials=DB.trainer.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
   if(!msgs.length){
-    feedEl.innerHTML='<div class="empty-state" style="padding:40px 20px;"><div class="empty-icon">💬</div><div class="empty-msg">No messages yet. Say hello!</div></div>';
+    feed.innerHTML='<div class="empty-state"><div class="empty-icon">💬</div><div class="empty-msg">No messages yet. Say hello!</div></div>';
     return;
   }
   let html='<div class="msg-feed">';
   let lastDate='';
   msgs.forEach(m=>{
     const d=new Date(m.ts).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-    if(d!==lastDate){
-      html+=`<div class="msg-day-divider">${d}</div>`;
-      lastDate=d;
-    }
+    if(d!==lastDate){html+=`<div class="msg-day-divider">${d}</div>`;lastDate=d;}
     const mine=m.sender===myRole;
-    const color=mine?myColor:theirColor;
-    const initials=mine?myInitials:theirInitials;
+    const color=mine?(myRole==='trainer'?'var(--lime)':c.color):(myRole==='trainer'?c.color:'var(--lime)');
+    const initials=mine?(myRole==='trainer'?trainerInitials:c.initials):(myRole==='trainer'?c.initials:trainerInitials);
     const time=new Date(m.ts).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
     html+=`<div class="msg-item${mine?' mine':''}">
       <div class="msg-avatar" style="background:${color}22;color:${color};">${initials}</div>
@@ -3209,15 +3029,19 @@ function renderMessages(clientId, feedEl, myRole, myColor, myInitials, theirColo
     </div>`;
   });
   html+='</div>';
-  feedEl.innerHTML=html;
-  feedEl.scrollTop=feedEl.scrollHeight;
+  feed.innerHTML=html;
+  feed.scrollTop=feed.scrollHeight;
 }
 
-function escapeHtml(t){
-  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function initTrainerMessageTab(){
+  const sel=document.getElementById('t-msg-client-sel');
+  if(!sel) return;
+  const prev=sel.value;
+  sel.innerHTML='<option value="">— Select a client —</option>'+DB.clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  if(prev) sel.value=prev;
+  renderTrainerMessages();
 }
 
-// ── TRAINER MESSAGES ─────────────────────────────────
 function renderTrainerMessages(){
   const sel=document.getElementById('t-msg-client-sel');
   const clientId=sel?sel.value:'';
@@ -3230,12 +3054,7 @@ function renderTrainerMessages(){
   if(!c) return;
   const inp=document.getElementById('t-msg-input');
   if(inp) inp.placeholder=`Message ${c.name}...`;
-  // Sync home strip selector
-  const hsel=document.getElementById('t-home-msg-sel');
-  if(hsel&&clientId) hsel.value=clientId;
-  renderMessages(clientId,'trainer','client',c.color,c.initials,'var(--lime)',
-    DB.trainer.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2),feed);
-  refreshHomePreview();
+  renderMessages(clientId,'trainer',feed);
 }
 
 function sendTrainerMessage(){
@@ -3247,30 +3066,17 @@ function sendTrainerMessage(){
   addMessage(clientId,'trainer',text);
   inp.value='';
   renderTrainerMessages();
-  refreshHomePreview();
   const c=DB.clients.find(x=>x.id===clientId);
   if(c) addNotification(clientId,'message',`New message from your trainer`,text.slice(0,60)+(text.length>60?'...':''));
 }
 
-function initTrainerMessageTab(){
-  const sel=document.getElementById('t-msg-client-sel');
-  if(!sel) return;
-  const prev=sel.value;
-  sel.innerHTML='<option value="">— Select a client —</option>'+DB.clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
-  if(prev) sel.value=prev;
-  renderTrainerMessages();
-}
-
-// ── CLIENT MESSAGES ──────────────────────────────────
 function renderClientMessages(){
   const c=DB.clients.find(x=>x.id===currentClientId);
   if(!c) return;
   const feed=document.getElementById('c-msg-feed');
   const tnl=document.getElementById('c-msg-trainer-name');
   if(tnl) tnl.textContent=DB.trainer.name;
-  renderMessages(currentClientId,'client','trainer','var(--lime)',
-    DB.trainer.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2),
-    c.color,c.initials,feed);
+  renderMessages(currentClientId,'client',feed);
 }
 
 function sendClientMessage(){
@@ -3280,7 +3086,6 @@ function sendClientMessage(){
   addMessage(currentClientId,'client',text);
   inp.value='';
   renderClientMessages();
-  refreshClientHomePreview();
   const c=DB.clients.find(x=>x.id===currentClientId);
   if(c) addNotification('trainer','message',`New message from ${c.name}`,text.slice(0,60)+(text.length>60?'...':''));
 }
