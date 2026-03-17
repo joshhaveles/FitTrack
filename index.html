@@ -596,7 +596,9 @@ select.finp{cursor:pointer;}
         <div class="topbar-title">Messages</div>
       </div>
       <div style="padding:0 16px 10px;flex-shrink:0;">
-        <select class="finp" id="t-msg-client-sel" onchange="renderTrainerMessages()" style="margin-bottom:0;"></select>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <select class="finp" id="t-msg-client-sel" onchange="renderTrainerMessages()" style="margin-bottom:0;flex:1;"></select>
+        </div>
       </div>
       <div class="scroll-area" style="flex:1;" id="t-msg-feed"></div>
       <div class="msg-input-bar">
@@ -1329,7 +1331,11 @@ function switchTab(role, tab){
   document.querySelectorAll(`[id^="${prefix}-tab-"]`).forEach(el=>el.classList.add('hidden'));
   document.getElementById(`${prefix}-tab-${tab}`).classList.remove('hidden');
   document.querySelectorAll(`[id^="${prefix}nav-"]`).forEach(el=>el.classList.remove('active'));
-  document.getElementById(`${prefix}nav-${tab}`).classList.add('active');
+  document.getElementById(`${prefix}nav-${tab}`)?.classList.add('active');
+  if(role==='t'&&tab==='schedule') renderSchedule();
+  if(role==='t'&&tab==='messages') initTrainerMessageTab();
+  if(role==='c'&&tab==='settings') loadClientSettingsTab();
+  if(role==='c'&&tab==='messages') renderClientMessages();
 }
 
 function openPanel(id){
@@ -3081,11 +3087,18 @@ function escapeHtml(t){
 function renderTrainerMessages(){
   const sel=document.getElementById('t-msg-client-sel');
   const clientId=sel?sel.value:'';
-  if(!clientId) return;
+  const feed=document.getElementById('t-msg-feed');
+  if(!clientId){
+    feed.innerHTML='<div class="empty-state"><div class="empty-icon">💬</div><div class="empty-msg">Select a client above to view messages</div></div>';
+    return;
+  }
   const c=DB.clients.find(x=>x.id===clientId);
   if(!c) return;
-  const feed=document.getElementById('t-msg-feed');
-  renderMessages(clientId,'trainer','client',c.color,c.initials,'var(--lime)','JR',feed);
+  // Update input placeholder with client name
+  const inp=document.getElementById('t-msg-input');
+  if(inp) inp.placeholder=`Message ${c.name}...`;
+  renderMessages(clientId,'trainer','client',c.color,c.initials,'var(--lime)',
+    DB.trainer.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2),feed);
 }
 
 function sendTrainerMessage(){
@@ -3105,7 +3118,9 @@ function sendTrainerMessage(){
 function initTrainerMessageTab(){
   const sel=document.getElementById('t-msg-client-sel');
   if(!sel) return;
-  sel.innerHTML=DB.clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  const prev=sel.value;
+  sel.innerHTML='<option value="">— Select a client —</option>'+DB.clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  if(prev) sel.value=prev;
   renderTrainerMessages();
 }
 
