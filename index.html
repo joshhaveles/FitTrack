@@ -302,6 +302,31 @@ select.finp{cursor:pointer;}
 
 .divider{height:1px;background:var(--border);margin:14px 0;}
 .hidden{display:none!important;}
+/* ── WORKOUT LIBRARY ── */
+.lib-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin:0 16px 10px;cursor:pointer;transition:all .15s;}
+.lib-card:hover{border-color:var(--border2);background:var(--bg3);}
+.lib-card-head{display:flex;align-items:flex-start;gap:10px;}
+.lib-card-cat{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;flex-shrink:0;margin-top:2px;}
+.lib-card-title{font-family:"Nunito",sans-serif;font-size:15px;font-weight:800;flex:1;}
+.lib-card-desc{font-size:12px;color:var(--text3);margin-top:3px;}
+.lib-card-meta{display:flex;align-items:center;gap:10px;margin-top:10px;}
+.lib-card-ex-count{font-size:11px;color:var(--text3);}
+.lib-card-actions{display:flex;gap:6px;margin-left:auto;}
+.lib-filter-bar{display:flex;gap:6px;padding:0 16px 12px;overflow-x:auto;flex-shrink:0;}
+.lib-filter-bar::-webkit-scrollbar{display:none;}
+.lib-filter-chip{font-size:11px;font-weight:700;padding:5px 12px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--text3);cursor:pointer;white-space:nowrap;transition:all .15s;font-family:"Plus Jakarta Sans",sans-serif;}
+.lib-filter-chip.active{background:var(--lime-dim);color:var(--lime);border-color:rgba(212,245,60,.3);}
+.cat-strength{background:rgba(91,164,245,.12);color:var(--blue);}
+.cat-cardio{background:rgba(245,147,91,.12);color:var(--orange);}
+.cat-hiit{background:rgba(245,91,91,.12);color:var(--red);}
+.cat-mobility{background:rgba(91,245,164,.12);color:var(--green);}
+.cat-fullbody{background:rgba(212,245,60,.12);color:var(--lime);}
+.cat-custom{background:var(--bg4);color:var(--text2);}
+/* Bulk assign */
+.bulk-client-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;}
+.bulk-client-item:last-child{border-bottom:none;}
+.bulk-check{width:18px;height:18px;border-radius:4px;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
+.bulk-check.checked{background:var(--lime);border-color:var(--lime);color:#000;}
 .log-perf-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px;background:var(--lime-dim);border:none;border-top:1px solid rgba(212,245,60,0.2);color:var(--lime);font-size:13px;font-weight:700;font-family:"Nunito",sans-serif;cursor:pointer;transition:background .15s;}
 .log-perf-btn:hover{background:rgba(212,245,60,0.2);}
 .completion-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--green-dim);color:var(--green);margin-left:8px;vertical-align:middle;}
@@ -437,6 +462,11 @@ select.finp{cursor:pointer;}
 .ex-input-row .finp{margin-bottom:0;padding:8px 10px;font-size:12px;}
 .ex-remove{width:22px;height:22px;border-radius:50%;background:var(--bg4);border:none;color:var(--text3);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
 .ex-remove:hover{background:var(--red-dim);color:var(--red);}
+.ex-rpe-row{display:flex;align-items:center;gap:8px;padding:4px 0 8px;border-bottom:1px solid var(--border);margin-bottom:6px;}
+.ex-rpe-label{font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.6px;white-space:nowrap;min-width:52px;}
+.ex-rpe-slider{flex:1;accent-color:var(--lime);height:3px;cursor:pointer;}
+.ex-rpe-val{font-family:"DM Mono",monospace;font-size:12px;color:var(--lime);font-weight:600;min-width:16px;text-align:right;}
+.ex-block{margin-bottom:4px;}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
@@ -603,6 +633,27 @@ select.finp{cursor:pointer;}
       </div>
     </div>
 
+    <!-- TRAINER: LIBRARY TAB -->
+    <div id="t-tab-library" class="scroll-area hidden" style="flex:1;">
+      <div class="topbar">
+        <div class="topbar-title">Workout Library</div>
+        <div style="display:flex;gap:8px;">
+          <div class="icon-btn" onclick="openBulkAssignModal()" title="Assign to multiple clients" style="font-size:13px;">👥</div>
+          <div class="icon-btn" onclick="openCreateTemplateModal()">＋</div>
+        </div>
+      </div>
+      <div class="lib-filter-bar" id="lib-filter-bar">
+        <button class="lib-filter-chip active" onclick="filterLibrary('all')">All</button>
+        <button class="lib-filter-chip" onclick="filterLibrary('Strength')">Strength</button>
+        <button class="lib-filter-chip" onclick="filterLibrary('Cardio')">Cardio</button>
+        <button class="lib-filter-chip" onclick="filterLibrary('HIIT')">HIIT</button>
+        <button class="lib-filter-chip" onclick="filterLibrary('Mobility')">Mobility</button>
+        <button class="lib-filter-chip" onclick="filterLibrary('Full body')">Full body</button>
+        <button class="lib-filter-chip" onclick="filterLibrary('Custom')">Custom</button>
+      </div>
+      <div id="lib-list" style="padding-bottom:16px;"></div>
+    </div>
+
     <!-- TRAINER BOTTOM NAV (mobile) / SIDEBAR (desktop) -->
     <div class="bottom-nav" id="trainer-nav">
       <!-- Desktop sidebar header -->
@@ -625,6 +676,10 @@ select.finp{cursor:pointer;}
       <div class="nav-tab" id="tnav-log" onclick="switchTab('t','log')">
         <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/><circle cx="12" cy="12" r="9"/></svg>
         <span>Log</span>
+      </div>
+      <div class="nav-tab" id="tnav-library" onclick="switchTab('t','library')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="12" y1="7" x2="16" y2="7"/><line x1="12" y1="11" x2="16" y2="11"/></svg>
+        <span>Library</span>
       </div>
       <div class="nav-tab" id="tnav-messages" onclick="switchTab('t','messages')" style="position:relative;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -1033,10 +1088,73 @@ select.finp{cursor:pointer;}
 </div>
 
 <!-- ASSIGN WORKOUT -->
+<!-- CREATE TEMPLATE MODAL -->
+<div class="modal-overlay hidden" id="modal-create-template" onclick="modalOutsideClose(event,'modal-create-template')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="create-tmpl-title">Create Workout Template</div>
+    <input type="hidden" id="edit-tmpl-id"/>
+    <div class="flabel">Workout Name</div>
+    <input class="finp" id="tmpl-name" placeholder="e.g. Upper Body Strength A"/>
+    <div class="fgrid-2">
+      <div><div class="flabel">Category</div>
+        <select class="finp" id="tmpl-cat">
+          <option>Strength</option><option>Cardio</option><option>HIIT</option>
+          <option>Mobility</option><option>Full body</option><option>Custom</option>
+        </select>
+      </div>
+      <div><div class="flabel">Est. Duration (min)</div>
+        <input class="finp" type="number" id="tmpl-dur" placeholder="45"/>
+      </div>
+    </div>
+    <div class="flabel">Description / Instructions</div>
+    <textarea class="finp" id="tmpl-desc" placeholder="When to do it, rest periods, notes..." style="min-height:60px;"></textarea>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <div class="flabel" style="margin-bottom:0;">Exercises</div>
+      <button class="btn btn-secondary btn-sm" onclick="addTmplExRow()">+ Add</button>
+    </div>
+    <div class="ex-row-hdr" style="grid-template-columns:2fr 1fr 1fr 1fr 28px;"><span>Exercise</span><span>Sets</span><span>Reps</span><span id="tmpl-wt-hdr">Wt.</span><span></span></div>
+    <div id="tmpl-ex-rows"></div>
+    <div class="gap-8 mt-8">
+      <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-create-template')">Cancel</button>
+      <button class="btn btn-primary" style="flex:2" onclick="saveTemplate()">Save Template</button>
+    </div>
+  </div>
+</div>
+
+<!-- BULK ASSIGN MODAL -->
+<div class="modal-overlay hidden" id="modal-bulk-assign" onclick="modalOutsideClose(event,'modal-bulk-assign')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Assign to Clients</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:4px;">Workout: <b id="bulk-assign-workout-name"></b></div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:14px;">Select which clients to assign this workout to.</div>
+    <div id="bulk-client-list"></div>
+    <div class="gap-8 mt-8">
+      <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-bulk-assign')">Cancel</button>
+      <button class="btn btn-primary" style="flex:2" onclick="doBulkAssign()">Assign to Selected</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW TEMPLATE MODAL (from assign panel) -->
+<div class="modal-overlay hidden" id="modal-pick-template" onclick="modalOutsideClose(event,'modal-pick-template')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Pick from Library</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:14px;">Select a template to pre-fill the assign form.</div>
+    <div id="pick-tmpl-list" style="max-height:60vh;overflow-y:auto;"></div>
+    <div class="mt-8">
+      <button class="btn btn-secondary btn-full" onclick="closeModal('modal-pick-template')">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay hidden" id="modal-assign" onclick="modalOutsideClose(event,'modal-assign')">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <div class="modal-title">Assign Workout</div>
+    <button class="btn btn-secondary btn-full" style="margin-bottom:14px;font-size:12px;" onclick="openPickTemplateModal()">📚 Load from library</button>
     <div class="flabel">Workout Title</div>
     <input class="finp" id="aw-title" placeholder="e.g. Home Upper Body A"/>
     <div class="flabel">Description / Instructions</div>
@@ -1225,6 +1343,7 @@ function loadData(){
   if(!d) d = defaultData();
   // Migrate older saved data to include new fields
   if(!d.messages) d.messages={};
+  if(!d.workoutLibrary) d.workoutLibrary=[];
   if(!d.notifications) d.notifications={trainer:[],clients:{}};
   if(!d.notifications.trainer) d.notifications.trainer=[];
   if(!d.notifications.clients) d.notifications.clients={};
@@ -1369,6 +1488,7 @@ function switchTab(role, tab){
   document.querySelectorAll(`[id^="${prefix}nav-"]`).forEach(el=>el.classList.remove('active'));
   document.getElementById(`${prefix}nav-${tab}`)?.classList.add('active');
   if(role==='t'&&tab==='schedule') renderSchedule();
+  if(role==='t'&&tab==='library') renderLibrary();
   if(role==='t'&&tab==='messages') initTrainerMessageTab();
   if(role==='c'&&tab==='settings') loadClientSettingsTab();
   if(role==='c'&&tab==='messages') renderClientMessages();
@@ -1688,8 +1808,8 @@ function renderPanelHistory(){
         <span class="chip chip-gray">${h.exercises.length} ex.</span>
       </div>
       <table class="ex-table">
-        <thead><tr><th>Exercise</th><th>Sets</th><th>Reps</th><th id="tbl-wt-hdr">Wt.</th></tr></thead>
-        <tbody>${h.exercises.map(e=>`<tr><td>${e.name}</td><td>${e.sets}</td><td>${e.reps}</td><td>${displayWeightForViewer(e.weight, e.unit||trainerUnit, trainerUnit)}</td></tr>`).join('')}</tbody>
+        <thead><tr><th>Exercise</th><th>Sets</th><th>Reps</th><th id="tbl-wt-hdr">Wt.</th><th>RPE</th></tr></thead>
+        <tbody>${h.exercises.map(e=>`<tr><td>${e.name}</td><td>${e.sets}</td><td>${e.reps}</td><td>${displayWeightForViewer(e.weight, e.unit||trainerUnit, trainerUnit)}</td><td>${e.rpe?'<span style="font-size:10px;color:var(--lime);">'+e.rpe+'</span>':''}</td></tr>`).join('')}</tbody>
       </table>
       ${h.notes?`<div style="padding:8px 14px 10px;font-size:12px;color:var(--text2);border-top:1px solid var(--border);">${h.notes}</div>`:''}
     </div>`).join('');
@@ -2100,12 +2220,13 @@ document.addEventListener('click', e=>{
 function saveAssignedWorkout(){
   const title=document.getElementById('aw-title').value.trim();
   if(!title){showToast('Add a title');return;}
-  const rows=document.querySelectorAll('#assign-ex-rows .ex-input-row');
+  const rows=document.querySelectorAll('#assign-ex-rows .ex-block');
   const exercises=[];
   rows.forEach(row=>{
-    const inps=row.querySelectorAll('input');
+    const inps=row.querySelectorAll('input[type!=range]');
+    const rpeInp=row.querySelector('.ex-rpe-slider');
     const name=(inps[0]&&inps[0].value.trim())||'';
-    if(name) exercises.push({name,sets:(inps[1]&&inps[1].value)||'-',reps:(inps[2]&&inps[2].value)||'-',weight:(inps[3]&&inps[3].value)||'-',unit:trainerUnit});
+    if(name) exercises.push({name,sets:(inps[1]&&inps[1].value)||'-',reps:(inps[2]&&inps[2].value)||'-',weight:(inps[3]&&inps[3].value)||'-',unit:trainerUnit,rpe:rpeInp?parseInt(rpeInp.value):null});
   });
   const c=DB.clients.find(x=>x.id===activeClientPanel);
   c.assigned.push({id:'a'+Date.now(),title,desc:document.getElementById('aw-desc').value,exercises});
@@ -2607,6 +2728,9 @@ function exKeyNav(e, uid){
 }
 
 function makeExRow(containerId){
+  const block=document.createElement('div');
+  block.className='ex-block';
+
   const row=document.createElement('div');
   row.className='ex-input-row';
   const exWrap=makeExInput(containerId);
@@ -2619,9 +2743,27 @@ function makeExRow(containerId){
   wt.className='finp wt-input';wt.placeholder=trainerUnit;
   const del=document.createElement('button');
   del.className='ex-remove';del.textContent='×';del.type='button';
-  del.onclick=()=>row.remove();
+  del.onclick=()=>block.remove();
   row.appendChild(sets);row.appendChild(reps);row.appendChild(wt);row.appendChild(del);
-  return row;
+  block.appendChild(row);
+
+  // Per-exercise RPE slider
+  const rpeRow=document.createElement('div');
+  rpeRow.className='ex-rpe-row';
+  const rpeSlider=document.createElement('input');
+  rpeSlider.type='range';rpeSlider.min='1';rpeSlider.max='10';rpeSlider.value='7';
+  rpeSlider.className='ex-rpe-slider';
+  const rpeValSpan=document.createElement('span');
+  rpeValSpan.className='ex-rpe-val';rpeValSpan.textContent='7';
+  rpeSlider.addEventListener('input',function(){rpeValSpan.textContent=this.value;});
+  const rpeLabel=document.createElement('span');
+  rpeLabel.className='ex-rpe-label';rpeLabel.textContent='Ex. RPE';
+  rpeRow.appendChild(rpeLabel);
+  rpeRow.appendChild(rpeSlider);
+  rpeRow.appendChild(rpeValSpan);
+  block.appendChild(rpeRow);
+
+  return block;
 }
 
 function initExRows(){
@@ -2658,12 +2800,13 @@ function saveSession(){
   const date=document.getElementById('log-date').value;
   const c=DB.clients.find(x=>x.id===clientId);
   if(!c||!date){showToast('Select a client and date');return;}
-  const rows=document.querySelectorAll('#ex-rows .ex-input-row');
+  const rows=document.querySelectorAll('#ex-rows .ex-block');
   const exercises=[];
   rows.forEach(row=>{
-    const inps=row.querySelectorAll('input');
+    const inps=row.querySelectorAll('input[type!=range]');
+    const rpeInp=row.querySelector('.ex-rpe-slider');
     const name=(inps[0]&&inps[0].value.trim())||'';
-    if(name) exercises.push({name,sets:(inps[1]&&inps[1].value)||'-',reps:(inps[2]&&inps[2].value)||'-',weight:(inps[3]&&inps[3].value)||'-',unit:trainerUnit});
+    if(name) exercises.push({name,sets:(inps[1]&&inps[1].value)||'-',reps:(inps[2]&&inps[2].value)||'-',weight:(inps[3]&&inps[3].value)||'-',unit:trainerUnit,rpe:rpeInp?parseInt(rpeInp.value):null});
   });
 
   // Check for exercise weight PBs before saving
@@ -2788,8 +2931,8 @@ function renderClientWorkouts(c){
           <div><div class="workout-title">${h.type}</div><div class="workout-date">${formatDate(h.date)}${h.duration?' · '+h.duration+' min':''} · RPE ${h.rpe}${h.selfLogged?' · <span style="color:var(--lime);font-size:10px;">self-logged</span>':''}</div></div>
         </div>
         <table class="ex-table">
-          <thead><tr><th>Exercise</th><th>Sets</th><th>Reps</th><th>${clientUnit}</th></tr></thead>
-          <tbody>${h.exercises.map(e=>`<tr><td>${e.name}</td><td>${e.sets}</td><td>${e.reps}</td><td>${displayWeightForViewer(e.weight, e.unit||trainerUnit, clientUnit)}</td></tr>`).join('')}</tbody>
+          <thead><tr><th>Exercise</th><th>Sets</th><th>Reps</th><th>${clientUnit}</th><th>RPE</th></tr></thead>
+          <tbody>${h.exercises.map(e=>`<tr><td>${e.name}</td><td>${e.sets}</td><td>${e.reps}</td><td>${displayWeightForViewer(e.weight, e.unit||trainerUnit, clientUnit)}</td><td>${e.rpe?'<span style="font-size:10px;color:var(--lime);">'+e.rpe+'</span>':''}</td></tr>`).join('')}</tbody>
         </table>
       </div>`).join('')
     : '<div class="empty-state"><div class="empty-icon">🏋️</div><div class="empty-msg">No sessions yet</div></div>';
@@ -2907,12 +3050,30 @@ function openLogPerfModal(assignedId, e){
   exList.forEach(function(ex){
     const row=document.createElement('div');
     row.className='perf-ex-input-row';
+    const rpeId='prpe_'+Math.random().toString(36).slice(2,7);
     row.innerHTML=
       '<input class="finp" value="'+ex.name+'" placeholder="Exercise" style="padding:7px 9px;font-size:12px;"/>'+
       '<input class="finp" value="'+ex.sets+'" placeholder="3" type="number" style="padding:7px 9px;font-size:12px;text-align:center;"/>'+
       '<input class="finp" value="'+ex.reps+'" placeholder="10" style="padding:7px 9px;font-size:12px;text-align:center;"/>'+
       '<input class="finp" placeholder="'+clientUnit+'" style="padding:7px 9px;font-size:12px;text-align:center;"/>';
-    rows.appendChild(row);
+    const rpeRow=document.createElement('div');
+    rpeRow.className='ex-rpe-row';
+    const rpeS=document.createElement('input');
+    rpeS.type='range';rpeS.min='1';rpeS.max='10';rpeS.value=String(ex.rpe||7);
+    rpeS.className='ex-rpe-slider';
+    const rpeV=document.createElement('span');
+    rpeV.className='ex-rpe-val';rpeV.textContent=String(ex.rpe||7);
+    rpeS.addEventListener('input',function(){rpeV.textContent=this.value;});
+    const rpeLbl=document.createElement('span');
+    rpeLbl.className='ex-rpe-label';rpeLbl.textContent='Ex. RPE';
+    rpeRow.appendChild(rpeLbl);
+    rpeRow.appendChild(rpeS);
+    rpeRow.appendChild(rpeV);
+    const block=document.createElement('div');
+    block.className='ex-block';
+    block.appendChild(row);
+    block.appendChild(rpeRow);
+    rows.appendChild(block);
   });
   openModal('modal-log-perf');
 }
@@ -2925,12 +3086,13 @@ function saveClientPerformance(){
   const date=document.getElementById('log-perf-date').value||new Date().toISOString().split('T')[0];
   const rpe=parseInt(document.getElementById('log-perf-rpe').value)||7;
   const notes=document.getElementById('log-perf-notes').value;
-  const rows=document.querySelectorAll('#log-perf-ex-rows .perf-ex-input-row');
+  const rows=document.querySelectorAll('#log-perf-ex-rows .ex-block');
   const exercises=[];
   rows.forEach(function(row){
-    const inps=row.querySelectorAll('input');
+    const inps=row.querySelectorAll('input[type!=range]');
+    const rpeInp=row.querySelector('.ex-rpe-slider');
     const name=(inps[0]&&inps[0].value.trim())||'';
-    if(name) exercises.push({name:name,sets:(inps[1]&&inps[1].value)||'-',reps:(inps[2]&&inps[2].value)||'-',weight:(inps[3]&&inps[3].value)||'-',unit:clientUnit});
+    if(name) exercises.push({name:name,sets:(inps[1]&&inps[1].value)||'-',reps:(inps[2]&&inps[2].value)||'-',weight:(inps[3]&&inps[3].value)||'-',unit:clientUnit,rpe:rpeInp?parseInt(rpeInp.value):null});
   });
   if(!c.history) c.history=[];
   c.history.unshift({id:'cp'+Date.now(),date:date,type:(a?a.title:'Self-logged')+' (self-logged)',duration:0,rpe:rpe,notes:notes,exercises:exercises,selfLogged:true,assignedId:assignedId});
@@ -2997,6 +3159,246 @@ function closeVideoModal(){
 // ══════════════════════════════════════════════════
 function formatDate(d){
   return new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+}
+
+// ══ WORKOUT LIBRARY ══════════════════════════════════
+let libFilter='all';
+let bulkTemplateId=null;
+let bulkSelectedClients=new Set();
+
+function catClass(cat){
+  const m={'Strength':'cat-strength','Cardio':'cat-cardio','HIIT':'cat-hiit','Mobility':'cat-mobility','Full body':'cat-fullbody'};
+  return m[cat]||'cat-custom';
+}
+
+function renderLibrary(){
+  if(!DB.workoutLibrary) DB.workoutLibrary=[];
+  const filtered=libFilter==='all'?DB.workoutLibrary:DB.workoutLibrary.filter(t=>t.cat===libFilter);
+  // Update filter chips
+  document.querySelectorAll('.lib-filter-chip').forEach(btn=>{
+    const val=btn.textContent==='All'?'all':btn.textContent;
+    btn.classList.toggle('active',val===libFilter);
+  });
+  document.getElementById('lib-list').innerHTML=filtered.length
+    ? filtered.map(t=>libCardHTML(t)).join('')
+    : '<div class="empty-state"><div class="empty-icon">📚</div><div class="empty-msg">No templates yet. Tap + to create one.</div></div>';
+}
+
+function libCardHTML(t){
+  return '<div class="lib-card">'+
+    '<div class="lib-card-head">'+
+      '<span class="lib-card-cat '+catClass(t.cat)+'">'+t.cat+'</span>'+
+      '<div>'+
+        '<div class="lib-card-title">'+t.name+'</div>'+
+        (t.desc?'<div class="lib-card-desc">'+t.desc+'</div>':'')+''+
+      '</div>'+
+    '</div>'+
+    '<div class="lib-card-meta">'+
+      '<span class="lib-card-ex-count">'+t.exercises.length+' exercises'+(t.dur?' · '+t.dur+' min':'')+'</span>'+
+      '<div class="lib-card-actions">'+
+        '<button class="btn btn-secondary btn-sm" onclick="openBulkAssignFromLib(\''+t.id+'\')">Assign</button>'+
+        '<button class="btn btn-secondary btn-sm" onclick="editTemplate(\''+t.id+'\')">Edit</button>'+
+        '<button class="btn btn-danger btn-sm" onclick="deleteTemplate(\''+t.id+'\')">Delete</button>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+}
+
+function filterLibrary(cat){
+  libFilter=cat;
+  renderLibrary();
+}
+
+function openCreateTemplateModal(){
+  document.getElementById('create-tmpl-title').textContent='Create Workout Template';
+  document.getElementById('edit-tmpl-id').value='';
+  document.getElementById('tmpl-name').value='';
+  document.getElementById('tmpl-desc').value='';
+  document.getElementById('tmpl-dur').value='';
+  document.getElementById('tmpl-cat').selectedIndex=0;
+  document.getElementById('tmpl-wt-hdr').textContent=trainerUnit;
+  initTmplExRows();
+  openModal('modal-create-template');
+}
+
+function editTemplate(id){
+  const t=DB.workoutLibrary.find(x=>x.id===id);
+  if(!t) return;
+  document.getElementById('create-tmpl-title').textContent='Edit Template';
+  document.getElementById('edit-tmpl-id').value=id;
+  document.getElementById('tmpl-name').value=t.name;
+  document.getElementById('tmpl-desc').value=t.desc||'';
+  document.getElementById('tmpl-dur').value=t.dur||'';
+  document.getElementById('tmpl-wt-hdr').textContent=trainerUnit;
+  const catEl=document.getElementById('tmpl-cat');
+  for(let o of catEl.options){if(o.value===t.cat)o.selected=true;}
+  // Fill exercises
+  const container=document.getElementById('tmpl-ex-rows');
+  container.innerHTML='';
+  t.exercises.forEach(function(ex){
+    const block=makeExRow('tmpl-ex-rows');
+    const inps=block.querySelectorAll('input[type!=range]');
+    if(inps[0]) inps[0].value=ex.name||'';
+    if(inps[1]) inps[1].value=ex.sets||'';
+    if(inps[2]) inps[2].value=ex.reps||'';
+    if(inps[3]) inps[3].value=ex.weight||'';
+    const rpeSlider=block.querySelector('.ex-rpe-slider');
+    const rpeVal=block.querySelector('.ex-rpe-val');
+    if(rpeSlider&&ex.rpe){rpeSlider.value=ex.rpe;if(rpeVal)rpeVal.textContent=ex.rpe;}
+    container.appendChild(block);
+  });
+  openModal('modal-create-template');
+}
+
+function initTmplExRows(){
+  const c=document.getElementById('tmpl-ex-rows');
+  c.innerHTML='';
+  c.appendChild(makeExRow('tmpl-ex-rows'));
+  c.appendChild(makeExRow('tmpl-ex-rows'));
+}
+
+function addTmplExRow(){
+  const row=makeExRow('tmpl-ex-rows');
+  document.getElementById('tmpl-ex-rows').appendChild(row);
+  row.querySelector('input').focus();
+}
+
+function saveTemplate(){
+  const name=document.getElementById('tmpl-name').value.trim();
+  if(!name){showToast('Add a name');return;}
+  const rows=document.querySelectorAll('#tmpl-ex-rows .ex-block');
+  const exercises=[];
+  rows.forEach(function(row){
+    const inps=row.querySelectorAll('input[type!=range]');
+    const rpeInp=row.querySelector('.ex-rpe-slider');
+    const n=(inps[0]&&inps[0].value.trim())||'';
+    if(n) exercises.push({name:n,sets:(inps[1]&&inps[1].value)||'-',reps:(inps[2]&&inps[2].value)||'-',weight:(inps[3]&&inps[3].value)||'-',unit:trainerUnit,rpe:rpeInp?parseInt(rpeInp.value):null});
+  });
+  if(!DB.workoutLibrary) DB.workoutLibrary=[];
+  const editId=document.getElementById('edit-tmpl-id').value;
+  if(editId){
+    const idx=DB.workoutLibrary.findIndex(x=>x.id===editId);
+    if(idx>=0) DB.workoutLibrary[idx]={id:editId,name,cat:document.getElementById('tmpl-cat').value,dur:parseInt(document.getElementById('tmpl-dur').value)||0,desc:document.getElementById('tmpl-desc').value,exercises};
+  } else {
+    DB.workoutLibrary.push({id:'tpl'+Date.now(),name,cat:document.getElementById('tmpl-cat').value,dur:parseInt(document.getElementById('tmpl-dur').value)||0,desc:document.getElementById('tmpl-desc').value,exercises});
+  }
+  saveData(DB);
+  closeModal('modal-create-template');
+  renderLibrary();
+  showToast(editId?'Template updated ✓':'Template saved ✓');
+}
+
+function deleteTemplate(id){
+  if(!confirm('Delete this template?')) return;
+  DB.workoutLibrary=DB.workoutLibrary.filter(x=>x.id!==id);
+  saveData(DB);
+  renderLibrary();
+  showToast('Template deleted');
+}
+
+// ── BULK ASSIGN ──────────────────────────────────────
+function openBulkAssignModal(){
+  // Open with no pre-selected template — pick from library first
+  bulkTemplateId=null;
+  bulkSelectedClients=new Set();
+  document.getElementById('bulk-assign-workout-name').textContent='— Select a workout below —';
+  renderBulkClientList();
+  openModal('modal-bulk-assign');
+}
+
+function openBulkAssignFromLib(templateId){
+  const t=DB.workoutLibrary.find(x=>x.id===templateId);
+  if(!t) return;
+  bulkTemplateId=templateId;
+  bulkSelectedClients=new Set();
+  document.getElementById('bulk-assign-workout-name').textContent=t.name;
+  renderBulkClientList();
+  openModal('modal-bulk-assign');
+}
+
+function renderBulkClientList(){
+  const el=document.getElementById('bulk-client-list');
+  el.innerHTML=DB.clients.map(function(c){
+    const checked=bulkSelectedClients.has(c.id);
+    return '<div class="bulk-client-item" onclick="toggleBulkClient(\''+c.id+'\')">'+
+      '<div class="bulk-check'+(checked?' checked':'')+'">'+( checked?'✓':'')+'</div>'+
+      '<div class="avatar-sm" style="background:'+c.colorBg+';color:'+c.color+';width:32px;height:32px;font-size:11px;">'+c.initials+'</div>'+
+      '<div>'+
+        '<div style="font-size:13px;font-weight:600;">'+c.name+'</div>'+
+        '<div style="font-size:11px;color:var(--text3);">'+c.goal+'</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function toggleBulkClient(clientId){
+  if(bulkSelectedClients.has(clientId)) bulkSelectedClients.delete(clientId);
+  else bulkSelectedClients.add(clientId);
+  renderBulkClientList();
+}
+
+function doBulkAssign(){
+  if(!bulkTemplateId){showToast('Go to Library and tap Assign on a workout');return;}
+  if(!bulkSelectedClients.size){showToast('Select at least one client');return;}
+  const t=DB.workoutLibrary.find(x=>x.id===bulkTemplateId);
+  if(!t) return;
+  let count=0;
+  bulkSelectedClients.forEach(function(clientId){
+    const c=DB.clients.find(x=>x.id===clientId);
+    if(!c) return;
+    if(!c.assigned) c.assigned=[];
+    c.assigned.push({id:'a'+Date.now()+Math.random().toString(36).slice(2,5),title:t.name,desc:t.desc,exercises:JSON.parse(JSON.stringify(t.exercises))});
+    addNotification(clientId,'workout','New workout assigned','Your trainer assigned you: '+t.name);
+    count++;
+  });
+  saveData(DB);
+  closeModal('modal-bulk-assign');
+  renderClientGrid();
+  showToast('Assigned to '+count+' client'+(count===1?'':'s')+' ✓');
+}
+
+// ── PICK FROM LIBRARY (in assign modal) ──────────────
+function openPickTemplateModal(){
+  const el=document.getElementById('pick-tmpl-list');
+  if(!DB.workoutLibrary||!DB.workoutLibrary.length){
+    el.innerHTML='<div class="empty-state"><div class="empty-icon">📚</div><div class="empty-msg">No templates yet. Create one in the Library tab.</div></div>';
+  } else {
+    el.innerHTML=DB.workoutLibrary.map(function(t){
+      return '<div class="lib-card" onclick="loadTemplateIntoAssign(\''+t.id+'\')" style="margin:0 0 10px;">'+
+        '<div class="lib-card-head">'+
+          '<span class="lib-card-cat '+catClass(t.cat)+'">'+t.cat+'</span>'+
+          '<div>'+
+            '<div class="lib-card-title">'+t.name+'</div>'+
+            '<div class="lib-card-desc">'+t.exercises.length+' exercises'+(t.dur?' · '+t.dur+' min':'')+'</div>'+
+          '</div>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+  }
+  openModal('modal-pick-template');
+}
+
+function loadTemplateIntoAssign(templateId){
+  const t=DB.workoutLibrary.find(x=>x.id===templateId);
+  if(!t) return;
+  closeModal('modal-pick-template');
+  document.getElementById('aw-title').value=t.name;
+  document.getElementById('aw-desc').value=t.desc||'';
+  const container=document.getElementById('assign-ex-rows');
+  container.innerHTML='';
+  t.exercises.forEach(function(ex){
+    const block=makeExRow('assign-ex-rows');
+    const inps=block.querySelectorAll('input[type!=range]');
+    if(inps[0]) inps[0].value=ex.name||'';
+    if(inps[1]) inps[1].value=ex.sets||'';
+    if(inps[2]) inps[2].value=ex.reps||'';
+    if(inps[3]) inps[3].value=ex.weight||'';
+    const rpeSlider=block.querySelector('.ex-rpe-slider');
+    const rpeVal=block.querySelector('.ex-rpe-val');
+    if(rpeSlider&&ex.rpe){rpeSlider.value=ex.rpe;if(rpeVal)rpeVal.textContent=ex.rpe;}
+    container.appendChild(block);
+  });
+  showToast('Template loaded ✓');
 }
 
 // ══ NOTIFICATIONS ═══════════════════════════════════
