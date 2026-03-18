@@ -689,8 +689,8 @@ select.finp{cursor:pointer;}
       <div class="topbar"><div class="topbar-title">My Workouts</div></div>
       <div class="feed-section-label">ASSIGNED PROGRAMS</div>
       <div id="c-assigned"></div>
-      <div class="feed-section-label">SESSION HISTORY</div>
-      <div id="c-history"></div>
+      <div class="feed-section-label" style="margin-top:8px;">SESSION HISTORY</div>
+      <div id="c-history" style="padding-bottom:80px;"></div>
     </div>
 
     <!-- CLIENT: VIDEOS TAB -->
@@ -1124,6 +1124,10 @@ select.finp{cursor:pointer;}
     <div id="fix-client-err" style="display:none;font-size:12px;color:var(--red);margin-bottom:8px;"></div>
     <button class="btn btn-primary btn-full" onclick="fixClientLogin()">Reset Client Password</button>
     <div style="margin-top:12px;font-size:11px;color:var(--text3);text-align:center;">Changes take effect immediately on next login.</div>
+    <div class="divider"></div>
+    <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px;">Clear all saved data</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.6;">Resets the app to demo data. Use this if things look broken after an update.</div>
+    <button class="btn btn-danger btn-full" onclick="clearAllData()">Reset to demo data</button>
   </div>
 </div>
 
@@ -1676,7 +1680,7 @@ function renderPanelHistory(){
   const c = DB.clients.find(x=>x.id===activeClientPanel);
   const el = document.getElementById('panel-history-list');
   if(!c||!c.history.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">🏋️</div><div class="empty-msg">No sessions logged yet</div></div>';return;}
-  const sorted = [...c.history].sort((a,b)=>b.date.localeCompare(a.date));
+  const sorted = [...(c.history||[])].sort((a,b)=>b.date.localeCompare(a.date));
   el.innerHTML = sorted.map(h=>`
     <div class="workout-card">
       <div class="workout-head">
@@ -2180,6 +2184,14 @@ function openLoginFix(){
   document.getElementById('fix-client-pass').value='';
   document.getElementById('fix-client-err').style.display='none';
   openModal('modal-login-fix');
+}
+
+function clearAllData(){
+  if(!confirm('This will wipe all saved data and reload with demo data. Are you sure?')) return;
+  STORE.del('data');
+  DB=loadData();
+  closeModal('modal-login-fix');
+  showToast('Data reset ✓');
 }
 
 function fixTrainerLogin(){
@@ -2768,12 +2780,12 @@ function renderClientWorkouts(c){
     html+='<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-msg">No programs assigned yet</div></div>';
   }
   document.getElementById('c-assigned').innerHTML=html;
-  const sorted=[...c.history].sort((a,b)=>b.date.localeCompare(a.date));
+  const sorted=[...(c.history||[])].sort((a,b)=>b.date.localeCompare(a.date));
   document.getElementById('c-history').innerHTML=sorted.length
     ? sorted.map(h=>`
       <div class="workout-card">
         <div class="workout-head">
-          <div><div class="workout-title">${h.type}</div><div class="workout-date">${formatDate(h.date)} · ${h.duration} min · RPE ${h.rpe}</div></div>
+          <div><div class="workout-title">${h.type}</div><div class="workout-date">${formatDate(h.date)}${h.duration?' · '+h.duration+' min':''} · RPE ${h.rpe}${h.selfLogged?' · <span style="color:var(--lime);font-size:10px;">self-logged</span>':''}</div></div>
         </div>
         <table class="ex-table">
           <thead><tr><th>Exercise</th><th>Sets</th><th>Reps</th><th>${clientUnit}</th></tr></thead>
