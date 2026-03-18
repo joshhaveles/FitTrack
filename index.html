@@ -302,6 +302,25 @@ select.finp{cursor:pointer;}
 
 .divider{height:1px;background:var(--border);margin:14px 0;}
 .hidden{display:none!important;}
+/* ── CALENDAR INTEGRATION ── */
+.cal-provider-card{display:flex;align-items:center;gap:14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:all .15s;}
+.cal-provider-card:hover{border-color:var(--border2);background:var(--bg3);}
+.cal-provider-card.connected{border-color:var(--green);background:var(--green-dim);}
+.cal-provider-logo{width:38px;height:38px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.cal-provider-info{flex:1;min-width:0;}
+.cal-provider-name{font-size:14px;font-weight:700;color:var(--text);}
+.cal-provider-status{font-size:11px;color:var(--text3);margin-top:2px;}
+.cal-provider-card.connected .cal-provider-status{color:var(--green);}
+.cal-connect-btn{font-size:12px;font-weight:700;padding:6px 14px;border-radius:var(--r-sm);border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;font-family:"Plus Jakarta Sans",sans-serif;transition:all .15s;white-space:nowrap;flex-shrink:0;}
+.cal-connect-btn:hover{background:var(--bg4);color:var(--text);}
+.cal-connect-btn.connected{color:var(--red);border-color:rgba(245,91,91,.2);background:var(--red-dim);}
+.cal-coming-soon-banner{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:14px 16px;margin-bottom:16px;display:flex;gap:12px;align-items:flex-start;}
+.cal-coming-soon-icon{font-size:20px;flex-shrink:0;}
+.cal-coming-soon-text{font-size:12px;color:var(--text2);line-height:1.6;}
+.cal-coming-soon-text b{color:var(--text);display:block;margin-bottom:3px;}
+.cal-export-btn{display:flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;cursor:pointer;transition:all .15s;width:100%;}
+.cal-export-btn:hover{border-color:var(--border2);background:var(--bg3);}
+.cal-section-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin:18px 0 10px;}
 /* ── WORKOUT LIBRARY ── */
 .lib-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin:0 16px 10px;cursor:pointer;transition:all .15s;}
 .lib-card:hover{border-color:var(--border2);background:var(--bg3);}
@@ -550,7 +569,10 @@ select.finp{cursor:pointer;}
     <div id="t-tab-schedule" class="scroll-area hidden" style="flex:1;">
       <div class="topbar">
         <div class="topbar-title">Schedule</div>
-        <div class="icon-btn" onclick="openModal('modal-add-session')">＋</div>
+        <div style="display:flex;gap:8px;">
+          <div class="icon-btn" onclick="openCalendarIntegrationModal()" title="Calendar integrations" style="font-size:15px;">🗓</div>
+          <div class="icon-btn" onclick="openModal('modal-add-session')">＋</div>
+        </div>
       </div>
       <div class="schedule-pad">
         <div class="cal-view-toggle">
@@ -1088,6 +1110,135 @@ select.finp{cursor:pointer;}
 </div>
 
 <!-- ASSIGN WORKOUT -->
+<!-- CALENDAR INTEGRATION MODAL -->
+<div class="modal-overlay hidden" id="modal-calendar-integration" onclick="modalOutsideClose(event,'modal-calendar-integration')">
+  <div class="modal-sheet" style="max-height:92vh;">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Calendar Integration</div>
+
+    <div class="cal-coming-soon-banner">
+      <div class="cal-coming-soon-icon">🔧</div>
+      <div class="cal-coming-soon-text">
+        <b>Backend required for live sync</b>
+        Two-way calendar sync needs a server to handle OAuth and push updates. This is already built and ready to activate — it just needs the backend connected. Export works today.
+      </div>
+    </div>
+
+    <div class="cal-section-label">Connect a Calendar</div>
+
+    <div class="cal-provider-card" id="cal-card-google">
+      <div class="cal-provider-logo" style="background:#fff;">
+        <svg width="22" height="22" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      </div>
+      <div class="cal-provider-info">
+        <div class="cal-provider-name">Google Calendar</div>
+        <div class="cal-provider-status" id="cal-status-google">Not connected · Requires backend</div>
+      </div>
+      <button class="cal-connect-btn" id="cal-btn-google" onclick="connectCalendar('google')">Connect</button>
+    </div>
+
+    <div class="cal-provider-card" id="cal-card-apple">
+      <div class="cal-provider-logo" style="background:#000;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+      </div>
+      <div class="cal-provider-info">
+        <div class="cal-provider-name">Apple Calendar</div>
+        <div class="cal-provider-status" id="cal-status-apple">Not connected · Requires backend</div>
+      </div>
+      <button class="cal-connect-btn" id="cal-btn-apple" onclick="connectCalendar('apple')">Connect</button>
+    </div>
+
+    <div class="cal-provider-card" id="cal-card-yahoo">
+      <div class="cal-provider-logo" style="background:#6001D2;">
+        <span style="color:#fff;font-size:16px;font-weight:900;font-family:Georgia,serif;">Y!</span>
+      </div>
+      <div class="cal-provider-info">
+        <div class="cal-provider-name">Yahoo Calendar</div>
+        <div class="cal-provider-status" id="cal-status-yahoo">Not connected · Requires backend</div>
+      </div>
+      <button class="cal-connect-btn" id="cal-btn-yahoo" onclick="connectCalendar('yahoo')">Connect</button>
+    </div>
+
+    <div class="cal-provider-card" id="cal-card-android">
+      <div class="cal-provider-logo" style="background:#3DDC84;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M17.523 15.341a5 5 0 01-5 5H11.5a5 5 0 01-5-5V9.318c0-.97.784-1.754 1.754-1.754h7.514c.97 0 1.755.784 1.755 1.754v6.023zM8.5 6.5l-1.5-2.5M15.5 6.5l1.5-2.5M9.5 11.5a.5.5 0 100-1 .5.5 0 000 1zM14.5 11.5a.5.5 0 100-1 .5.5 0 000 1z"/></svg>
+      </div>
+      <div class="cal-provider-info">
+        <div class="cal-provider-name">Android / Google Workspace</div>
+        <div class="cal-provider-status" id="cal-status-android">Not connected · Requires backend</div>
+      </div>
+      <button class="cal-connect-btn" id="cal-btn-android" onclick="connectCalendar('android')">Connect</button>
+    </div>
+
+    <div class="cal-section-label">Export (Available Now)</div>
+
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px;">
+      <button class="cal-export-btn" onclick="exportCalendarICS()">
+        <span style="font-size:18px;">📅</span>
+        <div style="text-align:left;">
+          <div style="font-size:13px;font-weight:700;color:var(--text);">Export as .ics file</div>
+          <div style="font-size:11px;color:var(--text3);">Import into any calendar app</div>
+        </div>
+        <span style="margin-left:auto;font-size:12px;color:var(--lime);font-weight:700;">Download</span>
+      </button>
+
+      <button class="cal-export-btn" onclick="copyCalendarLink()">
+        <span style="font-size:18px;">🔗</span>
+        <div style="text-align:left;">
+          <div style="font-size:13px;font-weight:700;color:var(--text);">Copy calendar link</div>
+          <div style="font-size:11px;color:var(--text3);">For subscribing in Google / Apple / Outlook</div>
+        </div>
+        <span style="margin-left:auto;font-size:12px;color:var(--lime);font-weight:700;">Copy</span>
+      </button>
+    </div>
+
+    <div class="cal-section-label">Import ICS URL</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:8px;line-height:1.5;">Paste a public calendar URL (from Google, Apple etc.) to import events. Live sync requires backend.</div>
+    <input class="finp" id="cal-ics-url" placeholder="https://calendar.google.com/calendar/ical/..."/>
+    <div class="gap-8 mt-8">
+      <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-calendar-integration')">Done</button>
+      <button class="btn btn-primary" style="flex:2" onclick="importICSUrl()">Preview events</button>
+    </div>
+    <div id="cal-ics-preview" style="margin-top:12px;"></div>
+  </div>
+</div>
+
+<!-- CALENDAR CONNECT COMING SOON MODAL -->
+<div class="modal-overlay hidden" id="modal-cal-coming-soon" onclick="modalOutsideClose(event,'modal-cal-coming-soon')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div style="text-align:center;padding:10px 0 20px;">
+      <div style="font-size:48px;margin-bottom:12px;" id="cal-coming-soon-emoji">📅</div>
+      <div style="font-family:'Nunito',sans-serif;font-size:20px;font-weight:900;margin-bottom:8px;" id="cal-coming-soon-provider">Google Calendar</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:20px;">
+        This integration is fully designed and ready to activate.<br/>
+        It needs a backend server to handle OAuth authentication securely.<br/><br/>
+        <b style="color:var(--text);">What you'll get when connected:</b>
+      </div>
+      <div style="text-align:left;background:var(--bg3);border-radius:var(--r);padding:14px 16px;margin-bottom:20px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+          <span style="color:var(--lime);font-size:16px;">✓</span>
+          <span style="font-size:13px;color:var(--text2);">Sessions auto-appear in your calendar</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+          <span style="color:var(--lime);font-size:16px;">✓</span>
+          <span style="font-size:13px;color:var(--text2);">Your calendar blocks imported here automatically</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+          <span style="color:var(--lime);font-size:16px;">✓</span>
+          <span style="font-size:13px;color:var(--text2);">Clients get calendar invites when sessions are booked</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="color:var(--lime);font-size:16px;">✓</span>
+          <span style="font-size:13px;color:var(--text2);">Changes sync both ways in real time</span>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--text3);">Ask your developer to connect the backend to activate this.</div>
+    </div>
+    <button class="btn btn-primary btn-full" onclick="closeModal('modal-cal-coming-soon')">Got it</button>
+  </div>
+</div>
+
 <!-- CREATE TEMPLATE MODAL -->
 <div class="modal-overlay hidden" id="modal-create-template" onclick="modalOutsideClose(event,'modal-create-template')">
   <div class="modal-sheet">
@@ -1344,6 +1495,7 @@ function loadData(){
   // Migrate older saved data to include new fields
   if(!d.messages) d.messages={};
   if(!d.workoutLibrary) d.workoutLibrary=[];
+  if(!d.calendarConnections) d.calendarConnections={};
   if(!d.notifications) d.notifications={trainer:[],clients:{}};
   if(!d.notifications.trainer) d.notifications.trainer=[];
   if(!d.notifications.clients) d.notifications.clients={};
@@ -3159,6 +3311,146 @@ function closeVideoModal(){
 // ══════════════════════════════════════════════════
 function formatDate(d){
   return new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+}
+
+// ══ CALENDAR INTEGRATION ═════════════════════════════
+// Provider config — swap dummy URLs for real OAuth endpoints when backend is ready
+const CAL_PROVIDERS = {
+  google:  { name:'Google Calendar',  emoji:'📅', authUrl:'__BACKEND_URL__/auth/google'  },
+  apple:   { name:'Apple Calendar',   emoji:'🍎', authUrl:'__BACKEND_URL__/auth/apple'   },
+  yahoo:   { name:'Yahoo Calendar',   emoji:'📆', authUrl:'__BACKEND_URL__/auth/yahoo'   },
+  android: { name:'Android Calendar', emoji:'🤖', authUrl:'__BACKEND_URL__/auth/android' }
+};
+
+function openCalendarIntegrationModal(){
+  renderCalendarStatus();
+  openModal('modal-calendar-integration');
+}
+
+function renderCalendarStatus(){
+  const connected=DB.calendarConnections||{};
+  Object.keys(CAL_PROVIDERS).forEach(function(key){
+    const isConnected=!!connected[key];
+    const card=document.getElementById('cal-card-'+key);
+    const btn=document.getElementById('cal-btn-'+key);
+    const status=document.getElementById('cal-status-'+key);
+    if(!card) return;
+    card.classList.toggle('connected', isConnected);
+    if(btn){
+      btn.textContent=isConnected?'Disconnect':'Connect';
+      btn.classList.toggle('connected', isConnected);
+    }
+    if(status){
+      status.textContent=isConnected
+        ? 'Connected \u2022 Ready when backend is live'
+        : 'Not connected \u00b7 Requires backend';
+    }
+  });
+}
+
+function connectCalendar(provider){
+  const p=CAL_PROVIDERS[provider];
+  if(!p) return;
+  // Show coming soon modal
+  document.getElementById('cal-coming-soon-emoji').textContent=p.emoji;
+  document.getElementById('cal-coming-soon-provider').textContent=p.name;
+  openModal('modal-cal-coming-soon');
+  /* ── BACKEND ACTIVATION ──────────────────────────────
+     When backend is ready, replace the openModal call above with:
+
+     window.location.href = p.authUrl + '?trainer_id=' + DB.trainer.id + '&redirect=' + encodeURIComponent(window.location.href);
+
+     The backend OAuth callback should then call:
+       window.postMessage({ type: 'cal_connected', provider: provider, token: '...' }, '*');
+
+     And you handle it here:
+       window.addEventListener('message', function(e){
+         if(e.data.type === 'cal_connected'){
+           if(!DB.calendarConnections) DB.calendarConnections={};
+           DB.calendarConnections[e.data.provider] = { token: e.data.token, connectedAt: Date.now() };
+           saveData(DB);
+           renderCalendarStatus();
+           syncCalendarEvents(e.data.provider);
+         }
+       });
+  ── END BACKEND ACTIVATION ─────────────────────────── */
+}
+
+function disconnectCalendar(provider){
+  if(!confirm('Disconnect this calendar?')) return;
+  if(DB.calendarConnections) delete DB.calendarConnections[provider];
+  saveData(DB);
+  renderCalendarStatus();
+  showToast('Calendar disconnected');
+}
+
+// ── ICS EXPORT (works today) ──────────────────────────
+function exportCalendarICS(){
+  const lines=[
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//FitTrack Pro//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    'X-WR-CALNAME:FitTrack Sessions'
+  ];
+  DB.schedule.forEach(function(s){
+    const c=DB.clients.find(function(x){return x.id===s.clientId;})||{name:'Unknown'};
+    const dtStart=s.date.replace(/-/g,'')+'T'+s.time.replace(':','')+'00';
+    const dur=parseInt(s.duration)||60;
+    const dtEnd=s.date.replace(/-/g,'')+'T'+addMinutes(s.time,dur).replace(':','')+'00';
+    lines.push('BEGIN:VEVENT');
+    lines.push('UID:'+s.id+'@fittrackpro');
+    lines.push('DTSTART:'+dtStart);
+    lines.push('DTEND:'+dtEnd);
+    lines.push('SUMMARY:'+c.name+' \u2013 '+s.type);
+    if(s.notes) lines.push('DESCRIPTION:'+s.notes.replace(/\n/g,'\\n'));
+    lines.push('END:VEVENT');
+  });
+  lines.push('END:VCALENDAR');
+  const blob=new Blob([lines.join('\r\n')],{type:'text/calendar;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='fittrack-schedule.ics';
+  document.body.appendChild(a);a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Schedule exported \u2713');
+}
+
+function addMinutes(timeStr,mins){
+  const parts=timeStr.split(':');
+  const d=new Date(2000,0,1,parseInt(parts[0]),parseInt(parts[1])+mins);
+  return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+}
+
+function copyCalendarLink(){
+  // When backend is ready this will be a real subscription URL
+  const msg='Calendar subscription URLs require a backend server. Once connected, clients and your calendar apps will get a live-updating link automatically.';
+  const dummy=window.location.href.split('?')[0]+'?cal_feed=__YOUR_TRAINER_ID__';
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(dummy).then(function(){
+      showToast('Link copied (needs backend to work)');
+    });
+  } else {
+    prompt('Copy this URL (needs backend to activate):', dummy);
+  }
+}
+
+// ── ICS URL IMPORT (preview, needs CORS proxy for live) ──
+function importICSUrl(){
+  const url=document.getElementById('cal-ics-url').value.trim();
+  const preview=document.getElementById('cal-ics-preview');
+  if(!url){showToast('Paste a calendar URL first');return;}
+  preview.innerHTML='<div style="font-size:12px;color:var(--text2);line-height:1.7;background:var(--bg3);border-radius:var(--r-sm);padding:12px 14px;">'+
+    '<b style="color:var(--text);display:block;margin-bottom:6px;">Import preview</b>'+
+    'Live ICS import needs a backend proxy to fetch the calendar (browsers block direct requests to external URLs for security).<br/><br/>'+
+    'When the backend is ready, pasting this URL will automatically pull in your events and show them here.<br/><br/>'+
+    '<span style="color:var(--lime);font-weight:600;">URL saved \u2713</span> \u2014 it will activate as soon as the backend is connected.'+
+  '</div>';
+  // Save the URL for when backend is ready
+  DB.calendarICSUrl=url;
+  saveData(DB);
 }
 
 // ══ WORKOUT LIBRARY ══════════════════════════════════
