@@ -302,6 +302,60 @@ select.finp{cursor:pointer;}
 
 .divider{height:1px;background:var(--border);margin:14px 0;}
 .hidden{display:none!important;}
+/* ── VO2MAX ── */
+.vo2-card{background:var(--bg3);border-radius:var(--r);padding:16px;margin-bottom:12px;}
+.vo2-big{font-family:"Nunito",sans-serif;font-size:48px;font-weight:900;line-height:1;letter-spacing:-2px;}
+.vo2-unit{font-size:13px;color:var(--text2);margin-left:4px;font-weight:400;}
+.vo2-cat{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin-top:6px;}
+.vo2-history-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--border);}
+.vo2-history-row:last-child{border-bottom:none;}
+.vo2-history-val{font-family:"Nunito",sans-serif;font-size:17px;font-weight:800;min-width:52px;}
+.vo2-history-date{font-size:11px;color:var(--text3);font-family:"DM Mono",monospace;}
+.vo2-photo-thumb{width:48px;height:48px;border-radius:var(--r-xs);object-fit:cover;cursor:pointer;border:1px solid var(--border2);}
+.vo2-photo-zone{border:2px dashed var(--border2);border-radius:var(--r-sm);padding:18px;text-align:center;cursor:pointer;transition:all .15s;margin-bottom:12px;}
+.vo2-photo-zone:hover{border-color:var(--lime);background:var(--lime-dim);}
+.vo2-photo-preview{width:100%;max-height:180px;object-fit:contain;border-radius:var(--r-sm);margin-bottom:8px;display:none;}
+/* ── AI ASSISTANT ── */
+.ai-chat-wrap{display:flex;flex-direction:column;flex:1;overflow:hidden;}
+.ai-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;}
+.ai-messages::-webkit-scrollbar{width:3px;}
+.ai-messages::-webkit-scrollbar-thumb{background:var(--bg4);}
+.ai-msg{display:flex;gap:10px;align-items:flex-start;animation:fadeUp .2s ease;}
+.ai-msg.user{flex-direction:row-reverse;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.ai-bubble{max-width:82%;padding:10px 13px;border-radius:14px;font-size:13px;line-height:1.6;color:var(--text);}
+.ai-msg.assistant .ai-bubble{background:var(--bg3);border-radius:14px 14px 14px 4px;}
+.ai-msg.user .ai-bubble{background:var(--lime-dim);border:1px solid rgba(212,245,60,.2);border-radius:14px 14px 4px 14px;}
+.ai-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;margin-top:2px;}
+.ai-msg.assistant .ai-avatar{background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid var(--border2);}
+.ai-msg.user .ai-avatar{background:var(--lime-dim);color:var(--lime);font-size:11px;font-weight:700;}
+.ai-input-bar{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--border);flex-shrink:0;background:var(--bg2);}
+.ai-input{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:9px 14px;color:var(--text);font-size:13px;outline:none;font-family:"Plus Jakarta Sans",sans-serif;resize:none;}
+.ai-input:focus{border-color:var(--lime);}
+.ai-send{width:36px;height:36px;border-radius:50%;background:var(--lime);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;align-self:flex-end;transition:background .15s;}
+.ai-send:hover{background:var(--lime2);}
+.ai-send:disabled{background:var(--bg4);cursor:not-allowed;}
+.ai-quick-btns{display:flex;gap:6px;padding:10px 16px 0;overflow-x:auto;flex-shrink:0;}
+.ai-quick-btns::-webkit-scrollbar{display:none;}
+.ai-quick-btn{font-size:11px;font-weight:600;padding:6px 12px;border-radius:20px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);cursor:pointer;white-space:nowrap;transition:all .15s;font-family:"Plus Jakarta Sans",sans-serif;}
+.ai-quick-btn:hover{background:var(--bg4);color:var(--text);}
+.ai-ctx-bar{display:flex;align-items:center;gap:8px;padding:10px 16px 0;flex-shrink:0;}
+.ai-ctx-label{font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.6px;white-space:nowrap;}
+.ai-ctx-sel{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r-sm);padding:6px 10px;color:var(--text);font-size:12px;outline:none;}
+.ai-dormant-banner{margin:20px 16px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:20px;text-align:center;}
+.ai-dormant-icon{font-size:40px;margin-bottom:12px;}
+.ai-dormant-title{font-family:"Nunito",sans-serif;font-size:17px;font-weight:800;margin-bottom:8px;}
+.ai-dormant-desc{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:16px;}
+.ai-feature-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--border);text-align:left;}
+.ai-feature-row:first-of-type{border-top:none;}
+.ai-feature-icon{font-size:16px;flex-shrink:0;}
+.ai-feature-text{font-size:12px;color:var(--text2);line-height:1.4;}
+.ai-feature-text b{color:var(--text);display:block;}
+.ai-typing{display:flex;gap:4px;align-items:center;padding:10px 14px;}
+.ai-typing span{width:6px;height:6px;border-radius:50%;background:var(--text3);animation:typing .9s infinite;}
+.ai-typing span:nth-child(2){animation-delay:.2s;}
+.ai-typing span:nth-child(3){animation-delay:.4s;}
+@keyframes typing{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-4px);}}
 /* ── CALENDAR INTEGRATION ── */
 .cal-provider-card{display:flex;align-items:center;gap:14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:all .15s;}
 .cal-provider-card:hover{border-color:var(--border2);background:var(--bg3);}
@@ -676,6 +730,79 @@ select.finp{cursor:pointer;}
       <div id="lib-list" style="padding-bottom:16px;"></div>
     </div>
 
+    <!-- TRAINER: AI ASSISTANT TAB -->
+    <div id="t-tab-ai" class="hidden" style="flex:1;flex-direction:column;overflow:hidden;">
+      <div class="topbar" style="flex-shrink:0;">
+        <div>
+          <div class="topbar-title">AI Assistant</div>
+          <div style="font-size:11px;color:var(--text3);" id="ai-status-label">Trainer only</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <div class="icon-btn" onclick="clearAIChat()" title="Clear chat" style="font-size:13px;">🗑</div>
+        </div>
+      </div>
+
+      <!-- Dormant banner — shown when backend not connected -->
+      <div id="ai-dormant" class="scroll-area" style="flex:1;">
+        <div class="ai-dormant-banner">
+          <div class="ai-dormant-icon">🤖</div>
+          <div class="ai-dormant-title">AI Assistant</div>
+          <div class="ai-dormant-desc">
+            Your personal training AI — drafts programs, analyses client progress, and suggests nutrition guidance. <b style="color:var(--lime);">Trainer-only.</b> Clients never see this.
+          </div>
+          <div class="ai-feature-row">
+            <div class="ai-feature-icon">🏋️</div>
+            <div class="ai-feature-text"><b>Generate workout programs</b>Describe a client's goals and get a full week of sessions in seconds. You review, edit, and assign.</div>
+          </div>
+          <div class="ai-feature-row">
+            <div class="ai-feature-icon">📊</div>
+            <div class="ai-feature-text"><b>Analyse client progress</b>Ask about a client's RPE trends, PB history, or sessions completed and get a plain-English summary.</div>
+          </div>
+          <div class="ai-feature-row">
+            <div class="ai-feature-icon">🥗</div>
+            <div class="ai-feature-text"><b>Nutrition guidance</b>Get macro targets, meal timing suggestions, and supplement advice based on a client's goal.</div>
+          </div>
+          <div class="ai-feature-row">
+            <div class="ai-feature-icon">💡</div>
+            <div class="ai-feature-text"><b>Exercise substitutions</b>Client has a knee injury? Ask for alternatives to any exercise instantly.</div>
+          </div>
+          <div class="ai-feature-row">
+            <div class="ai-feature-icon">📝</div>
+            <div class="ai-feature-text"><b>Session notes</b>Describe what happened in a session and get a polished note to save to the client's profile.</div>
+          </div>
+        </div>
+        <div style="margin:0 16px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;">
+          <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:6px;">🔧 Developer activation</div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:10px;">To activate, set <code style="background:var(--bg4);padding:1px 5px;border-radius:3px;font-size:11px;">AI_ENABLED = true</code> and add your Anthropic API key to the backend. The full chat interface is already built.</div>
+          <button class="btn btn-secondary btn-full" style="font-size:12px;" onclick="activateAIDemo()">Preview demo mode</button>
+        </div>
+      </div>
+
+      <!-- Live chat interface — hidden until activated -->
+      <div id="ai-live" class="hidden" style="flex:1;display:flex;flex-direction:column;overflow:hidden;">
+        <div class="ai-ctx-bar">
+          <div class="ai-ctx-label">Context:</div>
+          <select class="ai-ctx-sel" id="ai-client-ctx" onchange="updateAIContext()">
+            <option value="">General (no client)</option>
+          </select>
+        </div>
+        <div class="ai-quick-btns" id="ai-quick-btns">
+          <button class="ai-quick-btn" onclick="aiQuickPrompt('generate')">📋 Generate program</button>
+          <button class="ai-quick-btn" onclick="aiQuickPrompt('progress')">📊 Review progress</button>
+          <button class="ai-quick-btn" onclick="aiQuickPrompt('nutrition')">🥗 Nutrition advice</button>
+          <button class="ai-quick-btn" onclick="aiQuickPrompt('substitute')">🔄 Exercise substitution</button>
+          <button class="ai-quick-btn" onclick="aiQuickPrompt('note')">📝 Write session note</button>
+          <button class="ai-quick-btn" onclick="aiQuickPrompt('deload')">😴 Deload week</button>
+        </div>
+        <div class="ai-messages" id="ai-messages"></div>
+        <div class="ai-input-bar">
+          <textarea class="ai-input" id="ai-input" placeholder="Ask anything about training, nutrition, or your clients..." rows="1"
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAIMessage();}"></textarea>
+          <button class="ai-send" id="ai-send-btn" onclick="sendAIMessage()">➤</button>
+        </div>
+      </div>
+    </div>
+
     <!-- TRAINER BOTTOM NAV (mobile) / SIDEBAR (desktop) -->
     <div class="bottom-nav" id="trainer-nav">
       <!-- Desktop sidebar header -->
@@ -698,6 +825,10 @@ select.finp{cursor:pointer;}
       <div class="nav-tab" id="tnav-log" onclick="switchTab('t','log')">
         <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/><circle cx="12" cy="12" r="9"/></svg>
         <span>Log</span>
+      </div>
+      <div class="nav-tab" id="tnav-ai" onclick="switchTab('t','ai')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/><circle cx="19" cy="5" r="3" fill="currentColor" stroke="none" style="color:var(--lime)"/></svg>
+        <span>AI</span>
       </div>
       <div class="nav-tab" id="tnav-library" onclick="switchTab('t','library')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="12" y1="7" x2="16" y2="7"/><line x1="12" y1="11" x2="16" y2="11"/></svg>
@@ -846,6 +977,55 @@ select.finp{cursor:pointer;}
           </div>
           <button class="btn btn-primary btn-full" style="margin-top:4px;" onclick="saveClientBodyComp()">Save Measurements</button>
           <div id="c-prof-comp-history" style="margin-top:16px;"></div>
+        </div>
+
+        <!-- VO2max -->
+        <div class="form-block">
+          <div class="form-block-title">🫁 VO2max</div>
+          <div style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.5;">Your cardiorespiratory fitness score. Get it from a smartwatch, lab test, or fitness app and log it here. Your trainer can see this.</div>
+
+          <!-- Latest reading display -->
+          <div id="c-vo2-current" style="display:none;" class="vo2-card">
+            <div style="display:flex;align-items:flex-end;gap:4px;margin-bottom:4px;">
+              <div class="vo2-big" id="c-vo2-val">—</div>
+              <span class="vo2-unit">ml/kg/min</span>
+            </div>
+            <div style="font-size:11px;color:var(--text3);margin-top:6px;font-family:'DM Mono',monospace;" id="c-vo2-date"></div>
+          </div>
+
+          <!-- Entry form -->
+          <div class="flabel">VO2max value (ml/kg/min)</div>
+          <input class="finp" type="number" step="0.1" id="c-vo2-input" placeholder="e.g. 45.2"/>
+          <div class="flabel">Test date</div>
+          <input class="finp" type="date" id="c-vo2-date-input" style="margin-bottom:12px;"/>
+
+          <div class="flabel">Source / device</div>
+          <select class="finp" id="c-vo2-source">
+            <option value="garmin">Garmin</option>
+            <option value="apple">Apple Watch</option>
+            <option value="polar">Polar</option>
+            <option value="whoop">Whoop</option>
+            <option value="wahoo">Wahoo</option>
+            <option value="lab">Lab test</option>
+            <option value="other">Other device</option>
+          </select>
+
+          <!-- Photo upload -->
+          <div class="flabel">Upload result photo (optional)</div>
+          <div class="vo2-photo-zone" onclick="document.getElementById('c-vo2-photo-input').click()">
+            <img id="c-vo2-photo-preview" class="vo2-photo-preview"/>
+            <div id="c-vo2-photo-hint">
+              <div style="font-size:22px;margin-bottom:6px;">📷</div>
+              <div style="font-size:13px;color:var(--text2);font-weight:600;">Tap to upload photo</div>
+              <div style="font-size:11px;color:var(--text3);margin-top:3px;">Screenshot, watch screen, or lab result</div>
+            </div>
+          </div>
+          <input type="file" id="c-vo2-photo-input" accept="image/*" style="display:none;" onchange="handleVO2Photo(this)"/>
+
+          <button class="btn btn-primary btn-full" onclick="saveClientVO2()">Save VO2max Entry</button>
+
+          <!-- History -->
+          <div id="c-vo2-history" style="margin-top:16px;"></div>
         </div>
 
         <!-- Units -->
@@ -1026,6 +1206,13 @@ select.finp{cursor:pointer;}
           </div>
           <button class="btn btn-primary btn-full" style="margin-top:4px;" onclick="saveBodyComp()">Save Measurements</button>
           <div id="prof-comp-history" style="margin-top:16px;"></div>
+        </div>
+
+        <div class="form-block">
+          <div class="form-block-title">🫁 VO2max History</div>
+          <div id="prof-vo2-display">
+            <div class="empty-state" style="padding:20px 0;"><div class="empty-icon" style="font-size:24px;">🫁</div><div class="empty-msg">No VO2max data logged yet</div></div>
+          </div>
         </div>
 
         <button class="btn btn-danger btn-full" onclick="removeClientConfirm()">Remove Client</button>
@@ -1459,6 +1646,14 @@ select.finp{cursor:pointer;}
   </div>
 </div>
 
+<!-- VO2MAX PHOTO LIGHTBOX -->
+<div class="video-modal hidden" id="vo2-lightbox" onclick="document.getElementById('vo2-lightbox').classList.add('hidden')">
+  <div style="position:relative;max-width:90vw;max-height:85vh;">
+    <img id="vo2-lightbox-img" style="max-width:90vw;max-height:80vh;border-radius:var(--r);object-fit:contain;" src=""/>
+    <div style="margin-top:10px;text-align:center;font-size:13px;color:var(--text2);" id="vo2-lightbox-caption"></div>
+  </div>
+</div>
+
 <!-- NOTIFICATION PANEL -->
 <div class="notif-panel" id="notif-panel">
   <div class="notif-header">
@@ -1496,6 +1691,7 @@ function loadData(){
   if(!d.messages) d.messages={};
   if(!d.workoutLibrary) d.workoutLibrary=[];
   if(!d.calendarConnections) d.calendarConnections={};
+  if(d.clients) d.clients.forEach(function(c){ if(!c.vo2max) c.vo2max=[]; });
   if(!d.notifications) d.notifications={trainer:[],clients:{}};
   if(!d.notifications.trainer) d.notifications.trainer=[];
   if(!d.notifications.clients) d.notifications.clients={};
@@ -1641,6 +1837,7 @@ function switchTab(role, tab){
   document.getElementById(`${prefix}nav-${tab}`)?.classList.add('active');
   if(role==='t'&&tab==='schedule') renderSchedule();
   if(role==='t'&&tab==='library') renderLibrary();
+  if(role==='t'&&tab==='ai') initAITab();
   if(role==='t'&&tab==='messages') initTrainerMessageTab();
   if(role==='c'&&tab==='settings') loadClientSettingsTab();
   if(role==='c'&&tab==='messages') renderClientMessages();
@@ -2007,6 +2204,7 @@ function renderPanelProfile(){
   document.getElementById('prof-comp-date').value=bc.date||new Date().toISOString().split('T')[0];
   updateBMIDisplay();
   renderCompHistory(c);
+  renderTrainerVO2Display(c);
 }
 
 function updateBMIDisplay(){
@@ -2524,6 +2722,10 @@ function loadClientSettingsTab(){
   if(mlbl) mlbl.textContent=`Muscle Mass (${u})`;
   updateClientBMI();
   renderClientCompHistory(c);
+  // VO2max
+  document.getElementById('c-vo2-date-input').value=new Date().toISOString().split('T')[0];
+  document.getElementById('c-vo2-input').value='';
+  renderClientVO2Display(c);
 }
 
 function saveClientOwnProfile(){
@@ -3311,6 +3513,467 @@ function closeVideoModal(){
 // ══════════════════════════════════════════════════
 function formatDate(d){
   return new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+}
+
+// ══ VO2MAX ═══════════════════════════════════════════
+
+function handleVO2Photo(input){
+  const file=input.files[0];
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const img=document.getElementById('c-vo2-photo-preview');
+    const hint=document.getElementById('c-vo2-photo-hint');
+    img.src=e.target.result;
+    img.style.display='block';
+    hint.style.display='none';
+    // Store base64 temporarily on the input element
+    input.dataset.base64=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveClientVO2(){
+  const c=DB.clients.find(function(x){return x.id===currentClientId;});
+  if(!c) return;
+  const val=document.getElementById('c-vo2-input').value;
+  if(!val){showToast('Enter a VO2max value');return;}
+  const date=document.getElementById('c-vo2-date-input').value||new Date().toISOString().split('T')[0];
+  const source=document.getElementById('c-vo2-source').value;
+  const photoInput=document.getElementById('c-vo2-photo-input');
+  const photo=photoInput.dataset.base64||null;
+  if(!c.vo2max) c.vo2max=[];
+  const entry={id:'v2_'+Date.now(),date:date,value:parseFloat(val),source:source,photo:photo||null};
+  // Replace if same date, otherwise prepend
+  const existing=c.vo2max.findIndex(function(e){return e.date===date;});
+  if(existing>=0) c.vo2max[existing]=entry;
+  else c.vo2max.unshift(entry);
+  saveData(DB);
+  // Reset form
+  document.getElementById('c-vo2-input').value='';
+  document.getElementById('c-vo2-photo-preview').style.display='none';
+  document.getElementById('c-vo2-photo-hint').style.display='block';
+  document.getElementById('c-vo2-preview-cat').style.display='none';
+  photoInput.value='';
+  delete photoInput.dataset.base64;
+  // Notify trainer
+  addNotification('trainer','session',c.name+' logged VO2max',
+    'VO2max: '+val+' ml/kg/min');
+  renderClientVO2Display(c);
+  showToast('VO2max saved ✓');
+}
+
+function renderClientVO2Display(c){
+  if(!c.vo2max||!c.vo2max.length){
+    document.getElementById('c-vo2-current').style.display='none';
+    document.getElementById('c-vo2-history').innerHTML='';
+    return;
+  }
+  const sorted=[...c.vo2max].sort(function(a,b){return b.date.localeCompare(a.date);});
+  const latest=sorted[0];
+  // Current card
+  const el=document.getElementById('c-vo2-current');
+  if(el){
+    el.style.display='block';
+    document.getElementById('c-vo2-val').textContent=latest.value;
+    const dateEl=document.getElementById('c-vo2-date');
+    if(dateEl) dateEl.textContent=formatDate(latest.date)+' · '+latest.source;
+  }
+  // History list with mini chart
+  let html='<div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;">History</div>';
+  // Mini sparkline using canvas
+  if(sorted.length>1){
+    html+='<canvas id="c-vo2-chart" style="width:100%;height:80px;margin-bottom:12px;"></canvas>';
+  }
+  html+=sorted.map(function(e,i){
+      return '<div class="vo2-history-row">'
+      +(e.photo?'<img class="vo2-photo-thumb" src="'+e.photo+'" onclick="openVO2Photo(\''+e.id+'\',\''+currentClientId+'\')" alt="Result photo"/>':'<div style="width:48px;height:48px;border-radius:var(--r-xs);background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🫁</div>')
+      +'<div style="flex:1;min-width:0;">'
+        +'<div class="vo2-history-val" style="color:var(--text)">'+e.value+' <span style="font-size:10px;color:var(--text3);font-weight:400;">ml/kg/min</span></div>'
+        +'<div class="vo2-history-date">'+formatDate(e.date)+' · '+e.source+'</div>'
+      +'</div>'
+      ''
+      +(i===0?'<span style="font-size:10px;font-weight:700;color:var(--lime);background:var(--lime-dim);padding:2px 7px;border-radius:20px;margin-left:6px;">Latest</span>':'')
+      +'</div>';
+  }).join('');
+  const histEl=document.getElementById('c-vo2-history');
+  if(histEl) histEl.innerHTML=html;
+  // Draw sparkline after DOM update
+  if(sorted.length>1){
+    setTimeout(function(){drawVO2Sparkline('c-vo2-chart',sorted,'var(--blue)');},50);
+  }
+}
+
+function renderTrainerVO2Display(c){
+  const el=document.getElementById('prof-vo2-display');
+  if(!el) return;
+  if(!c.vo2max||!c.vo2max.length){
+    el.innerHTML='<div class="empty-state" style="padding:20px 0;"><div class="empty-icon" style="font-size:24px;">🫁</div><div class="empty-msg">No VO2max data logged yet</div></div>';
+    return;
+  }
+  const sorted=[...c.vo2max].sort(function(a,b){return b.date.localeCompare(a.date);});
+  const latest=sorted[0];
+  let html='<div class="vo2-card" style="margin-bottom:12px;">'
+    +'<div style="display:flex;align-items:flex-end;gap:4px;margin-bottom:4px;">'
+    +'<div class="vo2-big" style="color:'+(cat?cat.color:'var(--text)')+'">'+latest.value+'</div>'
+    +'<span class="vo2-unit">ml/kg/min</span></div>'
+    +(cat?'<span class="vo2-cat" style="background:'+cat.bg+';color:'+cat.color+'">'+cat.label+'</span>':'')
+    +'<div style="font-size:11px;color:var(--text3);margin-top:6px;font-family:\'DM Mono\',monospace;">'+formatDate(latest.date)+' · '+latest.source+'</div>'
+    +'</div>';
+  if(sorted.length>1){
+    html+='<canvas id="prof-vo2-chart" style="width:100%;height:70px;margin-bottom:12px;"></canvas>';
+  }
+  html+='<div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;">All entries</div>';
+  html+=sorted.map(function(e){
+      return '<div class="vo2-history-row">'
+      +(e.photo?'<img class="vo2-photo-thumb" src="'+e.photo+'" onclick="openVO2PhotoTrainer(\''+e.id+'\',\''+c.id+'\')" alt="Result"/>':'<div style="width:48px;height:48px;border-radius:var(--r-xs);background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">🫁</div>')
+      +'<div style="flex:1;min-width:0;">'
+        +'<div class="vo2-history-val" style="color:var(--text)">'+e.value+' <span style="font-size:10px;color:var(--text3);font-weight:400;">ml/kg/min</span></div>'
+        +'<div class="vo2-history-date">'+formatDate(e.date)+' · '+e.source+'</div>'
+      +'</div>'
+      ''
+      +'</div>';
+  }).join('');
+  el.innerHTML=html;
+  if(sorted.length>1){
+    setTimeout(function(){drawVO2Sparkline('prof-vo2-chart',sorted,'var(--blue)');},50);
+  }
+}
+
+function drawVO2Sparkline(canvasId, sortedEntries, color){
+  const canvas=document.getElementById(canvasId);
+  if(!canvas) return;
+  const dpr=window.devicePixelRatio||1;
+  const W=canvas.offsetWidth||300;
+  const H=canvas.offsetHeight||80;
+  canvas.width=W*dpr; canvas.height=H*dpr;
+  const ctx=canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+  const vals=sortedEntries.map(function(e){return e.value;}).reverse();
+  const min=Math.min(...vals)-5;
+  const max=Math.max(...vals)+5;
+  const pad={l:30,r:10,t:10,b:20};
+  const iW=W-pad.l-pad.r, iH=H-pad.t-pad.b;
+  const xStep=vals.length>1?iW/(vals.length-1):0;
+  // Grid lines
+  ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.lineWidth=1;
+  [0,0.5,1].forEach(function(f){
+    const y=pad.t+iH*(1-f);
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,0.25)';ctx.font='9px DM Mono,monospace';
+    ctx.fillText(Math.round(min+f*(max-min)),2,y+3);
+  });
+  // Resolve CSS variable colors
+  const tmp=document.createElement('div');
+  tmp.style.color=color; document.body.appendChild(tmp);
+  const resolvedColor=getComputedStyle(tmp).color; document.body.removeChild(tmp);
+  // Line
+  ctx.strokeStyle=resolvedColor;ctx.lineWidth=2;ctx.lineJoin='round';
+  ctx.beginPath();
+  vals.forEach(function(v,i){
+    const x=pad.l+i*xStep;
+    const y=pad.t+iH*(1-(v-min)/(max-min));
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+  // Fill under line
+  ctx.globalAlpha=0.12;
+  ctx.fillStyle=resolvedColor;
+  ctx.lineTo(pad.l+( vals.length-1)*xStep,pad.t+iH);
+  ctx.lineTo(pad.l,pad.t+iH);ctx.closePath();ctx.fill();
+  ctx.globalAlpha=1;
+  // Dots
+  vals.forEach(function(v,i){
+    const x=pad.l+i*xStep;
+    const y=pad.t+iH*(1-(v-min)/(max-min));
+    ctx.fillStyle=resolvedColor;
+    ctx.beginPath();ctx.arc(x,y,3.5,0,Math.PI*2);ctx.fill();
+  });
+  // Date labels
+  ctx.fillStyle='rgba(255,255,255,0.3)';ctx.font='9px Plus Jakarta Sans,sans-serif';
+  sortedEntries.slice().reverse().forEach(function(e,i){
+    if(i===0||i===sortedEntries.length-1||vals.length<=4){
+      const x=pad.l+i*xStep;
+      const d=new Date(e.date+'T12:00:00');
+      const lbl=(d.getMonth()+1)+'/'+(d.getDate());
+      ctx.textAlign=i===0?'left':i===vals.length-1?'right':'center';
+      ctx.fillText(lbl,x,H-4);
+    }
+  });
+}
+
+function openVO2Photo(entryId, clientId){
+  const c=DB.clients.find(function(x){return x.id===clientId;});
+  if(!c) return;
+  const e=(c.vo2max||[]).find(function(x){return x.id===entryId;});
+  if(!e||!e.photo) return;
+  document.getElementById('vo2-lightbox-img').src=e.photo;
+  document.getElementById('vo2-lightbox-caption').textContent=
+    'VO2max '+e.value+' ml/kg/min · '+formatDate(e.date)+' · '+e.source;
+  document.getElementById('vo2-lightbox').classList.remove('hidden');
+}
+
+function openVO2PhotoTrainer(entryId, clientId){
+  openVO2Photo(entryId, clientId);
+}
+
+// ══ AI ASSISTANT ═════════════════════════════════════
+// ── BACKEND ACTIVATION ───────────────────────────────
+// To activate: set AI_ENABLED = true and ensure your backend
+// proxies requests to the Anthropic API with your key.
+// The backend endpoint should accept POST { messages, systemPrompt }
+// and return { content: [{ type:'text', text:'...' }] }
+//
+// Backend proxy endpoint — swap this URL when backend is ready:
+const AI_BACKEND_URL = '__BACKEND_URL__/api/ai/chat';
+let AI_ENABLED = false; // ← Set to true when backend is live
+// ── END BACKEND CONFIG ───────────────────────────────
+
+let aiMessages = []; // conversation history
+let aiClientContext = null; // currently selected client for context
+let aiDemoMode = false;
+
+function initAITab(){
+  // Populate client selector
+  const sel = document.getElementById('ai-client-ctx');
+  if(sel){
+    sel.innerHTML = '<option value="">General (no client)</option>' +
+      DB.clients.map(c => '<option value="'+c.id+'">'+c.name+'</option>').join('');
+  }
+  // Show live or dormant based on activation
+  const dormant = document.getElementById('ai-dormant');
+  const live = document.getElementById('ai-live');
+  if(AI_ENABLED || aiDemoMode){
+    if(dormant) dormant.classList.add('hidden');
+    if(live){ live.classList.remove('hidden'); live.style.display='flex'; }
+    document.getElementById('ai-status-label').textContent = aiDemoMode ? 'Demo mode' : 'Connected';
+    if(!aiMessages.length) showAIWelcome();
+  } else {
+    if(dormant) dormant.classList.remove('hidden');
+    if(live) live.classList.add('hidden');
+    document.getElementById('ai-status-label').textContent = 'Requires backend';
+  }
+}
+
+function activateAIDemo(){
+  aiDemoMode = true;
+  initAITab();
+}
+
+function showAIWelcome(){
+  aiMessages = [];
+  const msgs = document.getElementById('ai-messages');
+  if(!msgs) return;
+  msgs.innerHTML = '';
+  appendAIMessage('assistant',
+    "Hi! I'm your AI training assistant. I can help you:\n\n" +
+    "• **Generate workout programs** tailored to a client's goals\n" +
+    "• **Analyse progress** from their session history\n" +
+    "• **Suggest nutrition** targets and meal timing\n" +
+    "• **Find exercise substitutions** for injuries or equipment limits\n" +
+    "• **Draft session notes** from your observations\n\n" +
+    "Select a client from the dropdown above to give me their context, or ask me anything general about training."
+  );
+}
+
+function updateAIContext(){
+  const sel = document.getElementById('ai-client-ctx');
+  aiClientContext = sel ? sel.value : null;
+  const c = aiClientContext ? DB.clients.find(x => x.id === aiClientContext) : null;
+  if(c){
+    appendAIMessage('assistant',
+      'Got it — I now have context for **'+c.name+'**. '+
+      'Goal: '+c.goal+'. '+
+      (c.sessions ? c.sessions+' sessions logged. ' : '')+
+      (c.medNotes && c.medNotes !== 'No known issues' ? 'Note: '+c.medNotes+'. ' : '')+
+      'What would you like to know or create for them?'
+    );
+  }
+}
+
+function buildSystemPrompt(){
+  const c = aiClientContext ? DB.clients.find(x => x.id === aiClientContext) : null;
+  let sys = "You are an expert personal trainer AI assistant. You help professional personal trainers — NOT clients directly. " +
+    "You generate workout programs, analyse client data, suggest nutrition guidance, and help with exercise substitutions. " +
+    "Keep responses practical, professional, and concise. Use markdown formatting where helpful. " +
+    "When generating workouts, format them clearly with sets, reps, and rest periods. " +
+    "IMPORTANT: You are a tool for the trainer — clients never see your responses. " +
+    "The trainer reviews and approves everything before it reaches clients.";
+  if(c){
+    sys += "\n\nCURRENT CLIENT CONTEXT:";
+    sys += "\nName: "+c.name;
+    sys += "\nGoal: "+c.goal;
+    sys += "\nAge: "+(c.age||'unknown');
+    sys += "\nSessions per week target: "+(c.sessionsPw||'unknown');
+    sys += "\nMedical notes: "+(c.medNotes||'none');
+    sys += "\nTotal sessions logged: "+(c.sessions||0);
+    if(c.history && c.history.length){
+      const recent = c.history.slice(0,3);
+      sys += "\nRecent sessions: "+recent.map(h=>h.type+' (RPE '+h.rpe+') on '+h.date).join(', ');
+    }
+    if(c.bodyComp && c.bodyComp.length){
+      const bc = c.bodyComp[0];
+      sys += "\nLatest body comp: weight "+bc.weight+"kg, body fat "+bc.bodyFat+"%, muscle "+bc.muscle+"kg";
+    }
+    if(c.vo2max && c.vo2max.length){
+      const v2=c.vo2max.sort(function(a,b){return b.date.localeCompare(a.date);})[0];
+          sys += "\nVO2max: "+v2.value+" ml/kg/min"+", measured "+v2.date;
+    }
+  }
+  return sys;
+}
+
+const AI_QUICK_PROMPTS = {
+  generate: function(){
+    const c = aiClientContext ? DB.clients.find(x => x.id === aiClientContext) : null;
+    return c
+      ? 'Generate a full week of training sessions for '+c.name+'. Their goal is '+c.goal+'. Include exercise names, sets, reps, rest periods, and brief coaching cues for each.'
+      : 'Generate a 4-day strength training program for a client whose goal is muscle gain. Include exercise names, sets, reps, rest periods, and RPE targets.';
+  },
+  progress: function(){
+    const c = aiClientContext ? DB.clients.find(x => x.id === aiClientContext) : null;
+    if(!c) return 'How do I analyse and present client progress effectively?';
+    const sessions = (c.history||[]).length;
+    return 'Summarise '+c.name+"'s progress based on their "+sessions+' logged sessions. What trends should I focus on in our next session?';
+  },
+  nutrition: function(){
+    const c = aiClientContext ? DB.clients.find(x => x.id === aiClientContext) : null;
+    return c
+      ? 'What are the ideal daily macro targets for '+c.name+' whose goal is '+c.goal+'? Also suggest meal timing around training sessions.'
+      : 'What are general macro guidelines for someone focused on muscle gain who trains 4 times per week?';
+  },
+  substitute: function(){
+    return 'My client has a knee injury and cannot do squats or lunges. What are the best lower body substitutions that still develop quad and glute strength?';
+  },
+  note: function(){
+    const c = aiClientContext ? DB.clients.find(x => x.id === aiClientContext) : null;
+    return c
+      ? 'Help me write a professional session note for '+c.name+". They completed their session today. The energy was good, they hit a small PB on bench press, but mentioned some lower back tightness during deadlifts."
+      : 'Help me write a professional session note template I can use for my clients.';
+  },
+  deload: function(){
+    const c = aiClientContext ? DB.clients.find(x => x.id === aiClientContext) : null;
+    return c
+      ? 'Design a deload week for '+c.name+' who trains '+( c.sessionsPw||3)+' days per week. Their goal is '+c.goal+'.'
+      : 'Design a deload week protocol for a client who has been training hard for 8 weeks.';
+  }
+};
+
+function aiQuickPrompt(type){
+  const text = AI_QUICK_PROMPTS[type] ? AI_QUICK_PROMPTS[type]() : '';
+  if(!text) return;
+  const inp = document.getElementById('ai-input');
+  if(inp){ inp.value = text; inp.focus(); }
+}
+
+function appendAIMessage(role, text){
+  const msgs = document.getElementById('ai-messages');
+  if(!msgs) return;
+  const trainerInitials = DB.trainer.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+  const div = document.createElement('div');
+  div.className = 'ai-msg '+role;
+  // Simple markdown: bold, newlines, bullet points
+  const formatted = text
+    .replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')
+    .replace(/\n• /g,'<br>• ')
+    .replace(/\n\n/g,'<br><br>')
+    .replace(/\n/g,'<br>');
+  div.innerHTML =
+    '<div class="ai-avatar">'+(role==='assistant'?'✦':trainerInitials)+'</div>'+
+    '<div class="ai-bubble">'+formatted+'</div>';
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  if(role==='user') aiMessages.push({role:'user', content:text});
+  else aiMessages.push({role:'assistant', content:text});
+}
+
+function showAITyping(){
+  const msgs = document.getElementById('ai-messages');
+  if(!msgs) return;
+  const div = document.createElement('div');
+  div.className = 'ai-msg assistant';
+  div.id = 'ai-typing-indicator';
+  div.innerHTML = '<div class="ai-avatar">✦</div><div class="ai-bubble"><div class="ai-typing"><span></span><span></span><span></span></div></div>';
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function removeAITyping(){
+  const el = document.getElementById('ai-typing-indicator');
+  if(el) el.remove();
+}
+
+async function sendAIMessage(){
+  const inp = document.getElementById('ai-input');
+  const btn = document.getElementById('ai-send-btn');
+  const text = (inp ? inp.value.trim() : '');
+  if(!text) return;
+  inp.value = '';
+  btn.disabled = true;
+  appendAIMessage('user', text);
+  showAITyping();
+  if(AI_ENABLED){
+    // ── LIVE MODE ─────────────────────────────────────────
+    // Real backend call — uncomment when backend is ready:
+    /*
+    try {
+      const response = await fetch(AI_BACKEND_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system: buildSystemPrompt(),
+          messages: aiMessages.slice(-20), // last 20 for context window
+          max_tokens: 1024
+        })
+      });
+      const data = await response.json();
+      const reply = data.content && data.content[0] ? data.content[0].text : 'Sorry, I could not generate a response.';
+      removeAITyping();
+      appendAIMessage('assistant', reply);
+    } catch(err) {
+      removeAITyping();
+      appendAIMessage('assistant', 'Connection error. Please check the backend is running.');
+    }
+    */
+    removeAITyping();
+    appendAIMessage('assistant','Backend is set to enabled but the endpoint is not yet configured. Update AI_BACKEND_URL to activate.');
+  } else if(aiDemoMode){
+    // ── DEMO MODE ─────────────────────────────────────────
+    setTimeout(function(){
+      removeAITyping();
+      appendAIMessage('assistant', getDemoResponse(text));
+      btn.disabled = false;
+    }, 900 + Math.random()*600);
+    return;
+  }
+  btn.disabled = false;
+}
+
+function getDemoResponse(text){
+  const lower = text.toLowerCase();
+  if(lower.includes('generat') || lower.includes('program') || lower.includes('workout')){
+    return "Here's a sample 4-day program:\n\n**Day 1 — Upper Push**\n• Bench Press: 4×6 @ RPE 8\n• Overhead Press: 3×8 @ RPE 7\n• Incline DB Press: 3×10 @ RPE 7\n• Tricep Pushdown: 3×12 @ RPE 6\n\n**Day 2 — Lower**\n• Squat: 4×5 @ RPE 8\n• Romanian Deadlift: 3×8 @ RPE 7\n• Leg Press: 3×10 @ RPE 7\n• Calf Raises: 4×15\n\nLoad this into the Library tab, then assign to your client directly. Want me to adjust for any injuries or equipment limits?";
+  }
+  if(lower.includes('nutrition') || lower.includes('macro') || lower.includes('diet')){
+    return "For a client focused on **muscle gain** training 3–4x/week, a solid starting point:\n\n• **Protein:** 1.8–2.2g per kg bodyweight\n• **Carbs:** 4–6g per kg bodyweight (higher on training days)\n• **Fat:** 0.8–1g per kg bodyweight\n\n**Meal timing:** Prioritise protein within 2 hours post-training. Pre-workout meal 1–2 hours before with carbs and moderate protein. Want specific numbers for a particular client?";
+  }
+  if(lower.includes('substit') || lower.includes('injur') || lower.includes('knee')){
+    return "For knee-friendly lower body alternatives:\n\n• **Squat subs:** Leg press, hip thrust, goblet squat (if tolerated), split squat on a raised surface\n• **Lunge subs:** Step-ups, hip thrust, single-leg press, Nordic hamstring curls\n• **Deadlift subs:** Hip thrust, back extension, 45° hyperextension\n\nFocus on hip hinge patterns and hip thrust variations — they load the glutes heavily without knee stress. Avoid anything with deep knee flexion until cleared.";
+  }
+  if(lower.includes('note') || lower.includes('session note')){
+    return "Here's a template you can adapt:\n\n---\n**Session Note — [Client Name] — [Date]**\n\nClient arrived [energy level]. Focus today: [session type].\n\n**Highlights:** [PBs, improvements, positive observations]\n\n**Areas to monitor:** [any tightness, form breakdowns, fatigue]\n\n**Next session focus:** [progression plan]\n\n**Client feedback:** [what they said]\n\n---\nWant me to draft a specific note if you describe what happened?";
+  }
+  if(lower.includes('progress') || lower.includes('analy')){
+    return "To meaningfully analyse client progress, look at:\n\n• **Strength trends** — are top-set weights increasing over 4–6 week blocks?\n• **RPE at same weights** — same weight feeling easier = fitness improving\n• **Session consistency** — are they hitting their sessions/week target?\n• **Body comp changes** — weight trends + measurements together\n• **Subjective energy** — session notes over time reveal a lot\n\nSelect a client from the dropdown and I can give you a specific breakdown of their data.";
+  }
+  return "That's a great question. In demo mode I can only show sample responses. Once the backend is connected with your API key, I'll give you a real, context-aware answer based on your clients' actual data.\n\nTry one of the quick prompts above to see what each type of response looks like!";
+}
+
+function clearAIChat(){
+  aiMessages = [];
+  const msgs = document.getElementById('ai-messages');
+  if(msgs) msgs.innerHTML = '';
+  if(AI_ENABLED || aiDemoMode) showAIWelcome();
 }
 
 // ══ CALENDAR INTEGRATION ═════════════════════════════
