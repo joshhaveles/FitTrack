@@ -302,6 +302,31 @@ select.finp{cursor:pointer;}
 
 .divider{height:1px;background:var(--border);margin:14px 0;}
 .hidden{display:none!important;}
+/* ── PAYMENTS ── */
+.pay-dormant-banner{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:16px;margin:0 0 16px;display:flex;gap:12px;align-items:flex-start;}
+.pay-stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;}
+.pay-stat{background:var(--bg3);border-radius:var(--r);padding:14px 12px;text-align:center;}
+.pay-stat-val{font-family:"Nunito",sans-serif;font-size:22px;font-weight:900;line-height:1;}
+.pay-stat-lbl{font-size:10px;color:var(--text3);margin-top:4px;text-transform:uppercase;letter-spacing:.6px;}
+.invoice-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;}
+.invoice-card-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;}
+.invoice-amount{font-family:"Nunito",sans-serif;font-size:20px;font-weight:900;}
+.invoice-status{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;}
+.invoice-status.paid{background:var(--green-dim);color:var(--green);}
+.invoice-status.pending{background:var(--orange-dim);color:var(--orange);}
+.invoice-status.overdue{background:var(--red-dim);color:var(--red);}
+.invoice-status.draft{background:var(--bg4);color:var(--text2);}
+.invoice-meta{font-size:12px;color:var(--text2);}
+.plan-card{border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:12px;transition:border-color .15s;position:relative;}
+.plan-card.current{border-color:var(--lime);background:var(--lime-dim);}
+.plan-card.popular::before{content:"Most popular";position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--lime);color:#0a0a0a;font-size:10px;font-weight:800;padding:3px 10px;border-radius:20px;font-family:"Nunito",sans-serif;}
+.plan-name{font-family:"Nunito",sans-serif;font-size:17px;font-weight:900;margin-bottom:2px;}
+.plan-price{font-family:"Nunito",sans-serif;font-size:28px;font-weight:900;line-height:1;margin:8px 0 4px;}
+.plan-price span{font-size:13px;font-weight:400;color:var(--text2);}
+.plan-feature{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);padding:4px 0;}
+.plan-feature-icon{color:var(--lime);font-size:12px;flex-shrink:0;}
+.stripe-badge{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text3);justify-content:center;margin-top:12px;}
+.stripe-logo{background:#635bff;color:#fff;font-size:10px;font-weight:800;padding:2px 6px;border-radius:3px;font-family:"Nunito",sans-serif;}
 /* ── VO2MAX ── */
 .vo2-card{background:var(--bg3);border-radius:var(--r);padding:16px;margin-bottom:12px;}
 .vo2-big{font-family:"Nunito",sans-serif;font-size:48px;font-weight:900;line-height:1;letter-spacing:-2px;}
@@ -602,6 +627,9 @@ select.finp{cursor:pointer;}
                 <div class="avatar-menu-name" id="trainer-menu-name">Jordan Reed</div>
                 <div class="avatar-menu-role">Personal Trainer</div>
               </div>
+              <div class="avatar-menu-item" onclick="openModal('modal-subscription');closeAllAvatarMenus();">
+                <span>💳</span> Subscription plan
+              </div>
               <div class="avatar-menu-item danger" onclick="doLogout()">
                 <span>↩</span> Sign out
               </div>
@@ -803,6 +831,43 @@ select.finp{cursor:pointer;}
       </div>
     </div>
 
+    <!-- TRAINER: PAYMENTS TAB -->
+    <div id="t-tab-payments" class="scroll-area hidden" style="flex:1;">
+      <div class="topbar">
+        <div class="topbar-title">Payments</div>
+        <div class="icon-btn" onclick="openCreateInvoiceModal()" title="New invoice">＋</div>
+      </div>
+      <div style="padding:0 16px 16px;">
+
+        <!-- Dormant banner -->
+        <div class="pay-dormant-banner" id="pay-dormant-banner">
+          <div style="font-size:20px;">🔧</div>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;">Stripe connection required</div>
+            <div style="font-size:12px;color:var(--text2);line-height:1.6;">Connect Stripe to collect payments from clients. Invoices are built and ready — they just need the backend to process payments.</div>
+            <button class="btn btn-secondary" style="font-size:11px;padding:5px 12px;margin-top:8px;" onclick="openStripeSetupModal()">Connect Stripe</button>
+          </div>
+        </div>
+
+        <!-- Stats row -->
+        <div class="pay-stat-row">
+          <div class="pay-stat"><div class="pay-stat-val" style="color:var(--green);" id="pay-stat-received">$0</div><div class="pay-stat-lbl">Received</div></div>
+          <div class="pay-stat"><div class="pay-stat-val" style="color:var(--orange);" id="pay-stat-pending">$0</div><div class="pay-stat-lbl">Pending</div></div>
+          <div class="pay-stat"><div class="pay-stat-val" id="pay-stat-invoices">0</div><div class="pay-stat-lbl">Invoices</div></div>
+        </div>
+
+        <!-- Filter tabs -->
+        <div class="tab-bar" style="margin:0 0 14px;">
+          <div class="tab-btn active" onclick="filterInvoices('all')">All</div>
+          <div class="tab-btn" onclick="filterInvoices('pending')">Pending</div>
+          <div class="tab-btn" onclick="filterInvoices('paid')">Paid</div>
+          <div class="tab-btn" onclick="filterInvoices('overdue')">Overdue</div>
+        </div>
+
+        <div id="invoice-list"></div>
+      </div>
+    </div>
+
     <!-- TRAINER BOTTOM NAV (mobile) / SIDEBAR (desktop) -->
     <div class="bottom-nav" id="trainer-nav">
       <!-- Desktop sidebar header -->
@@ -825,6 +890,10 @@ select.finp{cursor:pointer;}
       <div class="nav-tab" id="tnav-log" onclick="switchTab('t','log')">
         <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/><circle cx="12" cy="12" r="9"/></svg>
         <span>Log</span>
+      </div>
+      <div class="nav-tab" id="tnav-payments" onclick="switchTab('t','payments')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        <span>Payments</span>
       </div>
       <div class="nav-tab" id="tnav-ai" onclick="switchTab('t','ai')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 6v6l4 2"/><circle cx="19" cy="5" r="3" fill="currentColor" stroke="none" style="color:var(--lime)"/></svg>
@@ -1297,6 +1366,159 @@ select.finp{cursor:pointer;}
 </div>
 
 <!-- ASSIGN WORKOUT -->
+<!-- CREATE INVOICE MODAL -->
+<div class="modal-overlay hidden" id="modal-create-invoice" onclick="modalOutsideClose(event,'modal-create-invoice')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">New Invoice</div>
+    <div class="flabel">Client</div>
+    <select class="finp" id="inv-client"></select>
+    <div class="flabel">Description</div>
+    <input class="finp" id="inv-desc" placeholder="e.g. 4-week training program, June sessions..."/>
+    <div class="fgrid-2">
+      <div>
+        <div class="flabel">Amount</div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <select class="finp" id="inv-currency" style="width:72px;flex-shrink:0;">
+            <option>USD</option><option>EUR</option><option>GBP</option><option>CAD</option><option>AUD</option>
+          </select>
+          <input class="finp" type="number" id="inv-amount" placeholder="0.00" step="0.01" style="margin-bottom:0;"/>
+        </div>
+      </div>
+      <div><div class="flabel">Due date</div><input class="finp" type="date" id="inv-due"/></div>
+    </div>
+    <div class="flabel">Notes (optional)</div>
+    <textarea class="finp" id="inv-notes" placeholder="Payment instructions, what's included..." style="min-height:60px;"></textarea>
+    <div id="pay-stripe-warning" style="display:none;background:var(--orange-dim);border:1px solid rgba(245,147,91,.25);border-radius:var(--r-xs);padding:9px 12px;font-size:12px;color:var(--orange);margin-bottom:12px;">
+      ⚠️ Stripe not connected. Invoice will be saved as draft. Connect Stripe to send and collect payment.
+    </div>
+    <div class="gap-8 mt-8">
+      <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-create-invoice')">Cancel</button>
+      <button class="btn btn-secondary" style="flex:1" onclick="saveInvoice('draft')">Save draft</button>
+      <button class="btn btn-primary" style="flex:2" onclick="saveInvoice('send')">Send invoice</button>
+    </div>
+    <div class="stripe-badge"><span class="stripe-logo">stripe</span> Payments powered by Stripe</div>
+  </div>
+</div>
+
+<!-- INVOICE DETAIL MODAL -->
+<div class="modal-overlay hidden" id="modal-invoice-detail" onclick="modalOutsideClose(event,'modal-invoice-detail')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+      <div class="modal-title" style="margin-bottom:0;">Invoice</div>
+      <span class="invoice-status" id="inv-detail-status">Draft</span>
+    </div>
+    <div style="background:var(--bg3);border-radius:var(--r);padding:16px;margin-bottom:16px;">
+      <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">AMOUNT DUE</div>
+      <div style="display:flex;align-items:baseline;gap:6px;">
+        <div style="font-family:'Nunito',sans-serif;font-size:36px;font-weight:900;" id="inv-detail-amount">$0</div>
+      </div>
+      <div style="font-size:12px;color:var(--text2);margin-top:6px;" id="inv-detail-due"></div>
+    </div>
+    <div style="margin-bottom:12px;">
+      <div style="font-size:11px;color:var(--text3);margin-bottom:3px;">CLIENT</div>
+      <div style="font-size:14px;font-weight:600;" id="inv-detail-client"></div>
+    </div>
+    <div style="margin-bottom:12px;">
+      <div style="font-size:11px;color:var(--text3);margin-bottom:3px;">DESCRIPTION</div>
+      <div style="font-size:13px;color:var(--text2);" id="inv-detail-desc"></div>
+    </div>
+    <div id="inv-detail-notes-wrap" style="margin-bottom:16px;display:none;">
+      <div style="font-size:11px;color:var(--text3);margin-bottom:3px;">NOTES</div>
+      <div style="font-size:13px;color:var(--text2);" id="inv-detail-notes"></div>
+    </div>
+    <div id="inv-detail-actions" style="display:flex;flex-direction:column;gap:8px;"></div>
+    <div class="stripe-badge" style="margin-top:12px;"><span class="stripe-logo">stripe</span> Payments powered by Stripe</div>
+  </div>
+</div>
+
+<!-- STRIPE SETUP MODAL -->
+<div class="modal-overlay hidden" id="modal-stripe-setup" onclick="modalOutsideClose(event,'modal-stripe-setup')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div style="text-align:center;padding:8px 0 20px;">
+      <div style="font-size:44px;margin-bottom:12px;">💳</div>
+      <div style="font-family:'Nunito',sans-serif;font-size:20px;font-weight:900;margin-bottom:8px;">Connect Stripe</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:20px;">Accept payments from clients directly through the app. Stripe handles all card processing securely. You keep everything minus Stripe's standard fee (2.9% + 30¢).</div>
+      <div style="background:var(--bg3);border-radius:var(--r);padding:14px 16px;margin-bottom:20px;text-align:left;">
+        <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:10px;">What you'll be able to do:</div>
+        <div class="plan-feature"><span class="plan-feature-icon">✓</span>Send invoices and get paid online</div>
+        <div class="plan-feature"><span class="plan-feature-icon">✓</span>Clients pay by card, Apple Pay, or Google Pay</div>
+        <div class="plan-feature"><span class="plan-feature-icon">✓</span>Automatic payment reminders</div>
+        <div class="plan-feature"><span class="plan-feature-icon">✓</span>Instant payouts to your bank account</div>
+        <div class="plan-feature"><span class="plan-feature-icon">✓</span>Full payment history and receipts</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:var(--r-sm);padding:12px 14px;margin-bottom:20px;font-size:12px;color:var(--text2);text-align:left;border-left:3px solid var(--lime);">
+        🔧 <b style="color:var(--text);">Backend required.</b> This button will redirect to Stripe Connect OAuth when the backend is live. A developer needs to set up <code style="background:var(--bg4);padding:1px 4px;border-radius:3px;">STRIPE_CLIENT_ID</code> and the OAuth callback.
+      </div>
+      <button class="btn btn-primary btn-full" onclick="connectStripe()" style="margin-bottom:10px;">Connect with Stripe</button>
+      <button class="btn btn-secondary btn-full" onclick="closeModal('modal-stripe-setup')">Maybe later</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUBSCRIPTION PLANS MODAL -->
+<div class="modal-overlay hidden" id="modal-subscription" onclick="modalOutsideClose(event,'modal-subscription')">
+  <div class="modal-sheet" style="max-height:92vh;">
+    <div class="modal-handle"></div>
+    <div class="modal-title">FitTrack Plans</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:20px;">Choose the plan that fits your practice. All plans include a 14-day free trial.</div>
+
+    <div class="plan-card" id="plan-starter">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div class="plan-name">Starter</div>
+        <span id="plan-starter-badge" style="display:none;" class="chip chip-lime">Current</span>
+      </div>
+      <div class="plan-price">$29<span>/month</span></div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:12px;">Up to 5 active clients</div>
+      <div class="plan-feature"><span class="plan-feature-icon">✓</span>Client management & messaging</div>
+      <div class="plan-feature"><span class="plan-feature-icon">✓</span>Session logging & history</div>
+      <div class="plan-feature"><span class="plan-feature-icon">✓</span>Workout library & assignment</div>
+      <div class="plan-feature"><span class="plan-feature-icon">✓</span>Schedule & calendar export</div>
+      <div class="plan-feature" style="color:var(--text3);"><span style="color:var(--text3);">✗</span>AI assistant</div>
+      <div class="plan-feature" style="color:var(--text3);"><span style="color:var(--text3);">✗</span>Payment collection</div>
+      <button class="btn btn-secondary btn-full" style="margin-top:14px;" onclick="selectPlan('starter')">Get started</button>
+    </div>
+
+    <div class="plan-card popular" id="plan-pro">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div class="plan-name">Pro</div>
+        <span id="plan-pro-badge" style="display:none;" class="chip chip-lime">Current</span>
+      </div>
+      <div class="plan-price">$59<span>/month</span></div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:12px;">Up to 20 active clients</div>
+      <div class="plan-feature"><span class="plan-feature-icon">✓</span>Everything in Starter</div>
+      <div class="plan-feature"><span class="plan-feature-icon">✓</span>AI workout assistant</div>
+      <div class="plan-feature"><span class="plan-feature-icon">✓</span>Payment collection & invoicing</div>
+      <div class="plan-feature"><span class="plan-feature-icon">✓</span>VO2max & advanced metrics</div>
+      <div class="plan-feature"><span class="plan-feature-icon">✓</span>Bulk workout assignment</div>
+      <div class="plan-feature" style="color:var(--text3);"><span style="color:var(--text3);">✗</span>Custom branding</div>
+      <button class="btn btn-primary btn-full" style="margin-top:14px;" onclick="selectPlan('pro')">Upgrade to Pro</button>
+    </div>
+
+    <div class="plan-card" id="plan-elite">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div class="plan-name">Elite</div>
+        <span id="plan-elite-badge" style="display:none;" class="chip chip-lime">Current</span>
+      </div>
+      <div class="plan-price">$99<span>/month</span></div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:12px;">Unlimited clients</div>
+      <div class="plan-feature"><span class="plan-feature-icon">✓</span>Everything in Pro</div>
+      <div class="plan-feature"><span class="plan-feature-icon">✓</span>Custom app branding</div>
+      <div class="plan-feature"><span class="plan-feature-icon">✓</span>Priority support</div>
+      <div class="plan-feature"><span class="plan-feature-icon">✓</span>Early access to new features</div>
+      <div class="plan-feature"><span class="plan-feature-icon">✓</span>Dedicated onboarding call</div>
+      <button class="btn btn-secondary btn-full" style="margin-top:14px;" onclick="selectPlan('elite')">Go Elite</button>
+    </div>
+
+    <div style="background:var(--bg3);border-radius:var(--r-sm);padding:12px 14px;font-size:12px;color:var(--text2);text-align:center;border-left:3px solid var(--lime);margin-top:4px;">
+      🔧 <b style="color:var(--text);">Backend required.</b> Stripe Billing handles subscription management. A developer sets up the <code style="background:var(--bg4);padding:1px 4px;border-radius:3px;">price_id</code> for each plan.
+    </div>
+    <div class="stripe-badge" style="margin-top:12px;"><span class="stripe-logo">stripe</span> Subscriptions powered by Stripe Billing</div>
+  </div>
+</div>
+
 <!-- CALENDAR INTEGRATION MODAL -->
 <div class="modal-overlay hidden" id="modal-calendar-integration" onclick="modalOutsideClose(event,'modal-calendar-integration')">
   <div class="modal-sheet" style="max-height:92vh;">
@@ -1691,6 +1913,9 @@ function loadData(){
   if(!d.messages) d.messages={};
   if(!d.workoutLibrary) d.workoutLibrary=[];
   if(!d.calendarConnections) d.calendarConnections={};
+  if(!d.invoices) d.invoices=[];
+  if(!d.stripeConnected) d.stripeConnected=false;
+  if(!d.subscription) d.subscription={plan:'trial',status:'active'};
   if(d.clients) d.clients.forEach(function(c){ if(!c.vo2max) c.vo2max=[]; });
   if(!d.notifications) d.notifications={trainer:[],clients:{}};
   if(!d.notifications.trainer) d.notifications.trainer=[];
@@ -1838,6 +2063,7 @@ function switchTab(role, tab){
   if(role==='t'&&tab==='schedule') renderSchedule();
   if(role==='t'&&tab==='library') renderLibrary();
   if(role==='t'&&tab==='ai') initAITab();
+  if(role==='t'&&tab==='payments') initPaymentsTab();
   if(role==='t'&&tab==='messages') initTrainerMessageTab();
   if(role==='c'&&tab==='settings') loadClientSettingsTab();
   if(role==='c'&&tab==='messages') renderClientMessages();
@@ -3513,6 +3739,243 @@ function closeVideoModal(){
 // ══════════════════════════════════════════════════
 function formatDate(d){
   return new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+}
+
+// ══ PAYMENTS ═════════════════════════════════════════
+// ── BACKEND ACTIVATION ───────────────────────────────
+// Stripe Connect OAuth: replace __STRIPE_CLIENT_ID__ and __BACKEND_URL__
+// When trainer clicks Connect Stripe:
+//   window.location.href = 'https://connect.stripe.com/oauth/authorize?response_type=code&client_id=__STRIPE_CLIENT_ID__&scope=read_write&redirect_uri=__BACKEND_URL__/stripe/callback'
+// Backend exchanges code for access_token, saves to trainer profile
+// To send an invoice: POST __BACKEND_URL__/invoices/send { invoiceId, trainerId }
+// Stripe Billing: POST __BACKEND_URL__/subscriptions/create { planId, trainerId }
+const STRIPE_CLIENT_ID = '__STRIPE_CLIENT_ID__';
+const PAYMENTS_BACKEND = '__BACKEND_URL__/payments';
+// ── END BACKEND CONFIG ────────────────────────────────
+
+let invoiceFilter = 'all';
+
+function initPaymentsTab(){
+  // Populate client select
+  const sel = document.getElementById('inv-client');
+  if(sel) sel.innerHTML = DB.clients.map(function(c){
+    return '<option value="'+c.id+'">'+c.name+'</option>';
+  }).join('');
+  // Show/hide dormant banner
+  const banner = document.getElementById('pay-dormant-banner');
+  if(banner) banner.style.display = DB.stripeConnected ? 'none' : 'flex';
+  renderInvoices();
+  updatePayStats();
+}
+
+function updatePayStats(){
+  if(!DB.invoices) return;
+  const received = DB.invoices.filter(function(i){return i.status==='paid';})
+    .reduce(function(s,i){return s+i.amount;},0);
+  const pending = DB.invoices.filter(function(i){return i.status==='pending'||i.status==='sent';})
+    .reduce(function(s,i){return s+i.amount;},0);
+  document.getElementById('pay-stat-received').textContent = formatCurrency(received,'USD');
+  document.getElementById('pay-stat-pending').textContent = formatCurrency(pending,'USD');
+  document.getElementById('pay-stat-invoices').textContent = DB.invoices.length;
+}
+
+function formatCurrency(amount, currency){
+  const sym = {USD:'$',EUR:'€',GBP:'£',CAD:'CA$',AUD:'A$'}[currency]||'$';
+  return sym+(amount||0).toFixed(2).replace(/\.00$/,'');
+}
+
+function filterInvoices(status){
+  invoiceFilter = status;
+  document.querySelectorAll('#t-tab-payments .tab-btn').forEach(function(b,i){
+    b.classList.toggle('active',['all','pending','paid','overdue'][i]===status);
+  });
+  renderInvoices();
+}
+
+function renderInvoices(){
+  if(!DB.invoices) DB.invoices=[];
+  const filtered = invoiceFilter==='all'
+    ? DB.invoices
+    : DB.invoices.filter(function(i){return i.status===invoiceFilter;});
+  const el = document.getElementById('invoice-list');
+  if(!el) return;
+  if(!filtered.length){
+    el.innerHTML='<div class="empty-state"><div class="empty-icon">💳</div><div class="empty-msg">'+(invoiceFilter==='all'?'No invoices yet. Tap + to create one.':'No '+invoiceFilter+' invoices.')+'</div></div>';
+    return;
+  }
+  const sorted=[...filtered].sort(function(a,b){return b.createdAt-a.createdAt;});
+  el.innerHTML = sorted.map(function(inv){
+    const c = DB.clients.find(function(x){return x.id===inv.clientId;})||{name:'Unknown'};
+    const overdue = inv.status!=='paid'&&inv.dueDate&&new Date(inv.dueDate)<new Date();
+    const displayStatus = overdue?'overdue':inv.status;
+    return '<div class="invoice-card" onclick="openInvoiceDetail(\''+inv.id+'\')">'+
+      '<div class="invoice-card-head">'+
+        '<div>'+
+          '<div class="invoice-amount">'+formatCurrency(inv.amount,inv.currency||'USD')+'</div>'+
+          '<div class="invoice-meta">'+c.name+' · '+inv.desc+'</div>'+
+        '</div>'+
+        '<span class="invoice-status '+displayStatus+'">'+displayStatus.charAt(0).toUpperCase()+displayStatus.slice(1)+'</span>'+
+      '</div>'+
+      '<div style="display:flex;gap:12px;font-size:11px;color:var(--text3);">'+
+        '<span>Created '+formatDate(new Date(inv.createdAt).toISOString().slice(0,10))+'</span>'+
+        (inv.dueDate?'<span>Due '+formatDate(inv.dueDate)+'</span>':'')+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function openCreateInvoiceModal(){
+  initPaymentsTab();
+  const due = new Date(); due.setDate(due.getDate()+14);
+  document.getElementById('inv-due').value = due.toISOString().split('T')[0];
+  document.getElementById('inv-desc').value='';
+  document.getElementById('inv-amount').value='';
+  document.getElementById('inv-notes').value='';
+  // Show stripe warning if not connected
+  document.getElementById('pay-stripe-warning').style.display = DB.stripeConnected?'none':'block';
+  openModal('modal-create-invoice');
+}
+
+function saveInvoice(action){
+  const clientId = document.getElementById('inv-client').value;
+  const desc = document.getElementById('inv-desc').value.trim();
+  const amount = parseFloat(document.getElementById('inv-amount').value);
+  const currency = document.getElementById('inv-currency').value;
+  const dueDate = document.getElementById('inv-due').value;
+  const notes = document.getElementById('inv-notes').value;
+  if(!desc){showToast('Add a description');return;}
+  if(!amount||isNaN(amount)||amount<=0){showToast('Enter a valid amount');return;}
+  if(!DB.invoices) DB.invoices=[];
+  const inv = {
+    id:'inv_'+Date.now(),
+    clientId, desc, amount, currency, dueDate, notes,
+    status: action==='send'?(DB.stripeConnected?'sent':'draft'):'draft',
+    createdAt: Date.now()
+  };
+  DB.invoices.unshift(inv);
+  saveData(DB);
+  closeModal('modal-create-invoice');
+  renderInvoices();
+  updatePayStats();
+  // Notify client if sent
+  if(action==='send'){
+    const c=DB.clients.find(function(x){return x.id===clientId;});
+    if(c) addNotification(clientId,'session','Invoice from your trainer',
+      formatCurrency(amount,currency)+' due '+formatDate(dueDate));
+    showToast(DB.stripeConnected?'Invoice sent ✓':'Saved as draft — connect Stripe to send');
+  } else {
+    showToast('Draft saved ✓');
+  }
+  /* ── BACKEND ACTIVATION ──────────────────────────────
+     When Stripe is connected, after saving call:
+     fetch(PAYMENTS_BACKEND+'/invoices/send', {
+       method:'POST',
+       headers:{'Content-Type':'application/json'},
+       body:JSON.stringify({invoiceId:inv.id, trainerId: DB.trainer.id})
+     })
+     This creates a Stripe Invoice and emails the client a payment link.
+  ── END BACKEND ACTIVATION ─────────────────────────── */
+}
+
+function openInvoiceDetail(invId){
+  const inv = (DB.invoices||[]).find(function(x){return x.id===invId;});
+  if(!inv) return;
+  const c = DB.clients.find(function(x){return x.id===inv.clientId;})||{name:'Unknown'};
+  const overdue = inv.status!=='paid'&&inv.dueDate&&new Date(inv.dueDate)<new Date();
+  const displayStatus = overdue?'overdue':inv.status;
+  document.getElementById('inv-detail-amount').textContent=formatCurrency(inv.amount,inv.currency||'USD');
+  const statusEl=document.getElementById('inv-detail-status');
+  statusEl.textContent=displayStatus.charAt(0).toUpperCase()+displayStatus.slice(1);
+  statusEl.className='invoice-status '+displayStatus;
+  document.getElementById('inv-detail-due').textContent=inv.dueDate?'Due '+formatDate(inv.dueDate):'No due date set';
+  document.getElementById('inv-detail-client').textContent=c.name;
+  document.getElementById('inv-detail-desc').textContent=inv.desc;
+  const notesWrap=document.getElementById('inv-detail-notes-wrap');
+  notesWrap.style.display=inv.notes?'block':'none';
+  document.getElementById('inv-detail-notes').textContent=inv.notes||'';
+  // Action buttons
+  const actions=document.getElementById('inv-detail-actions');
+  let btns='';
+  if(inv.status==='draft'){
+    btns+='<button class="btn btn-primary btn-full" onclick="sendInvoiceFromDetail(\''+invId+'\')">Send to '+c.name+'</button>';
+  }
+  if(inv.status!=='paid'){
+    btns+='<button class="btn btn-secondary btn-full" onclick="markInvoicePaid(\''+invId+'\')">Mark as paid</button>';
+  }
+  btns+='<button class="btn btn-danger btn-full" onclick="deleteInvoice(\''+invId+'\')">Delete invoice</button>';
+  actions.innerHTML=btns;
+  openModal('modal-invoice-detail');
+}
+
+function sendInvoiceFromDetail(invId){
+  const inv=(DB.invoices||[]).find(function(x){return x.id===invId;});
+  if(!inv) return;
+  inv.status=DB.stripeConnected?'sent':'draft';
+  saveData(DB);
+  closeModal('modal-invoice-detail');
+  renderInvoices();
+  showToast(DB.stripeConnected?'Invoice sent ✓':'Connect Stripe to send invoices');
+}
+
+function markInvoicePaid(invId){
+  const inv=(DB.invoices||[]).find(function(x){return x.id===invId;});
+  if(!inv) return;
+  inv.status='paid';
+  inv.paidAt=Date.now();
+  saveData(DB);
+  closeModal('modal-invoice-detail');
+  renderInvoices();
+  updatePayStats();
+  showToast('Marked as paid ✓');
+}
+
+function deleteInvoice(invId){
+  if(!confirm('Delete this invoice?')) return;
+  DB.invoices=(DB.invoices||[]).filter(function(x){return x.id!==invId;});
+  saveData(DB);
+  closeModal('modal-invoice-detail');
+  renderInvoices();
+  updatePayStats();
+  showToast('Invoice deleted');
+}
+
+// ── STRIPE CONNECT ────────────────────────────────────
+function connectStripe(){
+  /* ── BACKEND ACTIVATION ──────────────────────────────
+     Replace this alert with:
+     window.location.href = 'https://connect.stripe.com/oauth/authorize?response_type=code'+
+       '&client_id='+STRIPE_CLIENT_ID+
+       '&scope=read_write'+
+       '&redirect_uri='+encodeURIComponent(PAYMENTS_BACKEND+'/stripe/callback')+
+       '&state='+DB.trainer.id;
+  ── END BACKEND ACTIVATION ─────────────────────────── */
+  closeModal('modal-stripe-setup');
+  showToast('Stripe connection requires backend — see developer notes in code');
+}
+
+// ── SUBSCRIPTION PLANS ────────────────────────────────
+function openSubscriptionModal(){
+  // Highlight current plan
+  ['starter','pro','elite'].forEach(function(p){
+    const badge=document.getElementById('plan-'+p+'-badge');
+    if(badge) badge.style.display=(DB.subscription&&DB.subscription.plan===p)?'inline-flex':'none';
+  });
+  openModal('modal-subscription');
+}
+
+function selectPlan(plan){
+  /* ── BACKEND ACTIVATION ──────────────────────────────
+     Replace this with a Stripe Billing Checkout redirect:
+     fetch(PAYMENTS_BACKEND+'/subscriptions/create', {
+       method:'POST',
+       headers:{'Content-Type':'application/json'},
+       body:JSON.stringify({plan:plan, trainerId: DB.trainer.id})
+     }).then(r=>r.json()).then(d=>{
+       window.location.href = d.checkoutUrl;
+     });
+  ── END BACKEND ACTIVATION ─────────────────────────── */
+  closeModal('modal-subscription');
+  showToast('Subscription requires backend — see developer notes');
 }
 
 // ══ VO2MAX ═══════════════════════════════════════════
