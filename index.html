@@ -302,6 +302,54 @@ select.finp{cursor:pointer;}
 
 .divider{height:1px;background:var(--border);margin:14px 0;}
 .hidden{display:none!important;}
+/* ── MUSIC INTEGRATION ── */
+.music-platform-pill{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;}
+.platform-btn{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;border:1px solid var(--border2);background:transparent;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;font-family:"Plus Jakarta Sans",sans-serif;color:var(--text2);}
+.platform-btn:hover{background:var(--bg4);color:var(--text);}
+.platform-btn.active-spotify{background:rgba(30,215,96,.12);color:#1ed760;border-color:rgba(30,215,96,.3);}
+.platform-btn.active-apple{background:rgba(252,60,68,.12);color:#fc3c44;border-color:rgba(252,60,68,.3);}
+.platform-btn.active-amazon{background:rgba(0,168,225,.12);color:#00a8e1;border-color:rgba(0,168,225,.3);}
+.playlist-card{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg3);border-radius:var(--r-sm);margin-bottom:8px;cursor:pointer;transition:all .15s;border:1px solid transparent;}
+.playlist-card:hover{border-color:var(--border2);background:var(--bg4);}
+.playlist-thumb{width:40px;height:40px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.playlist-name{font-size:13px;font-weight:600;flex:1;}
+.playlist-meta{font-size:11px;color:var(--text3);}
+.playlist-zone-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;flex-shrink:0;}
+.music-now-playing{background:var(--bg3);border-radius:var(--r);padding:12px 14px;margin-bottom:12px;display:none;align-items:center;gap:10px;}
+.music-now-playing.active{display:flex;}
+.music-eq{display:flex;gap:2px;align-items:flex-end;height:16px;}
+.music-eq span{width:3px;border-radius:2px;background:var(--lime);animation:eq .6s ease-in-out infinite alternate;}
+.music-eq span:nth-child(2){animation-delay:.15s;}
+.music-eq span:nth-child(3){animation-delay:.3s;}
+@keyframes eq{from{height:4px}to{height:14px}}
+/* ── MEDICAL INVOICE ── */
+.med-invoice{background:#fff;color:#111;font-family:"DM Sans",sans-serif;padding:32px;border-radius:var(--r);max-width:600px;margin:0 auto;}
+.med-invoice-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;padding-bottom:20px;border-bottom:2px solid #e5e7eb;}
+.med-invoice-logo{font-family:"Nunito",sans-serif;font-size:20px;font-weight:900;color:#111;}
+.med-invoice-badge{background:#dcfce7;color:#15803d;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;letter-spacing:.5px;}
+.med-invoice-title{font-size:22px;font-weight:700;color:#111;margin-bottom:4px;}
+.med-invoice-num{font-size:12px;color:#6b7280;}
+.med-table{width:100%;border-collapse:collapse;margin:16px 0;}
+.med-table th{background:#f9fafb;padding:8px 12px;text-align:left;font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #e5e7eb;}
+.med-table td{padding:10px 12px;font-size:13px;border-bottom:1px solid #f3f4f6;}
+.med-total-row{font-weight:700;font-size:15px;}
+.med-hsa-box{background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 14px;margin-top:16px;font-size:12px;color:#1d4ed8;}
+/* ── FORM ANALYSIS ── */
+.form-analysis-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);margin-bottom:12px;overflow:hidden;}
+.form-analysis-video{width:100%;aspect-ratio:16/9;background:var(--bg3);position:relative;display:flex;align-items:center;justify-content:center;}
+.form-analysis-feedback{padding:14px 16px;}
+.form-score{font-family:"Nunito",sans-serif;font-size:32px;font-weight:900;line-height:1;}
+.form-score-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;}
+/* ── WEARABLES ── */
+.zone-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;border-radius:var(--r-sm);overflow:hidden;}
+.zone-seg{padding:8px 4px;text-align:center;font-size:10px;font-weight:700;}
+.zone-active{box-shadow:0 0 0 2px var(--lime);}
+.hr-display{font-family:"Nunito",sans-serif;font-size:64px;font-weight:900;line-height:1;text-align:center;}
+.hr-bpm{font-size:16px;color:var(--text2);text-align:center;margin-top:4px;}
+/* ── VIDEO CALL ── */
+.vcall-provider{display:flex;align-items:center;gap:14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:all .15s;}
+.vcall-provider:hover{border-color:var(--border2);background:var(--bg3);}
+.vcall-logo{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
 /* ── PAYMENTS ── */
 .pay-dormant-banner{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:16px;margin:0 0 16px;display:flex;gap:12px;align-items:flex-start;}
 .pay-stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px;}
@@ -936,7 +984,14 @@ select.finp{cursor:pointer;}
     <div id="c-tab-home" class="scroll-area" style="flex:1;">
       <div class="topbar" style="padding-top:20px;">
         <div></div>
-        <div class="avatar-menu-wrap" id="client-avatar-wrap">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="icon-btn" style="font-size:15px;" onclick="openModal('modal-wearables')" title="Heart rate &amp; zones">❤️</div>
+          <div class="icon-btn" style="font-size:15px;" onclick="openModal('modal-form-analysis')" title="AI form check">🎥</div>
+          <div class="icon-btn" style="position:relative;" onclick="openNotifPanel('client')" id="c-notif-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span class="notif-badge" id="c-notif-badge" style="display:none;">0</span>
+          </div>
+          <div class="avatar-menu-wrap" id="client-avatar-wrap">
           <div class="avatar-sm" id="c-avatar" style="background:var(--lime-dim);color:var(--lime);cursor:pointer;" onclick="toggleAvatarMenu('client-menu')"></div>
           <div class="avatar-menu" id="client-menu">
             <div class="avatar-menu-header">
@@ -949,6 +1004,7 @@ select.finp{cursor:pointer;}
             <div class="avatar-menu-item danger" onclick="doLogout()">
               <span>↩</span> Sign out
             </div>
+          </div>
           </div>
         </div>
       </div>
@@ -1183,6 +1239,7 @@ select.finp{cursor:pointer;}
     </div>
     <div class="icon-btn" id="panel-client-assign-btn" onclick="openAssignModal()">📋</div>
     <div class="icon-btn" onclick="openShareVideoModal()">🎬</div>
+    <div class="icon-btn" onclick="openModal('modal-video-call')" title="Video session">📹</div>
   </div>
 
   <div class="tab-bar">
@@ -1392,11 +1449,33 @@ select.finp{cursor:pointer;}
     <div id="pay-stripe-warning" style="display:none;background:var(--orange-dim);border:1px solid rgba(245,147,91,.25);border-radius:var(--r-xs);padding:9px 12px;font-size:12px;color:var(--orange);margin-bottom:12px;">
       ⚠️ Stripe not connected. Invoice will be saved as draft. Connect Stripe to send and collect payment.
     </div>
+    <div class="divider"></div>
+    <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px;">Medical / HSA receipt options</div>
+    <div class="flabel">Service type</div>
+    <select class="finp" id="inv-service-type">
+      <option value="personal_training">Personal Training</option>
+      <option value="exercise_therapy">Exercise Therapy / Corrective Exercise</option>
+      <option value="rehabilitation">Physical Rehabilitation Support</option>
+      <option value="nutrition">Nutrition Coaching</option>
+      <option value="wellness">Wellness Coaching</option>
+    </select>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+      <input type="checkbox" id="inv-hsa-eligible" style="width:16px;height:16px;accent-color:var(--lime);cursor:pointer;"/>
+      <label for="inv-hsa-eligible" style="font-size:13px;color:var(--text2);cursor:pointer;">Mark as HSA/FSA eligible</label>
+    </div>
+    <div class="flabel">Trainer business name (for receipt)</div>
+    <input class="finp" id="inv-business-name" placeholder="e.g. Jordan Reed Personal Training"/>
+    <div class="flabel">Trainer credentials / license # (optional)</div>
+    <input class="finp" id="inv-credentials" placeholder="e.g. NASM-CPT, License #12345"/>
+    <div id="pay-stripe-warning" style="display:none;background:var(--orange-dim);border:1px solid rgba(245,147,91,.25);border-radius:var(--r-xs);padding:9px 12px;font-size:12px;color:var(--orange);margin-bottom:12px;">
+      ⚠️ Stripe not connected. Invoice will be saved as draft. Connect Stripe to send and collect payment.
+    </div>
     <div class="gap-8 mt-8">
       <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-create-invoice')">Cancel</button>
       <button class="btn btn-secondary" style="flex:1" onclick="saveInvoice('draft')">Save draft</button>
       <button class="btn btn-primary" style="flex:2" onclick="saveInvoice('send')">Send invoice</button>
     </div>
+    <div style="margin-top:8px;"><button class="btn btn-secondary btn-full" style="font-size:12px;" onclick="previewMedicalInvoice()">🏥 Preview medical receipt</button></div>
     <div class="stripe-badge"><span class="stripe-logo">stripe</span> Payments powered by Stripe</div>
   </div>
 </div>
@@ -1430,6 +1509,7 @@ select.finp{cursor:pointer;}
     </div>
     <div id="inv-detail-actions" style="display:flex;flex-direction:column;gap:8px;"></div>
     <div class="stripe-badge" style="margin-top:12px;"><span class="stripe-logo">stripe</span> Payments powered by Stripe</div>
+    <div style="margin-top:8px;"><button class="btn btn-secondary btn-full" style="font-size:12px;" onclick="openMedicalInvoiceFromDetail()">🏥 Download medical receipt</button></div>
   </div>
 </div>
 
@@ -1873,6 +1953,266 @@ select.finp{cursor:pointer;}
   <div style="position:relative;max-width:90vw;max-height:85vh;">
     <img id="vo2-lightbox-img" style="max-width:90vw;max-height:80vh;border-radius:var(--r);object-fit:contain;" src=""/>
     <div style="margin-top:10px;text-align:center;font-size:13px;color:var(--text2);" id="vo2-lightbox-caption"></div>
+  </div>
+</div>
+
+<!-- MEDICAL INVOICE PREVIEW MODAL -->
+<div class="modal-overlay hidden" id="modal-medical-invoice" onclick="modalOutsideClose(event,'modal-medical-invoice')">
+  <div class="modal-sheet" style="max-height:95vh;">
+    <div class="modal-handle"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div class="modal-title" style="margin-bottom:0;">Medical Receipt</div>
+      <button class="btn btn-primary btn-sm" onclick="downloadMedicalInvoice()">⬇ Download PDF</button>
+    </div>
+    <div id="med-invoice-preview" style="overflow-y:auto;max-height:70vh;"></div>
+  </div>
+</div>
+
+<!-- AI FORM ANALYSIS MODAL -->
+<div class="modal-overlay hidden" id="modal-form-analysis" onclick="modalOutsideClose(event,'modal-form-analysis')">
+  <div class="modal-sheet" style="max-height:95vh;">
+    <div class="modal-handle"></div>
+    <div class="modal-title">AI Form Analysis</div>
+    <div id="form-analysis-dormant" style="text-align:center;padding:10px 0 20px;">
+      <div style="font-size:44px;margin-bottom:12px;">🎥</div>
+      <div style="font-family:'Nunito',sans-serif;font-size:18px;font-weight:900;margin-bottom:8px;">Record your form</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:20px;">Record a set of any exercise and get instant AI feedback on your form, technique, and safety. <b style="color:var(--lime);">Private — only you and your trainer can see it.</b></div>
+      <div style="background:var(--bg3);border-radius:var(--r);padding:14px 16px;margin-bottom:16px;text-align:left;">
+        <div class="plan-feature"><span class="plan-feature-icon">✓</span>AI analyses joint angles, depth, bar path</div>
+        <div class="plan-feature"><span class="plan-feature-icon">✓</span>Scores your form 1–10 with detailed breakdown</div>
+        <div class="plan-feature"><span class="plan-feature-icon">✓</span>Highlights what to fix and what you're doing well</div>
+        <div class="plan-feature"><span class="plan-feature-icon">✓</span>Trainer sees the clip and AI notes in your profile</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:var(--r-sm);padding:12px 14px;font-size:12px;color:var(--text2);text-align:left;border-left:3px solid var(--lime);margin-bottom:16px;">
+        🔧 <b style="color:var(--text);">Backend required for AI analysis.</b> Video upload and Claude Vision are ready to activate. File upload works today.
+      </div>
+      <div class="flabel" style="text-align:left;">Exercise name</div>
+      <input class="finp" id="form-exercise-name" placeholder="e.g. Back Squat, Deadlift, Bench Press..."/>
+      <div class="flabel" style="text-align:left;">Upload video clip</div>
+      <div class="vo2-photo-zone" onclick="document.getElementById('form-video-input').click()">
+        <div id="form-upload-hint">
+          <div style="font-size:28px;margin-bottom:6px;">📹</div>
+          <div style="font-size:13px;color:var(--text2);font-weight:600;">Tap to select video</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:3px;">MP4, MOV · max 60 seconds</div>
+        </div>
+        <div id="form-upload-ready" style="display:none;">
+          <div style="font-size:28px;margin-bottom:6px;">✅</div>
+          <div style="font-size:13px;color:var(--lime);font-weight:600;" id="form-upload-filename">Video selected</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:3px;">Tap to change</div>
+        </div>
+      </div>
+      <input type="file" id="form-video-input" accept="video/*" style="display:none;" onchange="handleFormVideo(this)"/>
+      <button class="btn btn-primary btn-full" onclick="submitFormAnalysis()">Analyse my form</button>
+    </div>
+    <div id="form-analysis-results" style="display:none;"></div>
+  </div>
+</div>
+
+<!-- WEARABLES MODAL -->
+<div class="modal-overlay hidden" id="modal-wearables" onclick="modalOutsideClose(event,'modal-wearables')">
+  <div class="modal-sheet" style="max-height:95vh;">
+    <div class="modal-handle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+      <div class="modal-title" style="margin-bottom:0;">Heart Rate & Zones</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:11px;color:var(--text3);">Voice coach</span>
+        <div id="voice-toggle" onclick="toggleVoiceCoach()" style="width:40px;height:22px;background:var(--lime);border-radius:11px;position:relative;cursor:pointer;transition:background .2s;">
+          <div id="voice-toggle-knob" style="position:absolute;top:3px;left:3px;width:16px;height:16px;background:#0a0a0a;border-radius:50%;transition:transform .2s;transform:translateX(18px);"></div>
+        </div>
+      </div>
+    </div>
+    <div id="voice-status-bar" style="font-size:11px;color:var(--lime);margin-bottom:12px;min-height:14px;font-style:italic;" id="voice-last-cue"></div>
+
+    <!-- Goal selector -->
+    <div style="margin-bottom:14px;">
+      <div class="flabel">Training goal</div>
+      <select class="finp" id="hr-goal-select" onchange="onGoalChange()" style="margin-bottom:0;">
+        <option value="z2">Stay in Zone 2 (aerobic base / fat burn)</option>
+        <option value="z3">Stay in Zone 3 (tempo / sustained effort)</option>
+        <option value="z4">Stay in Zone 4 (threshold / race pace)</option>
+        <option value="push">Push hard — reach Zone 4–5</option>
+        <option value="warmup">Warm up — stay in Zone 1–2</option>
+        <option value="hiit">HIIT — alternate Zone 4–5 and recovery</option>
+        <option value="custom">Custom range</option>
+      </select>
+      <div id="hr-custom-range" style="display:none;margin-top:8px;display:none;">
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input class="finp" type="number" id="hr-custom-min" placeholder="Min BPM" style="margin-bottom:0;flex:1;"/>
+          <span style="color:var(--text3);">–</span>
+          <input class="finp" type="number" id="hr-custom-max" placeholder="Max BPM" style="margin-bottom:0;flex:1;"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- HR display -->
+    <div style="background:var(--bg3);border-radius:var(--r);padding:20px;margin-bottom:14px;text-align:center;position:relative;">
+      <div class="hr-display" id="wearable-hr-val" style="color:var(--lime);">—</div>
+      <div class="hr-bpm">bpm</div>
+      <div style="font-size:13px;font-weight:600;margin-top:8px;" id="wearable-zone-label" style="color:var(--text2);">Connect a device to see live data</div>
+      <div id="hr-target-label" style="font-size:11px;color:var(--text3);margin-top:4px;"></div>
+    </div>
+
+    <!-- Zone bar -->
+    <div class="zone-bar" id="zone-bar" style="margin-bottom:14px;">
+      <div class="zone-seg" style="background:#3b82f6;color:#fff;">Z1<br><span style="font-size:9px;">Recovery</span></div>
+      <div class="zone-seg" style="background:#22c55e;color:#fff;">Z2<br><span style="font-size:9px;">Aerobic</span></div>
+      <div class="zone-seg" style="background:#eab308;color:#000;">Z3<br><span style="font-size:9px;">Tempo</span></div>
+      <div class="zone-seg" style="background:#f97316;color:#fff;">Z4<br><span style="font-size:9px;">Threshold</span></div>
+      <div class="zone-seg" style="background:#ef4444;color:#fff;">Z5<br><span style="font-size:9px;">Max</span></div>
+    </div>
+
+    <!-- Test/Demo slider -->
+    <div style="background:var(--lime-dim);border:1px solid rgba(212,245,60,.2);border-radius:var(--r-sm);padding:12px 14px;margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:700;color:var(--lime);margin-bottom:8px;">🧪 Test voice coach — simulate HR</div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <input type="range" min="50" max="200" value="130" id="hr-sim-slider" style="flex:1;accent-color:var(--lime);" oninput="simulateHR(this.value)"/>
+        <span id="hr-sim-val" style="font-family:'DM Mono',monospace;font-size:14px;font-weight:600;color:var(--lime);min-width:46px;">130 bpm</span>
+      </div>
+    </div>
+
+    <!-- Device connections -->
+    <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:10px;">Connect a device</div>
+    <div class="vcall-provider" onclick="connectWearable('apple')">
+      <div class="vcall-logo" style="background:#000;">🍎</div>
+      <div><div style="font-size:13px;font-weight:700;">Apple Health</div><div style="font-size:11px;color:var(--text3);">iPhone · Apple Watch</div></div>
+      <div style="margin-left:auto;font-size:12px;color:var(--text3);" id="wearable-apple-status">Not connected</div>
+    </div>
+    <div class="vcall-provider" onclick="connectWearable('google')">
+      <div class="vcall-logo" style="background:#4285f4;">💚</div>
+      <div><div style="font-size:13px;font-weight:700;">Google Fit</div><div style="font-size:11px;color:var(--text3);">Android · Wear OS</div></div>
+      <div style="margin-left:auto;font-size:12px;color:var(--text3);" id="wearable-google-status">Not connected</div>
+    </div>
+    <div class="vcall-provider" onclick="connectWearable('garmin')">
+      <div class="vcall-logo" style="background:#007cc3;">⌚</div>
+      <div><div style="font-size:13px;font-weight:700;">Garmin Connect</div><div style="font-size:11px;color:var(--text3);">All Garmin devices</div></div>
+      <div style="margin-left:auto;font-size:12px;color:var(--text3);" id="wearable-garmin-status">Not connected</div>
+    </div>
+    <div class="vcall-provider" onclick="connectWearable('whoop')">
+      <div class="vcall-logo" style="background:#000;">⚡</div>
+      <div><div style="font-size:13px;font-weight:700;">Whoop</div><div style="font-size:11px;color:var(--text3);">Whoop 4.0 / 5.0</div></div>
+      <div style="margin-left:auto;font-size:12px;color:var(--text3);" id="wearable-whoop-status">Not connected</div>
+    </div>
+    <div style="margin-top:12px;background:var(--bg3);border-radius:var(--r-sm);padding:12px 14px;font-size:12px;color:var(--text2);border-left:3px solid var(--lime);">
+      🔧 <b style="color:var(--text);">Backend required for live device data.</b> Voice coaching and zone calculation work today — use the test slider above to try it out.
+    </div>
+    <div class="divider" style="margin-top:16px;"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div style="font-size:13px;font-weight:700;color:var(--text);">🎵 Music</div>
+      <button class="btn btn-secondary btn-sm" onclick="openMusicLibraryModal()">Manage playlists</button>
+    </div>
+    <!-- Now playing indicator -->
+    <div class="music-now-playing" id="music-now-playing">
+      <div class="music-eq"><span></span><span></span><span></span></div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:12px;font-weight:600;" id="music-np-name">Playlist</div>
+        <div style="font-size:11px;color:var(--text3);" id="music-np-meta">Opening...</div>
+      </div>
+      <button style="background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:14px;" onclick="stopMusicDisplay()">✕</button>
+    </div>
+    <!-- Zone-based quick launch -->
+    <div id="music-zone-suggestion" style="margin-bottom:12px;"></div>
+    <!-- Platform selector -->
+    <div class="music-platform-pill" id="music-platform-pills">
+      <button class="platform-btn" id="plat-spotify" onclick="setMusicPlatform('spotify')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+        Spotify
+      </button>
+      <button class="platform-btn" id="plat-apple" onclick="setMusicPlatform('apple')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M23.994 6.124a9.23 9.23 0 00-.24-2.19c-.317-1.31-1.062-2.31-2.18-3.043a5.022 5.022 0 00-1.877-.726 10.496 10.496 0 00-1.564-.15c-.04-.003-.083-.01-.124-.013H5.986c-.152.01-.303.017-.455.026C4.786.07 4.043.15 3.34.428 2.004.958 1.04 1.88.475 3.208A5.485 5.485 0 00.05 5.01c-.015.35-.025.697-.025 1.046v11.887c0 .35.01.697.025 1.046.056 1.208.345 2.325 1.008 3.292a5.01 5.01 0 003.13 2.122c.59.147 1.2.218 1.822.218h11.97c.623 0 1.23-.07 1.823-.218 1.383-.346 2.535-1.14 3.268-2.355.524-.86.755-1.81.833-2.818.01-.15.02-.3.022-.45.003-.12.003-.24.003-.36V6.124zm-9.8 10.735l-3.667-2.118-3.667 2.118 3.667-6.355 3.667 6.355zm-.44-10.075c0 .807-.656 1.46-1.466 1.46s-1.466-.653-1.466-1.46.656-1.46 1.466-1.46 1.466.653 1.466 1.46z"/></svg>
+        Apple Music
+      </button>
+      <button class="platform-btn" id="plat-amazon" onclick="setMusicPlatform('amazon')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13.958 10.09c0 1.232.029 2.256-.59 3.351-.502.891-1.301 1.438-2.186 1.438-1.214 0-1.922-.924-1.922-2.292 0-2.692 2.415-3.182 4.698-3.182v.685zm3.186 7.705c-.209.189-.512.201-.745.074-1.047-.872-1.234-1.276-1.814-2.106-1.734 1.767-2.962 2.297-5.209 2.297-2.66 0-4.731-1.641-4.731-4.925 0-2.565 1.391-4.309 3.37-5.164 1.715-.754 4.11-.891 5.942-1.055V6.55c0-.703.054-1.538-.354-2.146-.351-.534-1.03-.759-1.629-.759-1.108 0-2.093.569-2.333 1.748-.05.266-.243.528-.512.54l-2.866-.309c-.241-.054-.508-.248-.44-.617.66-3.469 3.8-4.508 6.614-4.508 1.438 0 3.318.381 4.452 1.471C17.449 3.136 17.4 4.64 17.4 6.271v5.571c0 1.674.695 2.41 1.348 3.312.23.322.28.707-.012.944l-1.592 1.697zm3.11 2.043c-1.055.778-2.578 1.177-3.887 1.177-1.834 0-3.496-.677-4.75-1.801-.098-.088-.01-.208.107-.14 1.351.787 3.02 1.26 4.742 1.26 1.163 0 2.442-.241 3.618-.74.178-.074.325.117.17.244zm.484-1.512c-.135-.178-.894-.084-1.236-.042-.104.013-.12-.077-.026-.142.605-.426 1.6-.303 1.714-.16.115.143-.03 1.138-.599 1.612-.086.073-.169.033-.129-.059.127-.319.41-1.034.276-1.209z"/></svg>
+        Amazon Music
+      </button>
+    </div>
+    <!-- General playlists -->
+    <div id="music-general-list" style="margin-bottom:4px;"></div>
+    <button class="btn btn-secondary btn-full" style="margin-top:12px;" onclick="closeWearablesModal()">Done</button>
+  </div>
+</div>
+
+<!-- MUSIC LIBRARY MODAL (trainer assigns, client sees) -->
+<div class="modal-overlay hidden" id="modal-music-library" onclick="modalOutsideClose(event,'modal-music-library')">
+  <div class="modal-sheet" style="max-height:95vh;">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Playlist Library</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.5;">Add playlists from Spotify, Apple Music, or Amazon Music. Paste any playlist link.</div>
+    <div class="tab-bar" style="margin-bottom:14px;">
+      <div class="tab-btn active" onclick="switchMusicTab('zone')">By Zone</div>
+      <div class="tab-btn" onclick="switchMusicTab('general')">General</div>
+    </div>
+    <div id="music-tab-zone">
+      <div style="font-size:12px;color:var(--text2);margin-bottom:12px;">Assign a playlist to each heart rate zone. The voice coach will suggest it when the client enters that zone.</div>
+      <div id="zone-playlist-list"></div>
+    </div>
+    <div id="music-tab-general" style="display:none;">
+      <div id="general-playlist-list"></div>
+      <button class="btn btn-secondary btn-full" style="margin-top:8px;" onclick="openAddPlaylistModal('general',null)">+ Add playlist</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD PLAYLIST MODAL -->
+<div class="modal-overlay hidden" id="modal-add-playlist" onclick="modalOutsideClose(event,'modal-add-playlist')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="add-playlist-title">Add Playlist</div>
+    <input type="hidden" id="add-playlist-zone"/>
+    <div class="flabel">Playlist URL</div>
+    <input class="finp" id="add-playlist-url" placeholder="Paste Spotify, Apple Music, or Amazon link..."/>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:12px;line-height:1.6;">
+      <b style="color:var(--text);">How to get a link:</b><br>
+      Spotify: Share → Copy link<br>
+      Apple Music: ··· → Share → Copy Link<br>
+      Amazon Music: Share → Copy Link
+    </div>
+    <div class="flabel">Playlist name</div>
+    <input class="finp" id="add-playlist-name" placeholder="e.g. Zone 2 Chill Beats"/>
+    <div class="flabel">Platform</div>
+    <select class="finp" id="add-playlist-platform">
+      <option value="spotify">Spotify</option>
+      <option value="apple">Apple Music</option>
+      <option value="amazon">Amazon Music</option>
+    </select>
+    <div class="gap-8 mt-8">
+      <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-add-playlist')">Cancel</button>
+      <button class="btn btn-primary" style="flex:2" onclick="savePlaylist()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIDEO CALL MODAL -->
+<div class="modal-overlay hidden" id="modal-video-call" onclick="modalOutsideClose(event,'modal-video-call')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Start Video Session</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:16px;">Choose how to connect with your client. These open the respective app on both devices.</div>
+    <div class="vcall-provider" onclick="startVideoCall('zoom')">
+      <div class="vcall-logo" style="background:#2D8CFF;">💙</div>
+      <div><div style="font-size:13px;font-weight:700;">Zoom</div><div style="font-size:11px;color:var(--text3);">Opens the Zoom app</div></div>
+      <div style="margin-left:auto;" class="chip chip-lime" style="font-size:10px;">Works now</div>
+    </div>
+    <div class="vcall-provider" onclick="startVideoCall('teams')">
+      <div class="vcall-logo" style="background:#6264a7;">💜</div>
+      <div><div style="font-size:13px;font-weight:700;">Microsoft Teams</div><div style="font-size:11px;color:var(--text3);">Opens Teams app or web</div></div>
+      <div style="margin-left:auto;" class="chip chip-lime" style="font-size:10px;">Works now</div>
+    </div>
+    <div class="vcall-provider" onclick="startVideoCall('facetime')">
+      <div class="vcall-logo" style="background:#34c759;">📱</div>
+      <div><div style="font-size:13px;font-weight:700;">FaceTime</div><div style="font-size:11px;color:var(--text3);">iPhone / Mac only</div></div>
+      <div style="margin-left:auto;" class="chip chip-lime" style="font-size:10px;">Works now</div>
+    </div>
+    <div class="vcall-provider" onclick="startVideoCall('meet')">
+      <div class="vcall-logo" style="background:#00897b;">🟢</div>
+      <div><div style="font-size:13px;font-weight:700;">Google Meet</div><div style="font-size:11px;color:var(--text3);">Opens in browser</div></div>
+      <div style="margin-left:auto;" class="chip chip-lime" style="font-size:10px;">Works now</div>
+    </div>
+    <div class="divider"></div>
+    <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:10px;">Or enter a meeting link</div>
+    <input class="finp" id="vcall-custom-link" placeholder="Paste Zoom/Teams/Meet link..."/>
+    <button class="btn btn-primary btn-full" onclick="openCustomCallLink()">Open link</button>
+    <div style="margin-top:12px;font-size:11px;color:var(--text3);text-align:center;">In-app video (no external app needed) requires Daily.co or 100ms — add to backend when ready.</div>
   </div>
 </div>
 
@@ -3846,9 +4186,14 @@ function saveInvoice(action){
   if(!desc){showToast('Add a description');return;}
   if(!amount||isNaN(amount)||amount<=0){showToast('Enter a valid amount');return;}
   if(!DB.invoices) DB.invoices=[];
+  const serviceType=document.getElementById('inv-service-type')?document.getElementById('inv-service-type').value:'personal_training';
+  const hsaEligible=document.getElementById('inv-hsa-eligible')?document.getElementById('inv-hsa-eligible').checked:false;
+  const businessName=document.getElementById('inv-business-name')?document.getElementById('inv-business-name').value:DB.trainer.name;
+  const credentials=document.getElementById('inv-credentials')?document.getElementById('inv-credentials').value:'';
   const inv = {
     id:'inv_'+Date.now(),
     clientId, desc, amount, currency, dueDate, notes,
+    serviceType, hsaEligible, businessName, credentials,
     status: action==='send'?(DB.stripeConnected?'sent':'draft'):'draft',
     createdAt: Date.now()
   };
@@ -3878,6 +4223,7 @@ function saveInvoice(action){
 }
 
 function openInvoiceDetail(invId){
+  currentMedInvoiceId=invId;
   const inv = (DB.invoices||[]).find(function(x){return x.id===invId;});
   if(!inv) return;
   const c = DB.clients.find(function(x){return x.id===inv.clientId;})||{name:'Unknown'};
@@ -3961,6 +4307,808 @@ function openSubscriptionModal(){
     if(badge) badge.style.display=(DB.subscription&&DB.subscription.plan===p)?'inline-flex':'none';
   });
   openModal('modal-subscription');
+}
+
+// ══ MEDICAL INVOICE ══════════════════════════════════
+let currentMedInvoiceId = null;
+
+function previewMedicalInvoice(){
+  const clientId=document.getElementById('inv-client').value;
+  const desc=document.getElementById('inv-desc').value.trim();
+  const amount=parseFloat(document.getElementById('inv-amount').value)||0;
+  const currency=document.getElementById('inv-currency').value||'USD';
+  const dueDate=document.getElementById('inv-due').value;
+  const serviceType=document.getElementById('inv-service-type').value;
+  const hsaEligible=document.getElementById('inv-hsa-eligible').checked;
+  const businessName=document.getElementById('inv-business-name').value||DB.trainer.name;
+  const credentials=document.getElementById('inv-credentials').value;
+  const c=DB.clients.find(function(x){return x.id===clientId;})||{name:'Client',age:'',goal:''};
+  renderMedicalInvoice({clientId,desc,amount,currency,dueDate,serviceType,hsaEligible,businessName,credentials,client:c});
+  openModal('modal-medical-invoice');
+}
+
+function openMedicalInvoiceFromDetail(){
+  const inv=(DB.invoices||[]).find(function(x){return x.id===currentMedInvoiceId;});
+  if(!inv){showToast('Open an invoice first');return;}
+  const c=DB.clients.find(function(x){return x.id===inv.clientId;})||{name:'Client'};
+  renderMedicalInvoice({
+    clientId:inv.clientId,desc:inv.desc,amount:inv.amount,currency:inv.currency||'USD',
+    dueDate:inv.dueDate,serviceType:inv.serviceType||'personal_training',
+    hsaEligible:inv.hsaEligible||false,
+    businessName:inv.businessName||DB.trainer.name,
+    credentials:inv.credentials||'',client:c,
+    invoiceNum:inv.id.slice(-6).toUpperCase(),paidAt:inv.paidAt
+  });
+  closeModal('modal-invoice-detail');
+  openModal('modal-medical-invoice');
+}
+
+function renderMedicalInvoice(data){
+  const sym={USD:'$',EUR:'€',GBP:'£',CAD:'CA$',AUD:'A$'}[data.currency]||'$';
+  const serviceLabels={
+    personal_training:'Personal Training Services',
+    exercise_therapy:'Exercise Therapy / Corrective Exercise',
+    rehabilitation:'Physical Rehabilitation Support',
+    nutrition:'Nutrition Coaching',
+    wellness:'Wellness Coaching'
+  };
+  const today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  const invNum=data.invoiceNum||('INV-'+Date.now().toString().slice(-6));
+  document.getElementById('med-invoice-preview').innerHTML=
+    '<div class="med-invoice" id="med-invoice-content">'+
+      '<div class="med-invoice-header">'+
+        '<div>'+
+          '<div class="med-invoice-logo">'+data.businessName+'</div>'+
+          (data.credentials?'<div style="font-size:11px;color:#6b7280;margin-top:2px;">'+data.credentials+'</div>':'')+
+        '</div>'+
+        '<div style="text-align:right;">'+
+          '<div class="med-invoice-title">Receipt</div>'+
+          '<div class="med-invoice-num">#'+invNum+'</div>'+
+          '<div style="font-size:11px;color:#6b7280;margin-top:4px;">Issued: '+today+'</div>'+
+          (data.hsaEligible?'<div style="margin-top:6px;"><span class="med-invoice-badge">HSA / FSA ELIGIBLE</span></div>':'')+
+        '</div>'+
+      '</div>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;">'+
+        '<div><div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Billed to</div>'+
+          '<div style="font-weight:700;font-size:14px;">'+data.client.name+'</div>'+
+          (data.client.age?'<div style="font-size:12px;color:#6b7280;">Age: '+data.client.age+'</div>':'')+
+        '</div>'+
+        '<div><div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Provider</div>'+
+          '<div style="font-weight:700;font-size:14px;">'+data.businessName+'</div>'+
+          (data.credentials?'<div style="font-size:12px;color:#6b7280;">'+data.credentials+'</div>':'')+
+        '</div>'+
+      '</div>'+
+      '<table class="med-table">'+
+        '<thead><tr><th>Service description</th><th>Type</th><th style="text-align:right;">Amount</th></tr></thead>'+
+        '<tbody>'+
+          '<tr><td>'+data.desc+'</td><td>'+serviceLabels[data.serviceType||'personal_training']+'</td><td style="text-align:right;font-weight:600;">'+sym+data.amount.toFixed(2)+'</td></tr>'+
+        '</tbody>'+
+        '<tfoot>'+
+          '<tr class="med-total-row" style="border-top:2px solid #e5e7eb;">'+
+            '<td colspan="2" style="padding-top:12px;">Total</td>'+
+            '<td style="text-align:right;padding-top:12px;color:#111;">'+sym+data.amount.toFixed(2)+' '+data.currency+'</td>'+
+          '</tr>'+
+          (data.paidAt?'<tr><td colspan="2" style="font-size:12px;color:#16a34a;">✓ Paid '+new Date(data.paidAt).toLocaleDateString()+'</td><td></td></tr>':'')+
+        '</tfoot>'+
+      '</table>'+
+      (data.dueDate&&!data.paidAt?'<div style="font-size:12px;color:#6b7280;margin-top:8px;">Due: '+formatDate(data.dueDate)+'</div>':'')+
+      (data.hsaEligible?
+        '<div class="med-hsa-box">'+
+          '<div style="font-weight:700;margin-bottom:4px;">HSA / FSA Reimbursement</div>'+
+          'This receipt documents '+serviceLabels[data.serviceType||'personal_training'].toLowerCase()+' services provided by a certified fitness professional. '+
+          'These services may qualify for reimbursement under a Health Savings Account (HSA) or Flexible Spending Account (FSA) depending on your plan and a physician referral. '+
+          'Please check with your benefits administrator or tax advisor.'+
+        '</div>':'')+
+      '<div style="margin-top:24px;padding-top:16px;border-top:1px solid #e5e7eb;font-size:11px;color:#9ca3af;text-align:center;">'+
+        'This is an official receipt for services rendered. Please retain for tax or insurance purposes.'+
+      '</div>'+
+    '</div>';
+}
+
+function downloadMedicalInvoice(){
+  const el=document.getElementById('med-invoice-content');
+  if(!el){showToast('No invoice to download');return;}
+  // Print-to-PDF approach — works on all devices
+  const printWin=window.open('','_blank');
+  printWin.document.write('<html><head><title>Medical Receipt</title>'+
+    '<style>body{margin:0;font-family:DM Sans,sans-serif;}'+
+    '.med-invoice{padding:32px;max-width:600px;margin:0 auto;color:#111;}'+
+    '.med-invoice-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;padding-bottom:20px;border-bottom:2px solid #e5e7eb;}'+
+    '.med-invoice-logo{font-size:20px;font-weight:900;}'+
+    '.med-invoice-badge{background:#dcfce7;color:#15803d;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;}'+
+    '.med-table{width:100%;border-collapse:collapse;margin:16px 0;}'+
+    '.med-table th{background:#f9fafb;padding:8px 12px;text-align:left;font-size:11px;color:#6b7280;text-transform:uppercase;border-bottom:1px solid #e5e7eb;}'+
+    '.med-table td{padding:10px 12px;font-size:13px;border-bottom:1px solid #f3f4f6;}'+
+    '.med-hsa-box{background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 14px;margin-top:16px;font-size:12px;color:#1d4ed8;}'+
+    '@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}'+
+    '</style></head><body>'+el.outerHTML+'</body></html>');
+  printWin.document.close();
+  setTimeout(function(){printWin.print();},400);
+  showToast('Opening print dialog...');
+}
+
+// ══ AI FORM ANALYSIS ══════════════════════════════════
+// ── BACKEND ACTIVATION ───────────────────────────────
+// POST form video to __BACKEND_URL__/form-analysis with { videoBase64, exerciseName, clientId }
+// Backend sends to Claude Vision API with prompt:
+//   "Analyse this exercise video. Score form 1-10. List what's correct, what needs improvement, 
+//    key safety notes. Be specific and encouraging."
+// Returns { score, correct: [], improve: [], safety: [], summary: '' }
+const FORM_ANALYSIS_BACKEND = '__BACKEND_URL__/form-analysis';
+// ── END BACKEND CONFIG ────────────────────────────────
+
+let formVideoFile = null;
+
+function handleFormVideo(input){
+  formVideoFile=input.files[0];
+  if(!formVideoFile) return;
+  document.getElementById('form-upload-hint').style.display='none';
+  document.getElementById('form-upload-ready').style.display='block';
+  document.getElementById('form-upload-filename').textContent=formVideoFile.name;
+}
+
+function submitFormAnalysis(){
+  const exercise=document.getElementById('form-exercise-name').value.trim();
+  if(!exercise){showToast('Enter the exercise name');return;}
+  if(!formVideoFile){showToast('Upload a video clip first');return;}
+  // Show demo result (replace with real API call when backend ready)
+  document.getElementById('form-analysis-dormant').style.display='none';
+  document.getElementById('form-analysis-results').style.display='block';
+  document.getElementById('form-analysis-results').innerHTML=
+    '<div style="text-align:center;padding:20px 0 10px;">'+
+      '<div class="form-score" style="color:var(--lime);">—</div>'+
+      '<div class="form-score-label">Analysing...</div>'+
+    '</div>';
+  setTimeout(function(){
+    showDemoFormResult(exercise);
+  },1500);
+  /* ── BACKEND ACTIVATION ──────────────────────────────
+     const reader=new FileReader();
+     reader.onload=async function(e){
+       const res=await fetch(FORM_ANALYSIS_BACKEND,{
+         method:'POST',
+         headers:{'Content-Type':'application/json'},
+         body:JSON.stringify({videoBase64:e.target.result,exerciseName:exercise,clientId:currentClientId})
+       });
+       const data=await res.json();
+       renderFormResult(data);
+     };
+     reader.readAsDataURL(formVideoFile);
+  ── END BACKEND ACTIVATION ─────────────────────────── */
+}
+
+function showDemoFormResult(exercise){
+  renderFormResult({
+    exercise:exercise,
+    score:8,
+    correct:['Good depth achieved','Neutral spine maintained throughout','Controlled descent'],
+    improve:['Right knee tracking slightly inward at bottom — cue to push knee out','Forward lean increasing on fatigue — engage core harder in last reps'],
+    safety:['Consider reducing weight by 10% to clean up knee tracking before progressing'],
+    summary:'Solid form overall. The main thing to address is right knee valgus at the bottom of the movement — this is common and fixable with cues and hip strengthening work.'
+  });
+}
+
+function renderFormResult(data){
+  const scoreColor=data.score>=8?'var(--green)':data.score>=6?'var(--lime)':data.score>=4?'var(--orange)':'var(--red)';
+  document.getElementById('form-analysis-results').innerHTML=
+    '<div style="text-align:center;padding:16px 0 12px;">'+
+      '<div class="form-score" style="color:'+scoreColor+';">'+data.score+'/10</div>'+
+      '<div class="form-score-label">Form score — '+data.exercise+'</div>'+
+    '</div>'+
+    '<div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:16px;padding:12px 14px;background:var(--bg3);border-radius:var(--r-sm);">'+data.summary+'</div>'+
+    renderFormSection('✅ What you\'re doing well','var(--green)',data.correct)+
+    renderFormSection('🔧 Areas to improve','var(--orange)',data.improve)+
+    renderFormSection('⚠️ Safety notes','var(--red)',data.safety)+
+    '<div style="margin-top:16px;display:flex;gap:8px;">'+
+      '<button class="btn btn-secondary" style="flex:1;font-size:12px;" onclick="resetFormAnalysis()">Analyse another</button>'+
+      '<button class="btn btn-primary" style="flex:1;font-size:12px;" onclick="closeModal(&quot;modal-form-analysis&quot;)">Done</button>'+
+    '</div>'+
+    '<div style="margin-top:8px;font-size:11px;color:var(--text3);text-align:center;">'+
+      (FORM_ANALYSIS_BACKEND.includes('__BACKEND')
+        ?'Demo result — connect backend for real AI analysis'
+        :'Powered by Claude Vision AI')+
+    '</div>';
+}
+
+function renderFormSection(title,color,items){
+  if(!items||!items.length) return '';
+  return '<div style="margin-bottom:12px;">'+
+    '<div style="font-size:12px;font-weight:700;color:'+color+';margin-bottom:6px;">'+title+'</div>'+
+    items.map(function(item){
+      return '<div style="font-size:12px;color:var(--text2);padding:4px 0 4px 12px;border-left:2px solid '+color+';margin-bottom:4px;">'+item+'</div>';
+    }).join('')+
+  '</div>';
+}
+
+function resetFormAnalysis(){
+  document.getElementById('form-analysis-dormant').style.display='block';
+  document.getElementById('form-analysis-results').style.display='none';
+  document.getElementById('form-upload-hint').style.display='block';
+  document.getElementById('form-upload-ready').style.display='none';
+  document.getElementById('form-exercise-name').value='';
+  formVideoFile=null;
+}
+
+// ══ WEARABLES / HEART RATE ════════════════════════════
+// ── BACKEND ACTIVATION ───────────────────────────────
+// Apple HealthKit: requires native app wrapper (Expo/React Native) + HealthKit permissions
+// Google Fit: OAuth via __BACKEND_URL__/auth/googlefit → returns HR stream
+// Garmin Connect IQ: webhook subscription via __BACKEND_URL__/webhooks/garmin
+// All return { hr: number, timestamp: number } events via WebSocket
+const WEARABLES_BACKEND_WS = '__BACKEND_URL__/ws/heartrate';
+// ── END BACKEND CONFIG ────────────────────────────────
+
+const HR_ZONES = [
+  {name:'Zone 1',label:'Recovery',   min:0,  max:60, color:'#3b82f6'},
+  {name:'Zone 2',label:'Aerobic',    min:60, max:70, color:'#22c55e'},
+  {name:'Zone 3',label:'Tempo',      min:70, max:80, color:'#eab308'},
+  {name:'Zone 4',label:'Threshold',  min:80, max:90, color:'#f97316'},
+  {name:'Zone 5',label:'Max',        min:90, max:100,color:'#ef4444'}
+];
+
+function getHRZone(hr, maxHR){
+  const pct=(hr/maxHR)*100;
+  return HR_ZONES.find(function(z){return pct>=z.min&&pct<z.max;})||HR_ZONES[4];
+}
+
+function connectWearable(provider){
+  showToast(provider.charAt(0).toUpperCase()+provider.slice(1)+' connection requires backend — see developer notes');
+  /* ── BACKEND ACTIVATION ──────────────────────────────
+     For Apple Health (requires native app):
+       HealthKit.requestAuthorization({read:['HKQuantityTypeIdentifierHeartRate']})
+       .then(()=>subscribeHeartRate(clientId));
+     
+     For Google Fit / Garmin (web OAuth):
+       window.location.href = '__BACKEND_URL__/auth/'+provider+'?client_id='+currentClientId;
+     
+     Once connected, open WebSocket:
+       const ws = new WebSocket(WEARABLES_BACKEND_WS+'?clientId='+currentClientId);
+       ws.onmessage = (e) => { const d=JSON.parse(e.data); updateHRDisplay(d.hr); };
+  ── END BACKEND ACTIVATION ─────────────────────────── */
+}
+
+// ── VOICE COACH STATE ──────────────────────────────────
+let voiceEnabled = true;
+let lastSpokenZone = null;
+let lastSpokenTime = 0;
+let lastHR = null;
+
+// Cue library — friendly, motivating, not robotic
+const VOICE_CUES = {
+  tooLow: [
+    "Pick it up a little — your heart rate is below target.",
+    "Let's go, push a bit harder to hit your zone.",
+    "You're below your target zone — increase your pace.",
+    "Come on, a little more effort — you've got this!",
+    "Speed it up slightly to get into your zone."
+  ],
+  justRight: [
+    "Perfect — you're right in your zone, keep it there.",
+    "That's it! Great pace, stay right here.",
+    "You're dialled in — this is exactly where you want to be.",
+    "Excellent work, you're holding your zone beautifully.",
+    "Perfect effort — just like this, keep going."
+  ],
+  tooHigh: [
+    "Ease back a little — you're above your target zone.",
+    "Back it off slightly, bring that heart rate down.",
+    "Take it down a notch — breathe and reduce your pace.",
+    "You're working too hard — slow down and recover.",
+    "Dial it back, let your heart rate come down to your zone."
+  ],
+  entering: [
+    "You're entering your target zone — nice work.",
+    "Great — you've hit your zone, now maintain this.",
+    "There it is! You're in your zone now."
+  ],
+  z2Coach: [
+    "Zone 2 is where the magic happens — stay comfortable.",
+    "Perfect aerobic zone — you should be able to hold a conversation.",
+    "This is your fat-burning zone — keep it steady."
+  ],
+  z5Warning: [
+    "Heads up — you're in max effort zone, make sure that's intentional.",
+    "You're at max heart rate — only stay here if it's a sprint interval."
+  ],
+  hiitWork: [
+    "Work interval — push hard, give it everything!",
+    "Go go go — max effort now!",
+    "Push through this interval, you're almost there!"
+  ],
+  hiitRest: [
+    "Recovery time — back off and let your heart rate drop.",
+    "Rest interval — breathe deep and recover.",
+    "Good work! Now recover before the next push."
+  ]
+};
+
+function pickCue(type){
+  const arr = VOICE_CUES[type];
+  return arr[Math.floor(Math.random()*arr.length)];
+}
+
+function speak(text){
+  if(!voiceEnabled) return;
+  if(!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.rate = 0.95;
+  utt.pitch = 1.05;
+  utt.volume = 1;
+  // Try to use a more natural voice
+  const voices = window.speechSynthesis.getVoices();
+  const preferred = voices.find(function(v){
+    return /samantha|karen|kate|victoria|moira|fiona|allison|ava/i.test(v.name);
+  }) || voices.find(function(v){
+    return v.lang==='en-US'||v.lang==='en-GB';
+  });
+  if(preferred) utt.voice = preferred;
+  window.speechSynthesis.speak(utt);
+  // Update status bar
+  const bar = document.getElementById('voice-status-bar');
+  if(bar) bar.textContent = '“'+text+'”';
+}
+
+function toggleVoiceCoach(){
+  voiceEnabled = !voiceEnabled;
+  const knob = document.getElementById('voice-toggle-knob');
+  const toggle = document.getElementById('voice-toggle');
+  if(knob) knob.style.transform = voiceEnabled ? 'translateX(18px)' : 'translateX(0)';
+  if(toggle) toggle.style.background = voiceEnabled ? 'var(--lime)' : 'var(--bg4)';
+  const bar = document.getElementById('voice-status-bar');
+  if(bar) bar.textContent = voiceEnabled ? 'Voice coach on' : 'Voice coach off';
+  if(voiceEnabled) speak("Voice coach is on. I'll guide you through your workout.");
+}
+
+function onGoalChange(){
+  const goal = document.getElementById('hr-goal-select').value;
+  const customRange = document.getElementById('hr-custom-range');
+  if(customRange) customRange.style.display = goal==='custom' ? 'block' : 'none';
+  updateHRTargetLabel();
+  lastSpokenZone = null; // reset so next update speaks
+}
+
+function getTargetRange(){
+  const c=DB.clients.find(function(x){return x.id===currentClientId;});
+  const age=c&&c.age?c.age:30;
+  const maxHR=220-age;
+  const goal=document.getElementById('hr-goal-select')?document.getElementById('hr-goal-select').value:'z2';
+  const ranges={
+    z2:{min:Math.round(maxHR*0.60),max:Math.round(maxHR*0.70),label:'Zone 2 (aerobic)'},
+    z3:{min:Math.round(maxHR*0.70),max:Math.round(maxHR*0.80),label:'Zone 3 (tempo)'},
+    z4:{min:Math.round(maxHR*0.80),max:Math.round(maxHR*0.90),label:'Zone 4 (threshold)'},
+    push:{min:Math.round(maxHR*0.80),max:maxHR,label:'Zones 4–5 (hard)'},
+    warmup:{min:Math.round(maxHR*0.50),max:Math.round(maxHR*0.65),label:'Warm-up (Zone 1–2)'},
+    hiit:{min:Math.round(maxHR*0.85),max:maxHR,label:'HIIT work intervals'}
+  };
+  if(goal==='custom'){
+    const cMin=parseInt(document.getElementById('hr-custom-min')?document.getElementById('hr-custom-min').value:0)||0;
+    const cMax=parseInt(document.getElementById('hr-custom-max')?document.getElementById('hr-custom-max').value:0)||0;
+    if(cMin&&cMax) return{min:cMin,max:cMax,label:'Custom ('+cMin+'–'+cMax+' bpm)'};
+  }
+  return ranges[goal]||ranges.z2;
+}
+
+function updateHRTargetLabel(){
+  const range=getTargetRange();
+  const el=document.getElementById('hr-target-label');
+  if(el) el.textContent='Target: '+range.label+' ('+range.min+'–'+range.max+' bpm)';
+}
+
+function updateHRDisplay(hr){
+  lastHR=hr;
+  const c=DB.clients.find(function(x){return x.id===currentClientId;});
+  const age=c&&c.age?c.age:30;
+  const maxHR=220-age;
+  const zone=getHRZone(hr,maxHR);
+  const range=getTargetRange();
+  const goal=document.getElementById('hr-goal-select')?document.getElementById('hr-goal-select').value:'z2';
+
+  // Update display
+  const valEl=document.getElementById('wearable-hr-val');
+  if(valEl){
+    valEl.textContent=hr;
+    // Colour by target status
+    if(hr>=range.min&&hr<=range.max) valEl.style.color='var(--lime)';
+    else if(hr<range.min) valEl.style.color='var(--blue)';
+    else valEl.style.color='var(--orange)';
+  }
+  const zoneLabel=document.getElementById('wearable-zone-label');
+  if(zoneLabel) zoneLabel.textContent=zone.name+' — '+zone.label;
+
+  // Update target label
+  updateHRTargetLabel();
+
+  // Highlight active zone bar segment
+  document.querySelectorAll('#zone-bar .zone-seg').forEach(function(seg,i){
+    seg.classList.toggle('zone-active',i===HR_ZONES.indexOf(zone));
+  });
+
+  // ── VOICE COACHING LOGIC ────────────────────────────
+  const now=Date.now();
+  const minInterval=18000; // don't speak more than once every 18 seconds
+  if(!voiceEnabled) return;
+
+  let cueType=null;
+  let cue=null;
+
+  // Determine status vs target
+  const inZone = hr>=range.min && hr<=range.max;
+  const below   = hr<range.min;
+  const above   = hr>range.max;
+
+  if(goal==='hiit'){
+    // HIIT: alternate push/recover cues based on HR
+    if(hr>=range.min) cueType='hiitWork';
+    else cueType='hiitRest';
+  } else if(hr>maxHR*0.95){
+    // Always warn at near-max
+    if(lastSpokenZone!=='z5'&&now-lastSpokenTime>minInterval){
+      cue=pickCue('z5Warning'); cueType='z5Warning';
+    }
+  } else if(below&&lastSpokenZone!=='below'){
+    cueType='tooLow';
+  } else if(above&&lastSpokenZone!=='above'){
+    cueType='tooHigh';
+  } else if(inZone&&lastSpokenZone!=='inZone'&&now-lastSpokenTime>minInterval){
+    // Just entered zone
+    if(lastSpokenZone==='below'||lastSpokenZone==='above') cueType='entering';
+    else if(goal==='z2'&&now-lastSpokenTime>30000) cueType='z2Coach';
+    else if(now-lastSpokenTime>minInterval) cueType='justRight';
+  } else if(inZone&&now-lastSpokenTime>35000){
+    // Periodic encouragement while in zone
+    cueType='justRight';
+  }
+
+  if(cueType){
+    speak(cue||pickCue(cueType));
+    lastSpokenTime=now;
+    lastSpokenZone=inZone?'inZone':below?'below':'above';
+  }
+}
+
+function simulateHR(val){
+  document.getElementById('hr-sim-val').textContent=val+' bpm';
+  updateHRDisplay(parseInt(val));
+}
+
+function closeWearablesModal(){
+  window.speechSynthesis&&window.speechSynthesis.cancel();
+  stopMusicDisplay();
+  closeModal('modal-wearables');
+}
+
+// ══ MUSIC INTEGRATION ════════════════════════════════
+let currentMusicPlatform = 'spotify';
+let lastMusicZone = null;
+
+// Deep-link builders — open the playlist in the native app
+const PLATFORM_LINKS = {
+  spotify: {
+    color:'#1ed760', bg:'rgba(30,215,96,.12)',
+    icon:'<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>',
+    searchUrl: function(q){return 'https://open.spotify.com/search/'+encodeURIComponent(q);}
+  },
+  apple: {
+    color:'#fc3c44', bg:'rgba(252,60,68,.12)',
+    icon:'<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M23.994 6.124a9.23 9.23 0 00-.24-2.19c-.317-1.31-1.062-2.31-2.18-3.043a5.022 5.022 0 00-1.877-.726 10.496 10.496 0 00-1.564-.15c-.04-.003-.083-.01-.124-.013H5.986c-.152.01-.303.017-.455.026C4.786.07 4.043.15 3.34.428 2.004.958 1.04 1.88.475 3.208A5.485 5.485 0 00.05 5.01c-.015.35-.025.697-.025 1.046v11.887c0 .35.01.697.025 1.046.056 1.208.345 2.325 1.008 3.292a5.01 5.01 0 003.13 2.122c.59.147 1.2.218 1.822.218h11.97c.623 0 1.23-.07 1.823-.218 1.383-.346 2.535-1.14 3.268-2.355.524-.86.755-1.81.833-2.818.01-.15.02-.3.022-.45.003-.12.003-.24.003-.36V6.124zm-9.8 10.735l-3.667-2.118-3.667 2.118 3.667-6.355 3.667 6.355z"/></svg>',
+    searchUrl: function(q){return 'https://music.apple.com/search?term='+encodeURIComponent(q);}
+  },
+  amazon: {
+    color:'#00a8e1', bg:'rgba(0,168,225,.12)',
+    icon:'<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M13.958 10.09c0 1.232.029 2.256-.59 3.351-.502.891-1.301 1.438-2.186 1.438-1.214 0-1.922-.924-1.922-2.292 0-2.692 2.415-3.182 4.698-3.182v.685zm3.186 7.705c-.209.189-.512.201-.745.074-1.047-.872-1.234-1.276-1.814-2.106-1.734 1.767-2.962 2.297-5.209 2.297-2.66 0-4.731-1.641-4.731-4.925 0-2.565 1.391-4.309 3.37-5.164 1.715-.754 4.11-.891 5.942-1.055V6.55c0-.703.054-1.538-.354-2.146-.351-.534-1.03-.759-1.629-.759-1.108 0-2.093.569-2.333 1.748-.05.266-.243.528-.512.54l-2.866-.309c-.241-.054-.508-.248-.44-.617.66-3.469 3.8-4.508 6.614-4.508 1.438 0 3.318.381 4.452 1.471C17.449 3.136 17.4 4.64 17.4 6.271v5.571c0 1.674.695 2.41 1.348 3.312.23.322.28.707-.012.944l-1.592 1.697z"/></svg>',
+    searchUrl: function(q){return 'https://music.amazon.com/search/'+encodeURIComponent(q);}
+  }
+};
+
+// Default built-in playlists per zone (trainer can override)
+const DEFAULT_ZONE_PLAYLISTS = {
+  z1:{name:'Easy Recovery',emoji:'😌',bpm:'60–80 BPM',search:'relaxing low tempo workout recovery',
+    spotify:'https://open.spotify.com/search/low%20tempo%20recovery%20playlist',
+    apple:'https://music.apple.com/search?term=low+tempo+recovery',
+    amazon:'https://music.amazon.com/search/low+tempo+recovery'},
+  z2:{name:'Steady State Flow',emoji:'🌊',bpm:'80–120 BPM',search:'zone 2 cardio steady playlist',
+    spotify:'https://open.spotify.com/search/zone%202%20cardio%20steady%20beats',
+    apple:'https://music.apple.com/search?term=steady+cardio+playlist',
+    amazon:'https://music.amazon.com/search/steady+cardio+beats'},
+  z3:{name:'Tempo Drive',emoji:'🚀',bpm:'120–140 BPM',search:'tempo run workout energy playlist',
+    spotify:'https://open.spotify.com/search/tempo%20run%20workout%20playlist',
+    apple:'https://music.apple.com/search?term=tempo+run+workout',
+    amazon:'https://music.amazon.com/search/tempo+run+playlist'},
+  z4:{name:'Threshold Push',emoji:'🔥',bpm:'140–160 BPM',search:'high energy workout threshold playlist',
+    spotify:'https://open.spotify.com/search/high%20energy%20threshold%20workout',
+    apple:'https://music.apple.com/search?term=high+energy+workout',
+    amazon:'https://music.amazon.com/search/high+energy+workout'},
+  z5:{name:'Max Power',emoji:'⚡',bpm:'160+ BPM',search:'max effort sprint interval intense playlist',
+    spotify:'https://open.spotify.com/search/max%20effort%20sprint%20intense%20playlist',
+    apple:'https://music.apple.com/search?term=intense+sprint+workout',
+    amazon:'https://music.amazon.com/search/intense+sprint+workout'}
+};
+
+function setMusicPlatform(platform){
+  currentMusicPlatform=platform;
+  document.querySelectorAll('.platform-btn').forEach(function(b){
+    b.className='platform-btn';
+  });
+  const btn=document.getElementById('plat-'+platform);
+  if(btn) btn.className='platform-btn active-'+platform;
+  renderGeneralPlaylists();
+  renderZoneSuggestion(lastMusicZone);
+}
+
+function getClientPlaylists(){
+  const c=DB.clients.find(function(x){return x.id===currentClientId;});
+  if(!c) return {zone:{},general:[]};
+  if(!c.playlists) c.playlists={zone:{},general:[]};
+  return c.playlists;
+}
+
+function renderGeneralPlaylists(){
+  const pl=getClientPlaylists();
+  const general=pl.general||[];
+  const el=document.getElementById('music-general-list');
+  if(!el) return;
+  if(!general.length){
+    el.innerHTML='<div style="font-size:12px;color:var(--text3);text-align:center;padding:8px 0;">No general playlists yet</div>';
+    return;
+  }
+  const filtered=general.filter(function(p){return !p.platform||p.platform===currentMusicPlatform;});
+  el.innerHTML='';
+  filtered.forEach(function(p,i){
+    const plat=PLATFORM_LINKS[p.platform||'spotify'];
+    const div=document.createElement('div');
+    div.className='playlist-card';
+    div.innerHTML=
+      '<div class="playlist-thumb" style="background:'+(plat?plat.bg:'var(--bg4)')+';">'+(p.emoji||'🎵')+'</div>'+
+      '<div style="flex:1;min-width:0;"><div class="playlist-name">'+p.name+'</div><div class="playlist-meta">'+(plat?plat.icon+' ':'')+p.platform+'</div></div>'+
+      '<div style="color:var(--lime);font-size:16px;">▶</div>';
+    div.addEventListener('click',(function(url,name,platform){
+      return function(){openPlaylistLink(url,name,platform);};
+    })(p.url,p.name,p.platform));
+    el.appendChild(div);
+  });
+}
+
+function renderZoneSuggestion(zoneKey){
+  const el=document.getElementById('music-zone-suggestion');
+  if(!el||!zoneKey) return;
+  const pl=getClientPlaylists();
+  const custom=pl.zone&&pl.zone[zoneKey];
+  const defaults=DEFAULT_ZONE_PLAYLISTS[zoneKey];
+  const playlist=custom||(defaults?{name:defaults.name,emoji:defaults.emoji,url:defaults[currentMusicPlatform],platform:currentMusicPlatform}:null);
+  if(!playlist){el.innerHTML='';return;}
+  const plat=PLATFORM_LINKS[currentMusicPlatform];
+  const header=document.createElement('div');
+  header.style.cssText='font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px;';
+  header.textContent='Suggested for your zone';
+  const card=document.createElement('div');
+  card.className='playlist-card';
+  card.style.cssText='border-color:rgba(212,245,60,.2);background:var(--lime-dim);';
+  card.innerHTML=
+    '<div class="playlist-thumb" style="background:'+(plat?plat.bg:'var(--bg4)')+';">'+(playlist.emoji||'🎵')+'</div>'+
+    '<div style="flex:1;min-width:0;"><div class="playlist-name" style="color:var(--lime);">'+playlist.name+'</div><div class="playlist-meta">Tap to open in '+(currentMusicPlatform.charAt(0).toUpperCase()+currentMusicPlatform.slice(1))+'</div></div>'+
+    '<div style="color:var(--lime);font-size:18px;">▶</div>';
+  const pUrl=playlist.url,pName=playlist.name,pPlat=currentMusicPlatform;
+  card.addEventListener('click',function(){openPlaylistLink(pUrl,pName,pPlat);});
+  el.innerHTML='';
+  el.appendChild(header);
+  el.appendChild(card);
+}
+
+function openPlaylistLink(url, name, platform){
+  if(!url||url==='undefined'){showToast('No link set for this playlist');return;}
+  window.open(url,'_blank');
+  showNowPlaying(name, platform);
+}
+
+function showNowPlaying(name, platform){
+  const el=document.getElementById('music-now-playing');
+  const nameEl=document.getElementById('music-np-name');
+  const metaEl=document.getElementById('music-np-meta');
+  if(el) el.classList.add('active');
+  if(nameEl) nameEl.textContent=name;
+  if(metaEl) metaEl.textContent='Opening in '+(platform?platform.charAt(0).toUpperCase()+platform.slice(1):'your music app')+'...';
+  setTimeout(function(){if(metaEl)metaEl.textContent='Playing in '+( platform||'music app');},2000);
+}
+
+function stopMusicDisplay(){
+  const el=document.getElementById('music-now-playing');
+  if(el) el.classList.remove('active');
+}
+
+// ── MUSIC LIBRARY MODAL ───────────────────────────────
+function openMusicLibraryModal(){
+  renderZonePlaylistList();
+  renderGeneralPlaylistList();
+  openModal('modal-music-library');
+}
+
+function switchMusicTab(tab){
+  document.querySelectorAll('#modal-music-library .tab-btn').forEach(function(b,i){
+    b.classList.toggle('active',['zone','general'][i]===tab);
+  });
+  document.getElementById('music-tab-zone').style.display=tab==='zone'?'block':'none';
+  document.getElementById('music-tab-general').style.display=tab==='general'?'block':'none';
+}
+
+function renderZonePlaylistList(){
+  const pl=getClientPlaylists();
+  const el=document.getElementById('zone-playlist-list');
+  if(!el) return;
+  const zones=[
+    {key:'z1',name:'Zone 1',label:'Recovery',color:'#3b82f6'},
+    {key:'z2',name:'Zone 2',label:'Aerobic',color:'#22c55e'},
+    {key:'z3',name:'Zone 3',label:'Tempo',color:'#eab308'},
+    {key:'z4',name:'Zone 4',label:'Threshold',color:'#f97316'},
+    {key:'z5',name:'Zone 5',label:'Max',color:'#ef4444'}
+  ];
+  el.innerHTML='';
+  zones.forEach(function(z){
+    const custom=pl.zone&&pl.zone[z.key];
+    const def=DEFAULT_ZONE_PLAYLISTS[z.key];
+    const wrap=document.createElement('div');
+    wrap.style.marginBottom='12px';
+    // Header row
+    const hdr=document.createElement('div');
+    hdr.style.cssText='display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;';
+    const info=document.createElement('div');
+    info.style.cssText='display:flex;align-items:center;gap:8px;';
+    info.innerHTML='<div style="width:10px;height:10px;border-radius:50%;background:'+z.color+';flex-shrink:0;"></div>'+
+      '<div style="font-size:13px;font-weight:700;">'+z.name+'</div>'+
+      '<div style="font-size:11px;color:var(--text3);">'+z.label+'</div>';
+    const btn=document.createElement('button');
+    btn.className='btn btn-secondary btn-sm';
+    btn.textContent=custom?'Change':'+ Add';
+    btn.addEventListener('click',(function(key){return function(){openAddPlaylistModal('zone',key);};})(z.key));
+    hdr.appendChild(info);
+    hdr.appendChild(btn);
+    wrap.appendChild(hdr);
+    if(custom){
+      const card=document.createElement('div');
+      card.className='playlist-card';
+      card.style.marginBottom='0';
+      card.innerHTML='<div class="playlist-thumb">'+(custom.emoji||'🎵')+'</div>'+
+        '<div style="flex:1;min-width:0;"><div class="playlist-name">'+custom.name+'</div><div class="playlist-meta">'+custom.platform+'</div></div>';
+      const del=document.createElement('button');
+      del.style.cssText='background:transparent;border:none;color:var(--red);cursor:pointer;font-size:13px;';
+      del.textContent='✕';
+      del.addEventListener('click',(function(key){return function(){removeZonePlaylist(key);};})(z.key));
+      card.appendChild(del);
+      wrap.appendChild(card);
+    } else {
+      const dflt=document.createElement('div');
+      dflt.style.cssText='font-size:11px;color:var(--text3);padding:6px 0;';
+      dflt.textContent='Using default: '+(def?def.name:'none');
+      wrap.appendChild(dflt);
+    }
+    el.appendChild(wrap);
+  });
+}
+
+function renderGeneralPlaylistList(){
+  const pl=getClientPlaylists();
+  const el=document.getElementById('general-playlist-list');
+  if(!el) return;
+  if(!pl.general||!pl.general.length){
+    el.innerHTML='<div class="empty-state" style="padding:20px 0;"><div class="empty-icon">🎵</div><div class="empty-msg">No general playlists yet</div></div>';
+    return;
+  }
+  el.innerHTML='';
+  pl.general.forEach(function(p,i){
+    const card=document.createElement('div');
+    card.className='playlist-card';
+    card.innerHTML='<div class="playlist-thumb" style="background:rgba(212,245,60,.1);">'+(p.emoji||'🎵')+'</div>'+
+      '<div style="flex:1;min-width:0;"><div class="playlist-name">'+p.name+'</div><div class="playlist-meta">'+p.platform+'</div></div>';
+    const del=document.createElement('button');
+    del.style.cssText='background:transparent;border:none;color:var(--red);cursor:pointer;font-size:13px;';
+    del.textContent='✕';
+    del.addEventListener('click',(function(idx){return function(){removeGeneralPlaylist(idx);};})(i));
+    card.appendChild(del);
+    el.appendChild(card);
+  });
+}
+
+function openAddPlaylistModal(type, zoneKey){
+  document.getElementById('add-playlist-url').value='';
+  document.getElementById('add-playlist-name').value='';
+  document.getElementById('add-playlist-zone').value=zoneKey||'';
+  document.getElementById('add-playlist-title').textContent=type==='zone'?'Add Zone Playlist':'Add Playlist';
+  // Auto-detect platform from URL
+  document.getElementById('add-playlist-url').oninput=function(){
+    const url=this.value;
+    const sel=document.getElementById('add-playlist-platform');
+    if(url.includes('spotify.com')) sel.value='spotify';
+    else if(url.includes('music.apple.com')) sel.value='apple';
+    else if(url.includes('music.amazon.com')) sel.value='amazon';
+  };
+  openModal('modal-add-playlist');
+  // Store type for save
+  document.getElementById('modal-add-playlist').dataset.type=type;
+}
+
+function savePlaylist(){
+  const url=document.getElementById('add-playlist-url').value.trim();
+  const name=document.getElementById('add-playlist-name').value.trim();
+  const platform=document.getElementById('add-playlist-platform').value;
+  const zone=document.getElementById('add-playlist-zone').value;
+  const type=document.getElementById('modal-add-playlist').dataset.type;
+  if(!url||!name){showToast('Add a name and URL');return;}
+  const c=DB.clients.find(function(x){return x.id===currentClientId;});
+  if(!c) return;
+  if(!c.playlists) c.playlists={zone:{},general:[]};
+  const entry={name:name,url:url,platform:platform,emoji:platform==='spotify'?'🟢':platform==='apple'?'🎵':'📦'};
+  if(type==='zone'&&zone) c.playlists.zone[zone]=entry;
+  else c.playlists.general.push(entry);
+  saveData(DB);
+  closeModal('modal-add-playlist');
+  renderZonePlaylistList();
+  renderGeneralPlaylistList();
+  renderGeneralPlaylists();
+  showToast('Playlist saved ✓');
+}
+
+function removeZonePlaylist(zoneKey){
+  const c=DB.clients.find(function(x){return x.id===currentClientId;});
+  if(!c||!c.playlists) return;
+  delete c.playlists.zone[zoneKey];
+  saveData(DB);
+  renderZonePlaylistList();
+}
+
+function removeGeneralPlaylist(idx){
+  const c=DB.clients.find(function(x){return x.id===currentClientId;});
+  if(!c||!c.playlists) return;
+  c.playlists.general.splice(idx,1);
+  saveData(DB);
+  renderGeneralPlaylistList();
+  renderGeneralPlaylists();
+}
+
+// ── EXTEND updateHRDisplay for zone-based music ───────
+// Patch into existing updateHRDisplay — add zone music suggestion after zone change
+const _origUpdateHR = updateHRDisplay;
+updateHRDisplay = function(hr){
+  _origUpdateHR(hr);
+  const c=DB.clients.find(function(x){return x.id===currentClientId;});
+  const age=c&&c.age?c.age:30;
+  const maxHR=220-age;
+  const zone=getHRZone(hr,maxHR);
+  const zoneKey='z'+( HR_ZONES.indexOf(zone)+1);
+  if(zoneKey!==lastMusicZone){
+    lastMusicZone=zoneKey;
+    renderZoneSuggestion(zoneKey);
+    // Voice announce playlist suggestion
+    if(voiceEnabled&&window.speechSynthesis){
+      const def=DEFAULT_ZONE_PLAYLISTS[zoneKey];
+      if(def){
+        setTimeout(function(){
+          speak("You've entered "+zone.name+". I suggest "+def.name+" for this zone — tap the playlist to open it.");
+        },2000);
+      }
+    }
+  }
+};
+
+// ══ VIDEO CALLING ══════════════════════════════════════
+function startVideoCall(provider){
+  const c=DB.clients.find(function(x){return x.id===activeClientPanel||x.id===currentClientId;});
+  const links={
+    zoom:'https://zoom.us/start/videomeeting',
+    teams:'https://teams.microsoft.com/l/meeting/new',
+    facetime:'facetime://'+(c?c.username+'@fittrack.app':''),
+    meet:'https://meet.google.com/new'
+  };
+  const url=links[provider]||links.zoom;
+  window.open(url,'_blank');
+  showToast('Opening '+provider.charAt(0).toUpperCase()+provider.slice(1)+'...');
+  closeModal('modal-video-call');
+}
+
+function openCustomCallLink(){
+  const link=document.getElementById('vcall-custom-link').value.trim();
+  if(!link){showToast('Paste a meeting link first');return;}
+  window.open(link,'_blank');
+  closeModal('modal-video-call');
 }
 
 function selectPlan(plan){
