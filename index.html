@@ -1,11 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-      <link rel="manifest" href="manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="FitTrack">
-    <link rel="apple-touch-icon" href="icon-192.png"><meta charset="UTF-8"/>
+<meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover"/>
 <meta name="theme-color" content="#121212"/>
 <meta name="mobile-web-app-capable" content="yes"/>
@@ -383,6 +379,48 @@ select.finp{cursor:pointer;}
 
 .divider{height:1px;background:var(--border);margin:14px 0;}
 .hidden{display:none!important;}
+
+/* ── INVITE SYSTEM ── */
+.invite-banner{background:linear-gradient(135deg,rgba(0,230,118,.12),rgba(0,230,118,.06));border:1px solid rgba(0,230,118,.25);border-radius:var(--r);padding:14px 16px;margin:0 16px 16px;display:flex;align-items:center;gap:12px;}
+.invite-banner-icon{font-size:24px;flex-shrink:0;}
+.invite-banner-body{flex:1;min-width:0;}
+.invite-banner-title{font-size:13px;font-weight:700;color:var(--lime);margin-bottom:2px;}
+.invite-banner-sub{font-size:12px;color:var(--text2);line-height:1.4;}
+.share-invite-btn{display:flex;align-items:center;gap:8px;background:var(--lime);color:#000;border:none;border-radius:var(--r-sm);padding:10px 16px;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0;font-family:inherit;}
+.share-invite-btn:hover{background:var(--lime2);transform:translateY(-1px);}
+.share-invite-btn:active{transform:scale(0.96);}
+.invite-login-notice{background:rgba(0,230,118,.1);border:1px solid rgba(0,230,118,.3);border-radius:var(--r-sm);padding:12px 14px;margin-bottom:16px;font-size:12px;color:var(--lime);line-height:1.6;display:none;}
+.invite-login-notice b{display:block;margin-bottom:2px;font-size:13px;}
+
+/* ── FILE UPLOAD PROGRESS ── */
+.upload-progress-wrap{margin:16px 0;display:none;}
+.upload-progress-wrap.active{display:block;}
+.upload-progress-bar-track{width:100%;height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-bottom:8px;}
+.upload-progress-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#00e676,#00ff8f);width:0%;transition:width .25s ease;box-shadow:0 0 8px rgba(0,230,118,.6);}
+.upload-status-text{font-size:12px;font-weight:600;color:var(--lime);text-align:center;letter-spacing:.3px;}
+.upload-status-sub{font-size:11px;color:var(--text3);text-align:center;margin-top:2px;}
+
+/* ── OFFLINE TOAST ── */
+.offline-banner{position:fixed;top:0;left:0;right:0;z-index:700;padding:10px 20px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:13px;font-weight:600;transform:translateY(-100%);transition:transform .3s cubic-bezier(.4,0,.2,1),background .4s;pointer-events:none;}
+.offline-banner.show{transform:translateY(0);pointer-events:all;}
+.offline-banner.offline{background:rgba(42,42,42,.98);color:#fff;border-bottom:1px solid var(--border2);}
+.offline-banner.online{background:rgba(0,230,118,.95);color:#000;border-bottom:none;}
+.offline-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.offline-banner.offline .offline-dot{background:#f55b5b;animation:pulse-red 1.5s ease infinite;}
+.offline-banner.online .offline-dot{background:#000;}
+@keyframes pulse-red{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+/* ── PULL TO REFRESH ── */
+.ptr-loader{position:absolute;top:0;left:0;right:0;display:flex;justify-content:center;align-items:center;height:0;overflow:hidden;transition:height .2s ease;z-index:10;pointer-events:none;}
+.ptr-loader.pulling{height:56px;}
+.ptr-loader.refreshing{height:56px;}
+.ptr-spinner{width:28px;height:28px;border:3px solid rgba(0,230,118,.2);border-top:3px solid var(--lime);border-radius:50%;opacity:0;transition:opacity .2s,transform .2s;}
+.ptr-loader.pulling .ptr-spinner{opacity:1;}
+.ptr-loader.refreshing .ptr-spinner{opacity:1;animation:ptr-spin .7s linear infinite;}
+.ptr-arrow{font-size:18px;color:var(--lime);opacity:0;transition:opacity .2s,transform .3s;}
+.ptr-loader.pulling .ptr-arrow{opacity:1;}
+.ptr-loader.refreshing .ptr-arrow{display:none;}
+@keyframes ptr-spin{to{transform:rotate(360deg);}}
 
 /* ── MORE MENU ── */
 .more-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:150;opacity:0;pointer-events:none;transition:opacity .25s;}
@@ -817,6 +855,19 @@ select.finp{cursor:pointer;}
 
       <div class="stats-row" id="t-stats"></div>
 
+      <!-- Invite banner -->
+      <div class="invite-banner" id="trainer-invite-banner">
+        <div class="invite-banner-icon">🔗</div>
+        <div class="invite-banner-body">
+          <div class="invite-banner-title">Invite a client</div>
+          <div class="invite-banner-sub">Send a personalised link — they tap it and land straight on your signup.</div>
+        </div>
+        <button class="share-invite-btn" onclick="shareInviteLink()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          Share
+        </button>
+      </div>
+
       <div class="sec-header">
         <div class="sec-title">Today's Sessions</div>
         <div class="sec-action" onclick="switchTab('t','schedule')">See all</div>
@@ -1111,7 +1162,11 @@ select.finp{cursor:pointer;}
   <div class="mobile-frame" id="client-frame" style="background:var(--bg);flex:1;overflow:hidden;">
 
     <!-- CLIENT: HOME TAB -->
-    <div id="c-tab-home" class="scroll-area" style="flex:1;">
+    <div id="c-tab-home" class="scroll-area" style="flex:1;position:relative;">
+      <div class="ptr-loader" id="ptr-loader">
+        <div class="ptr-arrow">↓</div>
+        <div class="ptr-spinner"></div>
+      </div>
       <div class="topbar" style="padding-top:20px;">
         <div></div>
         <div style="display:flex;align-items:center;gap:8px;">
@@ -2179,7 +2234,15 @@ select.finp{cursor:pointer;}
         </div>
       </div>
       <input type="file" id="form-video-input" accept="video/*" style="display:none;" onchange="handleFormVideo(this)"/>
-      <button class="btn btn-primary btn-full" onclick="submitFormAnalysis()">Analyse my form</button>
+      <!-- Upload progress bar -->
+      <div class="upload-progress-wrap" id="upload-progress-wrap">
+        <div class="upload-progress-bar-track">
+          <div class="upload-progress-bar-fill" id="upload-progress-fill"></div>
+        </div>
+        <div class="upload-status-text" id="upload-status-text">Uploading...</div>
+        <div class="upload-status-sub" id="upload-status-sub">0%</div>
+      </div>
+      <button class="btn btn-primary btn-full" id="form-analyse-btn" onclick="submitFormAnalysis()">Analyse my form</button>
     </div>
     <div id="form-analysis-results" style="display:none;"></div>
   </div>
@@ -2438,6 +2501,14 @@ select.finp{cursor:pointer;}
   </div>
 </div>
 
+<!-- OFFLINE BANNER -->
+<div class="offline-banner" id="offline-banner">
+  <div class="offline-dot"></div>
+  <span id="offline-banner-text">Working Offline</span>
+</div>
+
+<!-- PULL-TO-REFRESH LOADER (injected into c-tab-home) -->
+
 <!-- NOTIFICATION PANEL -->
 <div class="notif-panel" id="notif-panel">
   <div class="notif-header">
@@ -2582,6 +2653,7 @@ function doLogin(){
     const client = DB.clients.find(c=>c.username.toLowerCase()===u.toLowerCase() && c.password===p);
     if(client){
       currentClientId = client.id;
+      applyPendingInvite(client.id);
       showScreen('screen-client');
       initClient(client);
       return;
@@ -2601,6 +2673,15 @@ function doLogout(){
 }
 
 document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+// Check for invite param and pending invites on startup
+document.addEventListener('DOMContentLoaded', function(){
+  parseInviteParam();
+  checkPendingInvite();
+});
+// Also run immediately in case DOMContentLoaded already fired
+if(document.readyState==='complete'||document.readyState==='interactive'){
+  setTimeout(function(){ parseInviteParam(); checkPendingInvite(); }, 0);
+}
 
 // ══════════════════════════════════════════════════
 //  NAVIGATION
@@ -4354,6 +4435,194 @@ function formatDate(d){
   return new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
 }
 
+// ══ DEEP LINK INVITE SYSTEM ══════════════════════════════
+// ── Part 1: Parse ?invite= on startup ────────────────────
+function parseInviteParam(){
+  try{
+    const params = new URLSearchParams(window.location.search);
+    const trainerId = params.get('invite');
+    if(!trainerId) return null;
+    // Store trainer ID so client can be auto-associated after login
+    STORE.set('pending_invite', {trainerId: trainerId, ts: Date.now()});
+    // Clean URL without reloading
+    const cleanUrl = window.location.pathname;
+    window.history.replaceState({}, document.title, cleanUrl);
+    return trainerId;
+  } catch(e){ return null; }
+}
+
+// ── Part 2: Check for pending invite on load ──────────────
+function checkPendingInvite(){
+  const invite = STORE.get('pending_invite');
+  if(!invite) return;
+  // Expire invites older than 7 days
+  if(Date.now() - invite.ts > 7*24*60*60*1000){
+    STORE.del('pending_invite');
+    return;
+  }
+  // Show invite notice on login screen
+  const notice = document.getElementById('invite-login-notice');
+  if(notice) notice.style.display = 'block';
+  // Pre-select client tab on login screen
+  const clientTab = document.querySelector('.role-tab:last-child');
+  if(clientTab) clientTab.click();
+}
+
+// ── Part 3: After client logs in, link them to invited trainer ──
+function applyPendingInvite(clientId){
+  const invite = STORE.get('pending_invite');
+  if(!invite) return;
+  // In a real backend: POST /api/link-client { clientId, trainerId: invite.trainerId }
+  // For now, store it for the backend to process later
+  STORE.set('invite_accepted', {clientId, trainerId: invite.trainerId, ts: Date.now()});
+  STORE.del('pending_invite');
+  // Show a welcome toast
+  setTimeout(function(){
+    showToast('Connected to your trainer \u2713');
+  }, 600);
+}
+
+// ── Part 4: Generate + share invite link ─────────────────
+function generateInviteLink(){
+  // Use trainer's username as the ID — replace with real UUID from backend
+  const trainerId = encodeURIComponent(DB.trainer.username);
+  const base = window.location.href.split('?')[0];
+  return base + '?invite=' + trainerId;
+}
+
+function shareInviteLink(){
+  const link = generateInviteLink();
+  const trainerFirstName = DB.trainer.name.split(' ')[0];
+  const shareData = {
+    title: 'Join me on FitTrack',
+    text: 'Hi! ' + trainerFirstName + ' is inviting you to train together on FitTrack. Tap the link to get started:',
+    url: link
+  };
+  if(navigator.share && navigator.canShare && navigator.canShare(shareData)){
+    navigator.share(shareData)
+      .then(function(){ showToast('Invite sent \u2713'); })
+      .catch(function(err){ if(err.name !== 'AbortError') fallbackCopyInvite(link); });
+  } else {
+    // Fallback: copy to clipboard
+    fallbackCopyInvite(link);
+  }
+}
+
+function fallbackCopyInvite(link){
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(link).then(function(){
+      showToast('Invite link copied \u2013 paste it anywhere!');
+    });
+  } else {
+    // Last resort: prompt
+    prompt('Copy your invite link:', link);
+  }
+}
+
+// ══ OFFLINE DETECTION ═══════════════════════════════════
+let offlineBannerTimer=null;
+function showOfflineBanner(online){
+  const banner=document.getElementById('offline-banner');
+  const text=document.getElementById('offline-banner-text');
+  if(!banner) return;
+  if(offlineBannerTimer) clearTimeout(offlineBannerTimer);
+  banner.classList.remove('offline','online');
+  if(!online){
+    banner.classList.add('show','offline');
+    text.textContent='Working Offline';
+  } else {
+    banner.classList.add('show','online');
+    text.textContent='Back Online — Syncing Data...';
+    offlineBannerTimer=setTimeout(function(){
+      banner.classList.remove('show');
+    },3000);
+  }
+}
+window.addEventListener('online', function(){ showOfflineBanner(true); });
+window.addEventListener('offline', function(){ showOfflineBanner(false); });
+// Show on load if already offline
+if(!navigator.onLine) showOfflineBanner(false);
+
+// ══ PULL TO REFRESH ══════════════════════════════════════
+(function initPullToRefresh(){
+  let startY=0, currentY=0, pulling=false, refreshing=false;
+  const THRESHOLD=70;
+
+  function getTarget(){
+    return document.getElementById('c-tab-home');
+  }
+  function getLoader(){
+    return document.getElementById('ptr-loader');
+  }
+
+  function onTouchStart(e){
+    const el=getTarget();
+    if(!el||el.classList.contains('hidden')) return;
+    if(el.scrollTop>0) return; // only trigger at top
+    startY=e.touches[0].clientY;
+    pulling=true;
+  }
+
+  function onTouchMove(e){
+    if(!pulling||refreshing) return;
+    const el=getTarget();
+    if(!el||el.scrollTop>4){pulling=false;return;}
+    currentY=e.touches[0].clientY;
+    const dist=Math.min(currentY-startY, THRESHOLD*1.4);
+    if(dist<10) return;
+    e.preventDefault();
+    const loader=getLoader();
+    if(!loader) return;
+    loader.classList.add('pulling');
+    loader.classList.remove('refreshing');
+    // Rotate arrow based on pull distance
+    const arrow=loader.querySelector('.ptr-arrow');
+    if(arrow) arrow.style.transform='rotate('+Math.min(dist/THRESHOLD*180,180)+'deg)';
+  }
+
+  function onTouchEnd(){
+    if(!pulling) return;
+    pulling=false;
+    const dist=currentY-startY;
+    const loader=getLoader();
+    if(dist>THRESHOLD&&!refreshing){
+      refreshing=true;
+      if(loader){ loader.classList.remove('pulling'); loader.classList.add('refreshing'); }
+      triggerClientStatsRefresh(function(){
+        refreshing=false;
+        if(loader){ loader.classList.remove('refreshing','pulling'); }
+        startY=0; currentY=0;
+      });
+    } else {
+      if(loader){ loader.classList.remove('pulling','refreshing'); }
+      startY=0; currentY=0;
+    }
+  }
+
+  document.addEventListener('touchstart', onTouchStart, {passive:true});
+  document.addEventListener('touchmove', onTouchMove, {passive:false});
+  document.addEventListener('touchend', onTouchEnd, {passive:true});
+})();
+
+function triggerClientStatsRefresh(done){
+  // Refresh current client's stats without reloading
+  setTimeout(function(){
+    const c=DB.clients.find(function(x){return x.id===currentClientId;});
+    if(c){
+      // Re-render stats, ring, and feed
+      document.getElementById('c-stats').innerHTML=`
+        <div class="stat-box"><div class="stat-n" style="color:${c.color}">${c.sessions}</div><div class="stat-l">Sessions</div></div>
+        <div class="stat-box"><div class="stat-n">${c.streak}</div><div class="stat-l">Streak wks</div></div>
+        <div class="stat-box"><div class="stat-n">${c.assigned.length}</div><div class="stat-l">Programs</div></div>
+      `;
+      renderClientProgressRing(c);
+      renderClientFeed(c);
+      showToast('Stats refreshed ✓');
+    }
+    if(done) done();
+  }, 1200); // Simulate async fetch; replace with real API call when backend ready
+}
+
 // ══ PAYMENTS ═════════════════════════════════════════
 // ── BACKEND ACTIVATION ───────────────────────────────
 // Stripe Connect OAuth: replace __STRIPE_CLIENT_ID__ and __BACKEND_URL__
@@ -4724,17 +4993,88 @@ function submitFormAnalysis(){
   const exercise=document.getElementById('form-exercise-name').value.trim();
   if(!exercise){showToast('Enter the exercise name');return;}
   if(!formVideoFile){showToast('Upload a video clip first');return;}
-  // Show demo result (replace with real API call when backend ready)
-  document.getElementById('form-analysis-dormant').style.display='none';
-  document.getElementById('form-analysis-results').style.display='block';
-  document.getElementById('form-analysis-results').innerHTML=
-    '<div style="text-align:center;padding:20px 0 10px;">'+
-      '<div class="form-score" style="color:var(--lime);">—</div>'+
-      '<div class="form-score-label">Analysing...</div>'+
-    '</div>';
-  setTimeout(function(){
-    showDemoFormResult(exercise);
-  },1500);
+
+  // Show progress bar and disable button
+  const progressWrap=document.getElementById('upload-progress-wrap');
+  const progressFill=document.getElementById('upload-progress-fill');
+  const statusText=document.getElementById('upload-status-text');
+  const statusSub=document.getElementById('upload-status-sub');
+  const analyseBtn=document.getElementById('form-analyse-btn');
+  progressWrap.classList.add('active');
+  if(analyseBtn) analyseBtn.disabled=true;
+
+  function setProgress(pct, status, sub){
+    progressFill.style.width=pct+'%';
+    statusText.textContent=status;
+    statusSub.textContent=sub||pct+'%';
+  }
+
+  if(FORM_ANALYSIS_BACKEND.includes('__BACKEND')){
+    // Demo mode — simulate XHR progress
+    setProgress(0,'Uploading...','0%');
+    let pct=0;
+    const uploadInterval=setInterval(function(){
+      pct+=Math.random()*18+8;
+      if(pct>=100){
+        pct=100;
+        clearInterval(uploadInterval);
+        setProgress(100,'Processing Form...','Analysing technique...');
+        setTimeout(function(){
+          setProgress(100,'Analysis Complete!','');
+          setTimeout(function(){
+            progressWrap.classList.remove('active');
+            if(analyseBtn) analyseBtn.disabled=false;
+            document.getElementById('form-analysis-dormant').style.display='none';
+            document.getElementById('form-analysis-results').style.display='block';
+            showDemoFormResult(exercise);
+          },800);
+        },1200);
+      } else {
+        setProgress(Math.round(pct),'Uploading...',Math.round(pct)+'%');
+      }
+    },180);
+  } else {
+    // Real XHR upload with progress
+    const xhr=new XMLHttpRequest();
+    const formData=new FormData();
+    formData.append('video',formVideoFile);
+    formData.append('exercise',exercise);
+    formData.append('clientId',currentClientId||'');
+
+    xhr.upload.addEventListener('progress',function(e){
+      if(e.lengthComputable){
+        const pct=Math.round((e.loaded/e.total)*100);
+        setProgress(pct,'Uploading...',pct+'%');
+      }
+    });
+    xhr.addEventListener('load',function(){
+      setProgress(100,'Processing Form...','Analysing with AI...');
+      try{
+        const data=JSON.parse(xhr.responseText);
+        setTimeout(function(){
+          setProgress(100,'Analysis Complete!','');
+          setTimeout(function(){
+            progressWrap.classList.remove('active');
+            if(analyseBtn) analyseBtn.disabled=false;
+            document.getElementById('form-analysis-dormant').style.display='none';
+            document.getElementById('form-analysis-results').style.display='block';
+            renderFormResult(data);
+          },600);
+        },900);
+      }catch(err){
+        progressWrap.classList.remove('active');
+        if(analyseBtn) analyseBtn.disabled=false;
+        showToast('Analysis failed — check connection');
+      }
+    });
+    xhr.addEventListener('error',function(){
+      progressWrap.classList.remove('active');
+      if(analyseBtn) analyseBtn.disabled=false;
+      showToast('Upload failed — check connection');
+    });
+    xhr.open('POST',FORM_ANALYSIS_BACKEND);
+    xhr.send(formData);
+  }
   /* ── BACKEND ACTIVATION ──────────────────────────────
      const reader=new FileReader();
      reader.onload=async function(e){
@@ -4799,6 +5139,10 @@ function resetFormAnalysis(){
   document.getElementById('form-upload-hint').style.display='block';
   document.getElementById('form-upload-ready').style.display='none';
   document.getElementById('form-exercise-name').value='';
+  document.getElementById('upload-progress-wrap').classList.remove('active');
+  document.getElementById('upload-progress-fill').style.width='0%';
+  const btn=document.getElementById('form-analyse-btn');
+  if(btn) btn.disabled=false;
   formVideoFile=null;
 }
 
