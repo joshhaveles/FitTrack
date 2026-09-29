@@ -82,9 +82,16 @@ input,select,textarea,button{font-family:-apple-system,BlinkMacSystemFont,'Segoe
 .inp::placeholder{color:var(--text3);}
 .btn-login{width:100%;background:var(--lime);color:#0a0a0a;border:none;border-radius:var(--r-sm);padding:13px;font-size:15px;font-weight:800;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-weight:800;letter-spacing:.3px;cursor:pointer;transition:background .15s;margin-top:4px;}
 .btn-login:hover{background:var(--lime2);}
+.btn-login:disabled{opacity:.55;cursor:wait;}
+.btn-login.ghost{background:transparent;border:1px solid var(--border2);color:var(--text);}
+.btn-login.ghost:hover{background:var(--bg3);}
 .login-demo{margin-top:16px;font-size:11px;color:var(--text3);text-align:center;line-height:1.7;}
 .login-demo b{color:var(--text2);}
 .login-err{background:var(--red-dim);border:1px solid rgba(245,91,91,0.25);border-radius:var(--r-xs);padding:9px 12px;font-size:12px;color:var(--red);margin-bottom:12px;display:none;}
+.login-ok{background:var(--lime-dim);border:1px solid rgba(0,230,118,0.28);border-radius:var(--r-xs);padding:9px 12px;font-size:12px;color:var(--lime);margin-bottom:12px;display:none;}
+.login-link{display:block;width:100%;margin-top:14px;background:none;border:none;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;text-align:center;}
+.login-link:hover{color:var(--text);}
+.signup-only{display:none;}
 
 /* ── MOBILE FRAME ── */
 .mobile-frame{max-width:430px;margin:0 auto;height:100%;display:flex;flex-direction:column;position:relative;overflow:hidden;}
@@ -797,22 +804,33 @@ select.finp{cursor:pointer;}
     <div class="login-logo">Fit<span>Track</span></div>
     <div class="login-sub">Personal Training Platform</div>
     <div class="login-card">
-      <div class="login-role-tabs">
+      <div class="login-role-tabs" id="login-role-tabs">
         <div class="role-tab active" id="role-trainer" onclick="setRole('trainer')">Trainer</div>
         <div class="role-tab" id="role-client" onclick="setRole('client')">Client</div>
       </div>
+      <div id="login-ok" class="login-ok"></div>
       <div id="login-err" class="login-err">Incorrect email or password.</div>
+      <div class="signup-only">
+        <div class="inp-label">Your name</div>
+        <input class="inp" id="signup-name" placeholder="Jordan Reed" autocomplete="name"/>
+      </div>
       <div class="inp-label">Email</div>
       <input class="inp" id="login-user" placeholder="you@email.com" autocomplete="email"/>
       <div class="inp-label">Password</div>
       <input class="inp" id="login-pass" type="password" placeholder="At least 6 characters" autocomplete="current-password"/>
-      <button class="btn-login" onclick="doLogin()">Sign In</button>
-      <button class="btn-login" id="btn-signup" style="background:transparent;border:1px solid var(--border2);color:var(--text);margin-top:8px;" onclick="doSignup()">Create account</button>
-      <div class="login-demo">
-        Trainers: create an account with your email, then add clients.<br/>
-        Clients: sign in with the email and password your trainer set.
+      <div class="signup-only">
+        <div class="inp-label">Confirm password</div>
+        <input class="inp" id="signup-pass2" type="password" placeholder="Re-enter password" autocomplete="new-password"/>
       </div>
-      <div class="login-fix-section">
+      <button class="btn-login" id="btn-signin" onclick="doLogin()">Sign In</button>
+      <button class="btn-login" id="btn-signup" onclick="doSignup()" style="display:none;">Create account</button>
+      <button class="login-link" id="btn-goto-signup" onclick="showSignup()">Create a trainer account</button>
+      <button class="login-link" id="btn-goto-signin" onclick="showSignIn()" style="display:none;">Back to sign in</button>
+      <div class="login-demo" id="login-help">
+        Trainers: create an account, then sign in.<br/>
+        Clients: use the email and password your trainer set.
+      </div>
+      <div class="login-fix-section" id="login-fix-wrap">
         <span class="login-fix-link" onclick="openLoginFix()">Can't log in? Fix login issues</span>
       </div>
     </div>
@@ -2582,28 +2600,87 @@ let activeClientPanel = null;
 // ══════════════════════════════════════════════════
 //  AUTH
 // ══════════════════════════════════════════════════
+let authMode = 'signin';
+
+function hideLoginAlerts(){
+  const err=document.getElementById('login-err');
+  const ok=document.getElementById('login-ok');
+  if(err) err.style.display='none';
+  if(ok) ok.style.display='none';
+}
+
+function showLoginErr(msg){
+  hideLoginAlerts();
+  const err=document.getElementById('login-err');
+  err.textContent=msg||'Incorrect email or password.';
+  err.style.display='block';
+}
+
+function showLoginOk(msg){
+  hideLoginAlerts();
+  const ok=document.getElementById('login-ok');
+  ok.textContent=msg;
+  ok.style.display='block';
+}
+
+function setAuthBusy(busy){
+  ['btn-signin','btn-signup'].forEach(function(id){
+    const el=document.getElementById(id);
+    if(el) el.disabled=!!busy;
+  });
+}
+
 function setRole(r){
   currentRole = r;
   document.getElementById('role-trainer').classList.toggle('active',r==='trainer');
   document.getElementById('role-client').classList.toggle('active',r==='client');
-  const su=document.getElementById('btn-signup');
-  if(su) su.style.display = r==='trainer' ? 'block' : 'none';
+  if(r==='client' && authMode==='signup') showSignIn();
+  const go=document.getElementById('btn-goto-signup');
+  if(go) go.style.display = (r==='trainer' && authMode==='signin') ? 'block' : 'none';
 }
 
-function showLoginErr(msg){
-  const err=document.getElementById('login-err');
-  err.textContent=msg||'Incorrect username or password.';
-  err.style.display='block';
+function showSignup(){
+  if(currentRole!=='trainer') setRole('trainer');
+  authMode='signup';
+  hideLoginAlerts();
+  document.querySelectorAll('.signup-only').forEach(function(el){ el.style.display='block'; });
+  document.getElementById('btn-signin').style.display='none';
+  document.getElementById('btn-signup').style.display='block';
+  document.getElementById('btn-goto-signup').style.display='none';
+  document.getElementById('btn-goto-signin').style.display='block';
+  document.getElementById('login-role-tabs').style.display='none';
+  document.getElementById('login-help').innerHTML='Create a trainer account, then you will come back here to sign in.';
+  document.getElementById('login-fix-wrap').style.display='none';
+  document.getElementById('login-pass').autocomplete='new-password';
+  const sub=document.querySelector('.login-sub');
+  if(sub) sub.textContent='Create your trainer account';
+}
+
+function showSignIn(keepAlerts){
+  authMode='signin';
+  if(!keepAlerts) hideLoginAlerts();
+  document.querySelectorAll('.signup-only').forEach(function(el){ el.style.display='none'; });
+  document.getElementById('btn-signin').style.display='block';
+  document.getElementById('btn-signup').style.display='none';
+  document.getElementById('btn-goto-signup').style.display = currentRole==='trainer' ? 'block' : 'none';
+  document.getElementById('btn-goto-signin').style.display='none';
+  document.getElementById('login-role-tabs').style.display='flex';
+  document.getElementById('login-help').innerHTML='Trainers: create an account, then sign in.<br/>Clients: use the email and password your trainer set.';
+  document.getElementById('login-fix-wrap').style.display='block';
+  document.getElementById('login-pass').autocomplete='current-password';
+  const sub=document.querySelector('.login-sub');
+  if(sub) sub.textContent='Personal Training Platform';
+  document.getElementById('signup-pass2').value='';
 }
 
 async function doLogin(){
   const u=document.getElementById('login-user').value.trim();
   const p=document.getElementById('login-pass').value;
-  const err=document.getElementById('login-err');
-  err.style.display='none';
+  hideLoginAlerts();
   if(!u||!p){ showLoginErr('Enter email and password.'); return; }
   const email=toAuthEmail(u);
   if(!email){ showLoginErr('Use a real email address (with @).'); return; }
+  setAuthBusy(true);
   try{
     const {error}=await sb.auth.signInWithPassword({email,password:p});
     if(error) throw error;
@@ -2615,42 +2692,62 @@ async function doLogin(){
         : 'This login is not a client account. Ask your trainer to add you.');
     }
   }catch(e){
-    showLoginErr(e.message||'Incorrect username or password.');
+    const msg=e.message||'Incorrect email or password.';
+    if(/email not confirmed/i.test(msg)) showLoginErr('Confirm the email we sent, then sign in.');
+    else if(/invalid login/i.test(msg)) showLoginErr('Incorrect email or password.');
+    else showLoginErr(msg);
+  }finally{
+    setAuthBusy(false);
   }
 }
 
 async function doSignup(){
-  if(currentRole!=='trainer'){ showLoginErr('Clients are added by a trainer.'); return; }
+  const name=document.getElementById('signup-name').value.trim();
   const u=document.getElementById('login-user').value.trim();
   const p=document.getElementById('login-pass').value;
-  const err=document.getElementById('login-err');
-  err.style.display='none';
+  const p2=document.getElementById('signup-pass2').value;
+  hideLoginAlerts();
+  if(!name){ showLoginErr('Enter your name.'); return; }
   if(!u||!p){ showLoginErr('Enter email and password.'); return; }
   if(p.length<6){ showLoginErr('Password must be at least 6 characters.'); return; }
+  if(p!==p2){ showLoginErr('Passwords do not match.'); return; }
   const email=toAuthEmail(u);
   if(!email){ showLoginErr('Use a real email address (with @).'); return; }
   const username=email.split('@')[0];
+  setAuthBusy(true);
   try{
     const {data,error}=await sb.auth.signUp({
       email,
       password:p,
-      options:{data:{username,name:username}}
+      options:{data:{username,name}}
     });
     if(error) throw error;
-    if(!data.session){
-      showLoginErr('Check your email to confirm this account, then sign in.');
-      return;
+    if(data.session && data.user){
+      await sb.from('trainers').upsert({
+        id:data.user.id,
+        username,
+        email,
+        name
+      });
+      await sb.auth.signOut();
+      window.sbUser=null;
+      window.cloudReady=false;
     }
-    await sb.from('trainers').upsert({
-      id:data.user.id,
-      username,
-      email,
-      name:username
-    });
-    const ok=await enterAppFromSession();
-    if(!ok) showLoginErr('Account created, but trainer profile failed. Try signing in again.');
+    document.getElementById('login-pass').value='';
+    document.getElementById('signup-pass2').value='';
+    document.getElementById('login-user').value=email;
+    showSignIn(true);
+    if(data.session){
+      showLoginOk('Account created. Sign in with your email and password.');
+    }else{
+      showLoginOk('Account created. Confirm the email we sent, then sign in.');
+    }
   }catch(e){
-    showLoginErr(e.message||'Could not create account.');
+    const msg=e.message||'Could not create account.';
+    if(/already registered/i.test(msg)) showLoginErr('That email already has an account. Sign in instead.');
+    else showLoginErr(msg);
+  }finally{
+    setAuthBusy(false);
   }
 }
 
@@ -2666,9 +2763,16 @@ async function doLogout(){
   document.getElementById('login-user').value='';
   document.getElementById('login-pass').value='';
   currentClientId=null;
+  showSignIn();
 }
 
-document.getElementById('login-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+function submitAuthOnEnter(e){
+  if(e.key!=='Enter') return;
+  if(authMode==='signup') doSignup();
+  else doLogin();
+}
+document.getElementById('login-pass').addEventListener('keydown',submitAuthOnEnter);
+document.getElementById('signup-pass2').addEventListener('keydown',submitAuthOnEnter);
 document.addEventListener('DOMContentLoaded', function(){
   parseInviteParam();
   checkPendingInvite();
