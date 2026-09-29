@@ -2716,32 +2716,12 @@ async function doSignup(){
   const username=email.split('@')[0];
   setAuthBusy(true);
   try{
-    const {data,error}=await sb.auth.signUp({
-      email,
-      password:p,
-      options:{data:{username,name}}
-    });
-    if(error) throw error;
-    if(data.session && data.user){
-      await sb.from('trainers').upsert({
-        id:data.user.id,
-        username,
-        email,
-        name
-      });
-      await sb.auth.signOut();
-      window.sbUser=null;
-      window.cloudReady=false;
-    }
+    await invokeFn('register-trainer',{email,password:p,name,username});
     document.getElementById('login-pass').value='';
     document.getElementById('signup-pass2').value='';
     document.getElementById('login-user').value=email;
     showSignIn(true);
-    if(data.session){
-      showLoginOk('Account created. Sign in with your email and password.');
-    }else{
-      showLoginOk('Account created. Confirm the email we sent, then sign in.');
-    }
+    showLoginOk('Account created. Sign in with your email and password.');
   }catch(e){
     const msg=e.message||'Could not create account.';
     if(/already registered/i.test(msg)) showLoginErr('That email already has an account. Sign in instead.');
