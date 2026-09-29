@@ -712,6 +712,7 @@ select.finp{cursor:pointer;}
   .msg-thread-pane.open{position:absolute;inset:0;z-index:6;}
   .msg-list-pane.hidden-mobile{display:none;}
   .msg-back{display:flex;}
+  .notif-bell-btn{display:none!important;}
   .msg-row{min-height:56px;padding:14px 16px;}
   #modal-new-chat .modal-sheet{display:flex;flex-direction:column;overflow:hidden;max-height:min(90dvh,90vh);padding-bottom:max(16px,env(safe-area-inset-bottom));}
   #t-new-chat-search{font-size:16px;margin-bottom:8px;}
@@ -942,7 +943,7 @@ select.finp{cursor:pointer;}
             <div class="unit-opt active" id="unit-kg" onclick="setUnit('kg')">kg</div>
             <div class="unit-opt" id="unit-lbs" onclick="setUnit('lbs')">lbs</div>
           </div>
-          <div class="icon-btn" style="position:relative;" onclick="openNotifPanel('trainer')" id="t-notif-btn">
+          <div class="icon-btn notif-bell-btn" style="position:relative;" onclick="openNotifPanel('trainer')" id="t-notif-btn">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
             <span class="notif-badge" id="t-notif-badge" style="display:none;">0</span>
           </div>
@@ -1302,7 +1303,7 @@ select.finp{cursor:pointer;}
         <div style="display:flex;align-items:center;gap:8px;">
           <div class="icon-btn" style="font-size:15px;" onclick="openModal('modal-wearables')" title="Heart rate &amp; zones">❤️</div>
           <div class="icon-btn" style="font-size:15px;" onclick="openModal('modal-form-analysis')" title="AI form check">🎥</div>
-          <div class="icon-btn" style="position:relative;" onclick="openNotifPanel('client')" id="c-notif-btn">
+          <div class="icon-btn notif-bell-btn" style="position:relative;" onclick="openNotifPanel('client')" id="c-notif-btn">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
             <span class="notif-badge" id="c-notif-badge" style="display:none;">0</span>
           </div>
@@ -1350,7 +1351,7 @@ select.finp{cursor:pointer;}
       <div class="topbar">
         <div class="topbar-title">My Workouts</div>
         <div style="display:flex;align-items:center;gap:8px;">
-          <div class="icon-btn" style="position:relative;" onclick="openNotifPanel('client')">
+          <div class="icon-btn notif-bell-btn" style="position:relative;" onclick="openNotifPanel('client')">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
             <span class="notif-badge" id="c-notif-badge2" style="display:none;">0</span>
           </div>
@@ -1368,7 +1369,7 @@ select.finp{cursor:pointer;}
       <div class="topbar">
         <div class="topbar-title">Exercise Videos</div>
         <div style="display:flex;align-items:center;gap:8px;">
-          <div class="icon-btn" style="position:relative;" onclick="openNotifPanel('client')">
+          <div class="icon-btn notif-bell-btn" style="position:relative;" onclick="openNotifPanel('client')">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
             <span class="notif-badge" id="c-notif-badge2" style="display:none;">0</span>
           </div>
