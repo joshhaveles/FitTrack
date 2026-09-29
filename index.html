@@ -728,8 +728,8 @@ select.finp{cursor:pointer;}
   .bottom-nav.collapsed .nav-tab .notif-badge{top:4px;right:4px;}
 }
 .msg-thread-empty{display:none;flex:1;align-items:center;justify-content:center;color:var(--text3);font-size:13px;padding:24px;text-align:center;}
-.alert-banner{position:fixed;top:max(16px,env(safe-area-inset-top));left:50%;transform:translateX(-50%) translateY(-80px);background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:12px 16px;min-width:260px;max-width:90vw;z-index:600;box-shadow:0 8px 24px rgba(0,0,0,.5);display:flex;align-items:center;gap:12px;transition:transform .35s cubic-bezier(.34,1.56,.64,1);cursor:pointer;}
-.alert-banner.show{transform:translateX(-50%) translateY(0);}
+.alert-banner{position:fixed;top:max(16px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:12px 16px;min-width:260px;max-width:90vw;z-index:600;box-shadow:0 8px 24px rgba(0,0,0,.5);align-items:center;gap:12px;cursor:pointer;display:none;}
+.alert-banner.show{display:flex;}
 .alert-icon{font-size:20px;flex-shrink:0;}
 .alert-body{flex:1;min-width:0;}
 .alert-title{font-size:13px;font-weight:700;color:var(--text);}
@@ -942,10 +942,6 @@ select.finp{cursor:pointer;}
           <div class="unit-toggle">
             <div class="unit-opt active" id="unit-kg" onclick="setUnit('kg')">kg</div>
             <div class="unit-opt" id="unit-lbs" onclick="setUnit('lbs')">lbs</div>
-          </div>
-          <div class="icon-btn notif-bell-btn" style="position:relative;" onclick="openNotifPanel('trainer')" id="t-notif-btn">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-            <span class="notif-badge" id="t-notif-badge" style="display:none;">0</span>
           </div>
           <div class="icon-btn" onclick="openModal('modal-add-session')">＋</div>
           <div class="avatar-menu-wrap" id="trainer-avatar-wrap">
@@ -1303,10 +1299,6 @@ select.finp{cursor:pointer;}
         <div style="display:flex;align-items:center;gap:8px;">
           <div class="icon-btn" style="font-size:15px;" onclick="openModal('modal-wearables')" title="Heart rate &amp; zones">❤️</div>
           <div class="icon-btn" style="font-size:15px;" onclick="openModal('modal-form-analysis')" title="AI form check">🎥</div>
-          <div class="icon-btn notif-bell-btn" style="position:relative;" onclick="openNotifPanel('client')" id="c-notif-btn">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-            <span class="notif-badge" id="c-notif-badge" style="display:none;">0</span>
-          </div>
           <div class="avatar-menu-wrap" id="client-avatar-wrap">
           <div class="avatar-sm" id="c-avatar" style="background:var(--lime-dim);color:var(--lime);cursor:pointer;" onclick="toggleAvatarMenu('client-menu')"></div>
           <div class="avatar-menu" id="client-menu">
@@ -1351,10 +1343,6 @@ select.finp{cursor:pointer;}
       <div class="topbar">
         <div class="topbar-title">My Workouts</div>
         <div style="display:flex;align-items:center;gap:8px;">
-          <div class="icon-btn notif-bell-btn" style="position:relative;" onclick="openNotifPanel('client')">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-            <span class="notif-badge" id="c-notif-badge2" style="display:none;">0</span>
-          </div>
           <div class="avatar-sm" style="background:var(--lime-dim);color:var(--lime);cursor:pointer;font-size:12px;font-weight:700;" id="c-avatar2" onclick="toggleAvatarMenu('client-menu2')"></div>
         </div>
       </div>
@@ -1369,11 +1357,7 @@ select.finp{cursor:pointer;}
       <div class="topbar">
         <div class="topbar-title">Exercise Videos</div>
         <div style="display:flex;align-items:center;gap:8px;">
-          <div class="icon-btn notif-bell-btn" style="position:relative;" onclick="openNotifPanel('client')">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-            <span class="notif-badge" id="c-notif-badge2" style="display:none;">0</span>
-          </div>
-          <div class="avatar-sm" style="background:var(--lime-dim);color:var(--lime);cursor:pointer;font-size:12px;font-weight:700;" id="c-avatar2" onclick="toggleAvatarMenu('client-menu2')"></div>
+          <div class="avatar-sm" style="background:var(--lime-dim);color:var(--lime);cursor:pointer;font-size:12px;font-weight:700;" id="c-avatar2b" onclick="toggleAvatarMenu('client-menu2')"></div>
         </div>
       </div>
       <div id="c-videos" style="padding-bottom:80px;"></div>
@@ -2670,7 +2654,7 @@ select.finp{cursor:pointer;}
 <div id="notif-overlay" style="display:none;position:fixed;inset:0;z-index:299;" onclick="closeNotifPanel()"></div>
 <script src="cloud.js"></script>
 <div class="alert-banner" id="alert-banner" onclick="handleAlertClick()">
-  <div class="alert-icon" id="alert-icon">🔔</div>
+  <div class="alert-icon" id="alert-icon"></div>
   <div class="alert-body">
     <div class="alert-title" id="alert-title"></div>
     <div class="alert-sub" id="alert-sub"></div>
@@ -2985,6 +2969,8 @@ document.getElementById('signup-pass2').addEventListener('keydown',submitAuthOnE
 document.getElementById('cs-pass').addEventListener('keydown',submitAuthOnEnter);
 document.getElementById('cs-pass2').addEventListener('keydown',submitAuthOnEnter);
 document.addEventListener('DOMContentLoaded', function(){
+  const banner=document.getElementById('alert-banner');
+  if(banner) banner.classList.remove('show');
   parseInviteParam();
   checkPendingInvite();
   if(typeof enterAppFromSession==='function'){
@@ -3013,6 +2999,10 @@ function showScreen(id){
   document.getElementById('video-modal-player').innerHTML='';
   closeAllAvatarMenus();
   closeNotifPanel();
+  if(id==='screen-login'){
+    const banner=document.getElementById('alert-banner');
+    if(banner) banner.classList.remove('show');
+  }
 }
 
 function switchTab(role, tab){
@@ -4487,7 +4477,7 @@ function initClient(c){
   document.getElementById('c-hello-name').textContent=`${g}, ${c.name.split(' ')[0]} 👋`;
   // Sync secondary avatar initials across all tabs
   const initials2=c.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
-  ['c-avatar2'].forEach(id=>{const el=document.getElementById(id);if(el){el.textContent=initials2;el.style.background=c.colorBg;el.style.color=c.color;}});
+  ['c-avatar2','c-avatar2b'].forEach(id=>{const el=document.getElementById(id);if(el){el.textContent=initials2;el.style.background=c.colorBg;el.style.color=c.color;}});
   ['client-menu2-name'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=c.name;});
   const cmn=document.getElementById('client-menu-name');
   if(cmn) cmn.textContent=c.name;
@@ -7035,6 +7025,7 @@ function markAllNotifsRead(){
 
 let alertTimeout=null,alertAction=null;
 function showAlertBanner(notif){
+  if(document.getElementById('screen-login')&&document.getElementById('screen-login').classList.contains('active')) return;
   const icons={message:'💬',workout:'📋',pb:'🏆',session:'✅',reminder:'⏰'};
   document.getElementById('alert-icon').textContent=icons[notif.type]||'🔔';
   document.getElementById('alert-title').textContent=notif.title;
