@@ -102,7 +102,8 @@
 
     const trainerRes = await window.sb.from('trainers').select('*').eq('id', user.id).maybeSingle();
     const selfClientRes = await window.sb.from('clients').select('*').eq('id', user.id).maybeSingle();
-    const role = trainerRes.data ? 'trainer' : (selfClientRes.data ? 'client' : null);
+    // A user who is in clients is always a client, even if a trainer row was created by mistake.
+    const role = selfClientRes.data ? 'client' : (trainerRes.data ? 'trainer' : null);
     if (!role) return { role: null, user: user };
 
     const trainerId = role === 'trainer' ? user.id : selfClientRes.data.trainer_id;
@@ -506,6 +507,49 @@
     persistTimer = setTimeout(function () { persistCloud(db); }, 500);
   };
 
+  window.pullMessages = async function () {
+    if (!window.sb || !window.sbUser || typeof DB === 'undefined' || !DB) return;
+    const user = window.sbUser;
+    const isTrainer = DB.trainer && DB.trainer.id === user.id;
+    const clientIds = isTrainer
+      ? (DB.clients || []).map(function (c) { return c.id; }).filter(Boolean)
+      : [user.id];
+    if (!clientIds.length) return;
+    const { data, error } = await window.sb.from('messages').select('*').in('client_id', clientIds).order('created_at');
+    if (error || !data) return;
+    const messages = {};
+    data.forEach(function (m) {
+      if (!messages[m.client_id]) messages[m.client_id] = [];
+      messages[m.client_id].push({
+        id: m.id,
+        sender: m.sender,
+        text: m.text,
+        ts: asTs(m.created_at)
+      });
+    });
+    DB.messages = messages;
+    if (typeof saveData === 'function') saveData(DB, true);
+  };
+
+  let msgChannel = null;
+  window.startMessageRealtime = function () {
+    if (!window.sb) return;
+    if (msgChannel) {
+      window.sb.removeChannel(msgChannel);
+      msgChannel = null;
+    }
+    msgChannel = window.sb.channel('ft-messages')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, function () {
+        window.pullMessages().then(function () {
+          const tTab = document.getElementById('t-tab-messages');
+          const cTab = document.getElementById('c-tab-messages');
+          if (tTab && !tTab.classList.contains('hidden') && typeof renderTrainerMessages === 'function') renderTrainerMessages();
+          if (cTab && !cTab.classList.contains('hidden') && typeof renderClientMessages === 'function') renderClientMessages();
+        });
+      })
+      .subscribe();
+  };
+
   window.enterAppFromSession = async function () {
     const result = await hydrateCloud();
     if (!result || !result.role) return false;
@@ -523,6 +567,7 @@
       const client = DB.clients.find(function (c) { return c.id === result.user.id; });
       if (client) initClient(client);
     }
+    if (typeof startMessageRealtime === 'function') startMessageRealtime();
     return true;
   };
 })();
