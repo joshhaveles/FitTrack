@@ -690,7 +690,7 @@ select.finp{cursor:pointer;}
 .msg-list-pane{display:flex;flex-direction:column;flex:1;min-height:0;min-width:0;}
 .msg-list-header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:max(12px,env(safe-area-inset-top)) 12px 10px 16px;border-bottom:1px solid var(--border);flex-shrink:0;}
 .msg-list-title{font-size:18px;font-weight:800;letter-spacing:-.3px;}
-.msg-new-btn{display:inline-flex;align-items:center;gap:6px;background:var(--lime);color:#0a0a0a;border:none;border-radius:20px;padding:7px 12px;font-size:12px;font-weight:800;cursor:pointer;flex-shrink:0;}
+.msg-new-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:var(--lime);color:#0a0a0a;border:none;border-radius:20px;padding:8px 14px;min-height:36px;font-size:13px;font-weight:800;cursor:pointer;flex-shrink:0;}
 .msg-new-btn:hover{background:var(--lime2);}
 #t-msg-list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;min-height:0;}
 .msg-thread-pane{display:none;flex-direction:column;flex:1;min-width:0;background:var(--bg);}
@@ -712,6 +712,10 @@ select.finp{cursor:pointer;}
   .msg-thread-pane.open{position:absolute;inset:0;z-index:6;}
   .msg-list-pane.hidden-mobile{display:none;}
   .msg-back{display:flex;}
+  .msg-row{min-height:56px;padding:14px 16px;}
+  #modal-new-chat .modal-sheet{display:flex;flex-direction:column;overflow:hidden;max-height:min(90dvh,90vh);padding-bottom:max(16px,env(safe-area-inset-bottom));}
+  #t-new-chat-search{font-size:16px;margin-bottom:8px;}
+  #t-new-chat-list{flex:1;min-height:0;max-height:none;overflow-y:auto;-webkit-overflow-scrolling:touch;}
 }
 @media(min-width:768px){
   .msg-list-pane{flex:none;width:300px;max-width:34%;border-right:1px solid var(--border);}
@@ -1774,8 +1778,10 @@ select.finp{cursor:pointer;}
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <div class="modal-title">New chat</div>
-    <div style="font-size:13px;color:var(--text2);margin:-8px 0 14px;line-height:1.45;">Choose who you want to message. This starts a new conversation if you do not already have one.</div>
-    <div id="t-new-chat-list"></div>
+    <div style="font-size:13px;color:var(--text2);margin:-8px 0 12px;line-height:1.45;">Choose a client to message.</div>
+    <input class="finp" id="t-new-chat-search" type="search" placeholder="Search clients..." autocomplete="off" enterkeyhint="search" inputmode="search"
+      oninput="renderNewChatPickerList()" style="margin-bottom:10px;font-size:16px;"/>
+    <div id="t-new-chat-list" style="max-height:min(48dvh,420px);overflow-y:auto;-webkit-overflow-scrolling:touch;margin:0 -4px;"></div>
     <button class="btn btn-secondary btn-full" style="margin-top:12px;" onclick="closeModal('modal-new-chat')">Cancel</button>
   </div>
 </div>
@@ -7165,24 +7171,44 @@ function renderTrainerChatList(){
 }
 
 function openNewChatPicker(){
+  const search=document.getElementById('t-new-chat-search');
+  if(search) search.value='';
+  renderNewChatPickerList();
+  openModal('modal-new-chat');
+  setTimeout(function(){
+    const el=document.getElementById('t-new-chat-search');
+    if(el && window.innerWidth>=768) el.focus();
+  },50);
+}
+
+function renderNewChatPickerList(){
   const wrap=document.getElementById('t-new-chat-list');
   if(!wrap) return;
+  const q=((document.getElementById('t-new-chat-search')||{}).value||'').trim().toLowerCase();
   const clients=(DB.clients||[]).slice().sort(function(a,b){return (a.name||'').localeCompare(b.name||'');});
   if(!clients.length){
     wrap.innerHTML='<div class="empty-state"><div class="empty-icon">👤</div><div class="empty-msg">Add a client first, then you can start a chat.</div></div>';
-  } else {
-    wrap.innerHTML=clients.map(function(c){
-      const ongoing=getMessages(c.id).length>0;
-      return `<div class="msg-row" onclick="startTrainerChatFromPicker('${c.id}')">
-        <div class="msg-avatar" style="background:${c.colorBg||c.color+'22'};color:${c.color};">${c.initials||'?'}</div>
-        <div class="msg-row-body">
-          <div class="msg-row-name">${escapeHtml(c.name)}</div>
-          <div class="msg-row-preview">${ongoing?'Continue conversation':'Start a new conversation'}</div>
-        </div>
-      </div>`;
-    }).join('');
+    return;
   }
-  openModal('modal-new-chat');
+  const matches=clients.filter(function(c){
+    if(!q) return true;
+    const hay=[c.name,c.email,c.username,c.goal,c.initials].join(' ').toLowerCase();
+    return hay.indexOf(q)!==-1;
+  });
+  if(!matches.length){
+    wrap.innerHTML='<div class="empty-state"><div class="empty-msg">No clients match “'+escapeHtml(q)+'”.</div></div>';
+    return;
+  }
+  wrap.innerHTML=matches.map(function(c){
+    const ongoing=getMessages(c.id).length>0;
+    return `<div class="msg-row" onclick="startTrainerChatFromPicker('${c.id}')">
+      <div class="msg-avatar" style="background:${c.colorBg||c.color+'22'};color:${c.color};">${c.initials||'?'}</div>
+      <div class="msg-row-body">
+        <div class="msg-row-name">${escapeHtml(c.name)}</div>
+        <div class="msg-row-preview">${ongoing?'Continue conversation':'Start a new conversation'}</div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function startTrainerChatFromPicker(clientId){
