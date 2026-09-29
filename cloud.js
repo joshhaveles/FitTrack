@@ -459,6 +459,7 @@
       const clientIdList = Object.keys(msgMap);
       for (let m = 0; m < clientIdList.length; m++) {
         const cid = clientIdList[m];
+        if (!isTrainer && cid !== user.id) continue;
         const list = msgMap[cid] || [];
         for (let x = 0; x < list.length; x++) {
           const msg = list[x];
@@ -486,7 +487,15 @@
           });
         }));
       }
-      if (isTrainer) await upsertNotifs(trainerId, 'trainer', db.notifications && db.notifications.trainer);
+      if (isTrainer) {
+        await upsertNotifs(trainerId, 'trainer', db.notifications && db.notifications.trainer);
+      } else {
+        try {
+          await upsertNotifs(trainerId, 'trainer', db.notifications && db.notifications.trainer);
+        } catch (notifErr) {
+          console.warn('Trainer notification sync skipped', notifErr);
+        }
+      }
       const nClients = (db.notifications && db.notifications.clients) || {};
       const nIds = Object.keys(nClients);
       for (let i = 0; i < nIds.length; i++) {
@@ -529,6 +538,7 @@
     });
     DB.messages = messages;
     if (typeof saveData === 'function') saveData(DB, true);
+    if (typeof updateNotifBadges === 'function') updateNotifBadges();
   };
 
   let msgChannel = null;
@@ -543,8 +553,12 @@
         window.pullMessages().then(function () {
           const tTab = document.getElementById('t-tab-messages');
           const cTab = document.getElementById('c-tab-messages');
-          if (tTab && !tTab.classList.contains('hidden') && typeof renderTrainerMessages === 'function') renderTrainerMessages();
-          if (cTab && !cTab.classList.contains('hidden') && typeof renderClientMessages === 'function') renderClientMessages();
+          if (tTab && !tTab.classList.contains('hidden')) {
+            if (typeof renderTrainerChatList === 'function') renderTrainerChatList();
+            if (typeof renderTrainerMessages === 'function') renderTrainerMessages();
+            if (typeof activeTrainerChatId !== 'undefined' && activeTrainerChatId && typeof markChatRead === 'function') markChatRead(activeTrainerChatId);
+          }
+          if (cTab && !cTab.classList.contains('hidden') && typeof renderClientMessages === 'function') renderClientMessages(false);
         });
       })
       .subscribe();

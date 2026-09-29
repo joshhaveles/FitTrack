@@ -680,12 +680,44 @@ select.finp{cursor:pointer;}
 .msg-item.mine .msg-bubble{background:var(--lime-dim);border:1px solid rgba(212,245,60,0.25);}
 .msg-text{font-size:13px;color:var(--text);line-height:1.5;}
 .msg-time{font-size:10px;color:var(--text3);margin-top:4px;font-family:"DM Mono",monospace;}
-.msg-input-bar{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--border);flex-shrink:0;background:var(--bg2);}
+.msg-input-bar{display:flex;gap:8px;padding:12px 16px max(12px,env(safe-area-inset-bottom));border-top:1px solid var(--border);flex-shrink:0;background:var(--bg2);}
 .msg-input{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:20px;padding:9px 14px;color:var(--text);font-size:13px;outline:none;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;resize:none;}
 .msg-input:focus{border-color:var(--lime);}
 .msg-send{width:36px;height:36px;border-radius:50%;background:var(--lime);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;transition:background .15s;align-self:flex-end;}
 .msg-send:hover{background:var(--lime2);}
 .msg-day-divider{text-align:center;font-size:10px;color:var(--text3);font-family:"DM Mono",monospace;margin:4px 0;}
+.msg-layout{display:flex;flex:1;min-height:0;overflow:hidden;position:relative;}
+.msg-list-pane{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.msg-thread-pane{display:none;flex-direction:column;flex:1;min-width:0;background:var(--bg);}
+.msg-thread-pane.open{display:flex;}
+.msg-row{display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s;}
+.msg-row:hover,.msg-row.active{background:var(--bg2);}
+.msg-row-body{flex:1;min-width:0;}
+.msg-row-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:3px;}
+.msg-row-name{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.msg-row-time{font-size:11px;color:var(--text3);flex-shrink:0;}
+.msg-row-preview{font-size:12px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.msg-row.unread .msg-row-name{color:var(--text);}
+.msg-row.unread .msg-row-preview{color:var(--text);font-weight:600;}
+.msg-row-unread{min-width:18px;height:18px;border-radius:9px;background:var(--lime);color:#0a0a0a;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 5px;flex-shrink:0;}
+.msg-start-label{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;padding:14px 16px 6px;}
+.nav-tab{position:relative;}
+.nav-tab .notif-badge{top:4px;right:calc(50% - 18px);}
+@media(max-width:767px){
+  .msg-thread-pane.open{position:absolute;inset:0;z-index:6;}
+  .msg-list-pane.hidden-mobile{display:none;}
+  .msg-back{display:flex;}
+}
+@media(min-width:768px){
+  .msg-list-pane{flex:none;width:300px;max-width:34%;border-right:1px solid var(--border);}
+  .msg-thread-pane{display:flex;}
+  .msg-thread-pane:not(.open) .msg-thread-empty{display:flex;}
+  .msg-thread-pane.open .msg-thread-empty{display:none;}
+  .msg-back{display:none!important;}
+  .nav-tab .notif-badge{top:8px;right:8px;}
+  .bottom-nav.collapsed .nav-tab .notif-badge{top:4px;right:4px;}
+}
+.msg-thread-empty{display:none;flex:1;align-items:center;justify-content:center;color:var(--text3);font-size:13px;padding:24px;text-align:center;}
 .alert-banner{position:fixed;top:max(16px,env(safe-area-inset-top));left:50%;transform:translateX(-50%) translateY(-80px);background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:12px 16px;min-width:260px;max-width:90vw;z-index:600;box-shadow:0 8px 24px rgba(0,0,0,.5);display:flex;align-items:center;gap:12px;transition:transform .35s cubic-bezier(.34,1.56,.64,1);cursor:pointer;}
 .alert-banner.show{transform:translateX(-50%) translateY(0);}
 .alert-icon{font-size:20px;flex-shrink:0;}
@@ -1022,17 +1054,24 @@ select.finp{cursor:pointer;}
 
     <!-- TRAINER: MESSAGES TAB -->
     <div id="t-tab-messages" class="hidden" style="flex:1;flex-direction:column;overflow:hidden;">
-      <div class="topbar" style="flex-shrink:0;">
-        <div class="topbar-title">Messages</div>
-      </div>
-      <div style="padding:0 16px 10px;flex-shrink:0;">
-        <select class="finp" id="t-msg-client-sel" onchange="renderTrainerMessages()" style="margin-bottom:0;"></select>
-      </div>
-      <div class="scroll-area" style="flex:1;" id="t-msg-feed"></div>
-      <div class="msg-input-bar">
-        <textarea class="msg-input" id="t-msg-input" placeholder="Message your client..." rows="1"
-          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendTrainerMessage();}"></textarea>
-        <button class="msg-send" onclick="sendTrainerMessage()">➤</button>
+      <div class="msg-layout">
+        <div class="msg-list-pane" id="t-msg-list"></div>
+        <div class="msg-thread-pane" id="t-msg-thread">
+          <div class="topbar" style="flex-shrink:0;">
+            <div class="back-btn msg-back" onclick="closeTrainerChat()" style="margin-right:8px;">‹</div>
+            <div>
+              <div class="topbar-title" id="t-msg-thread-name">Messages</div>
+              <div style="font-size:12px;color:var(--text3);" id="t-msg-thread-sub"></div>
+            </div>
+          </div>
+          <div class="msg-thread-empty" id="t-msg-empty">Pick a client on the left to read and reply.</div>
+          <div class="scroll-area" style="flex:1;" id="t-msg-feed"></div>
+          <div class="msg-input-bar" id="t-msg-input-bar" style="display:none;">
+            <textarea class="msg-input" id="t-msg-input" placeholder="Message..." rows="1"
+              onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendTrainerMessage();}"></textarea>
+            <button class="msg-send" onclick="sendTrainerMessage()">➤</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1477,8 +1516,10 @@ select.finp{cursor:pointer;}
     <!-- CLIENT: MESSAGES TAB -->
     <div id="c-tab-messages" class="hidden" style="flex:1;flex-direction:column;overflow:hidden;">
       <div class="topbar" style="flex-shrink:0;">
-        <div class="topbar-title">Messages</div>
-        <div style="font-size:12px;color:var(--text3);" id="c-msg-trainer-name"></div>
+        <div>
+          <div class="topbar-title">Messages</div>
+          <div style="font-size:12px;color:var(--text3);" id="c-msg-trainer-name"></div>
+        </div>
       </div>
       <div class="scroll-area" style="flex:1;" id="c-msg-feed"></div>
       <div class="msg-input-bar">
@@ -3030,7 +3071,11 @@ function initTrainer(){
   if(tNsb) tNsb.textContent=DB.trainer.name;
   applyResponsiveLayout();
   initSidebarState();
-  updateNotifBadges();
+  if(typeof pullMessages==='function'){
+    pullMessages().then(function(){ updateNotifBadges(); });
+  } else {
+    updateNotifBadges();
+  }
   switchTab('t','home');
 }
 
@@ -4429,7 +4474,11 @@ function initClient(c){
   if(cAsb){cAsb.textContent=initials;cAsb.style.cssText=`background:${c.colorBg};color:${c.color};width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;`;}
   if(cNsb) cNsb.textContent=c.name;
   applyResponsiveLayout();
-  updateNotifBadges();
+  if(typeof pullMessages==='function'){
+    pullMessages().then(function(){ updateNotifBadges(); });
+  } else {
+    updateNotifBadges();
+  }
   switchTab('c','home');
   // Apply saved unit pref to settings UI
   setTimeout(()=>setClientUnit(clientUnit), 50);
@@ -6854,12 +6903,37 @@ function getNotifs(target){
 
 function unreadCount(target){return getNotifs(target).filter(n=>!n.read).length;}
 
+let activeTrainerChatId=null;
+
+function msgReadMap(){return STORE.get('msg_read')||{};}
+function markChatRead(clientId){
+  const m=msgReadMap();
+  m[clientId]=Date.now();
+  STORE.set('msg_read',m);
+  updateNotifBadges();
+}
+function unreadForChat(clientId,myRole){
+  const lastRead=msgReadMap()[clientId]||0;
+  return getMessages(clientId).filter(m=>m.sender!==myRole && (m.ts||0)>lastRead).length;
+}
+function chatsWithMessages(){
+  return (DB.clients||[]).filter(c=>getMessages(c.id).length>0).sort(function(a,b){
+    const am=getMessages(a.id), bm=getMessages(b.id);
+    return (bm[bm.length-1].ts||0)-(am[am.length-1].ts||0);
+  });
+}
+
 function updateNotifBadges(){
   const tc=activeRole==='trainer'?unreadCount('trainer'):0;
   const tb=document.getElementById('t-notif-badge');
   if(tb){tb.textContent=tc;tb.style.display=tc>0?'flex':'none';}
   const tmb=document.getElementById('tnav-msg-badge');
-  if(tmb){const tmc=(DB.notifications&&DB.notifications.trainer)?DB.notifications.trainer.filter(n=>!n.read&&n.type==='message').length:0;tmb.textContent=tmc;tmb.style.display=tmc>0?'flex':'none';}
+  if(tmb){
+    let tmc=0;
+    (DB.clients||[]).forEach(c=>{ tmc+=unreadForChat(c.id,'trainer'); });
+    tmb.textContent=tmc>9?'9+':tmc;
+    tmb.style.display=tmc>0?'flex':'none';
+  }
   if(activeRole==='client'&&currentClientId){
     const cc=unreadCount(currentClientId);
     ['c-notif-badge','c-notif-badge2'].forEach(id=>{
@@ -6867,7 +6941,11 @@ function updateNotifBadges(){
       if(cb){cb.textContent=cc;cb.style.display=cc>0?'flex':'none';}
     });
     const cmb=document.getElementById('cnav-msg-badge');
-    if(cmb){const cmc=getNotifs(currentClientId).filter(n=>!n.read&&n.type==='message').length;cmb.textContent=cmc;cmb.style.display=cmc>0?'flex':'none';}
+    if(cmb){
+      const cmc=unreadForChat(currentClientId,'client');
+      cmb.textContent=cmc>9?'9+':cmc;
+      cmb.style.display=cmc>0?'flex':'none';
+    }
   }
 }
 
@@ -7014,37 +7092,128 @@ function renderMessages(clientId,myRole,feed){
 
 async function initTrainerMessageTab(){
   if(typeof pullMessages==='function') await pullMessages();
-  const sel=document.getElementById('t-msg-client-sel');
-  if(!sel) return;
-  const prev=sel.value;
-  sel.innerHTML='<option value="">— Select a client —</option>'+DB.clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
-  if(prev) sel.value=prev;
+  updateNotifBadges();
+  const chats=chatsWithMessages();
+  renderTrainerChatList();
+  const unreadChat=chats.find(c=>unreadForChat(c.id,'trainer')>0);
+  const keepList=window.innerWidth>=768;
+  if(activeTrainerChatId && DB.clients.some(c=>c.id===activeTrainerChatId)){
+    openTrainerChat(activeTrainerChatId,keepList);
+  } else if(unreadChat){
+    openTrainerChat(unreadChat.id,keepList);
+  } else if(chats.length===1){
+    openTrainerChat(chats[0].id,keepList);
+  } else if(keepList && chats.length){
+    openTrainerChat(chats[0].id,true);
+  }
+}
+
+function renderTrainerChatList(){
+  const list=document.getElementById('t-msg-list');
+  if(!list) return;
+  const chats=chatsWithMessages();
+  const idle=(DB.clients||[]).filter(c=>!getMessages(c.id).length);
+  let html='';
+  if(!chats.length && !idle.length){
+    html='<div class="empty-state"><div class="empty-icon">💬</div><div class="empty-msg">No chats yet. Add a client, then start a conversation.</div></div>';
+  } else {
+    chats.forEach(c=>{
+      const msgs=getMessages(c.id);
+      const last=msgs[msgs.length-1];
+      const unread=unreadForChat(c.id,'trainer');
+      const preview=(last.sender==='trainer'?'You: ':'')+last.text;
+      const active=c.id===activeTrainerChatId?' active':'';
+      html+=`<div class="msg-row${unread?' unread':''}${active}" onclick="openTrainerChat('${c.id}')">
+        <div class="msg-avatar" style="background:${c.colorBg||c.color+'22'};color:${c.color};">${c.initials||'?'}</div>
+        <div class="msg-row-body">
+          <div class="msg-row-top">
+            <div class="msg-row-name">${escapeHtml(c.name)}</div>
+            <div class="msg-row-time">${timeAgo(last.ts)}</div>
+          </div>
+          <div class="msg-row-preview">${escapeHtml(preview)}</div>
+        </div>
+        ${unread?`<div class="msg-row-unread">${unread>9?'9+':unread}</div>`:''}
+      </div>`;
+    });
+    if(idle.length){
+      html+='<div class="msg-start-label">Start a chat</div>';
+      idle.forEach(c=>{
+        html+=`<div class="msg-row" onclick="openTrainerChat('${c.id}')">
+          <div class="msg-avatar" style="background:${c.colorBg||c.color+'22'};color:${c.color};">${c.initials||'?'}</div>
+          <div class="msg-row-body">
+            <div class="msg-row-name">${escapeHtml(c.name)}</div>
+            <div class="msg-row-preview">Say hello</div>
+          </div>
+        </div>`;
+      });
+    }
+  }
+  list.innerHTML=html;
+}
+
+function openTrainerChat(clientId,keepList){
+  const c=DB.clients.find(x=>x.id===clientId);
+  if(!c) return;
+  activeTrainerChatId=clientId;
+  markChatRead(clientId);
+  const thread=document.getElementById('t-msg-thread');
+  const list=document.getElementById('t-msg-list');
+  const bar=document.getElementById('t-msg-input-bar');
+  if(thread) thread.classList.add('open');
+  if(bar) bar.style.display='flex';
+  if(window.innerWidth<768 && !keepList && list) list.classList.add('hidden-mobile');
+  else if(list) list.classList.remove('hidden-mobile');
+  const nameEl=document.getElementById('t-msg-thread-name');
+  const subEl=document.getElementById('t-msg-thread-sub');
+  if(nameEl) nameEl.textContent=c.name;
+  if(subEl) subEl.textContent=c.goal||'Client';
+  const inp=document.getElementById('t-msg-input');
+  if(inp) inp.placeholder='Message '+c.name+'...';
+  renderTrainerChatList();
   renderTrainerMessages();
 }
 
+function closeTrainerChat(){
+  activeTrainerChatId=null;
+  const thread=document.getElementById('t-msg-thread');
+  const list=document.getElementById('t-msg-list');
+  const bar=document.getElementById('t-msg-input-bar');
+  if(thread) thread.classList.remove('open');
+  if(list) list.classList.remove('hidden-mobile');
+  if(bar) bar.style.display='none';
+  const nameEl=document.getElementById('t-msg-thread-name');
+  if(nameEl) nameEl.textContent='Messages';
+  const subEl=document.getElementById('t-msg-thread-sub');
+  if(subEl) subEl.textContent='';
+  renderTrainerChatList();
+}
+
+window.addEventListener('resize', function(){
+  const list=document.getElementById('t-msg-list');
+  if(!list) return;
+  if(window.innerWidth>=768) list.classList.remove('hidden-mobile');
+});
+
 function renderTrainerMessages(){
-  const sel=document.getElementById('t-msg-client-sel');
-  const clientId=sel?sel.value:'';
+  const clientId=activeTrainerChatId;
   const feed=document.getElementById('t-msg-feed');
+  if(!feed) return;
   if(!clientId){
-    feed.innerHTML='<div class="empty-state"><div class="empty-icon">💬</div><div class="empty-msg">Select a client above to view messages</div></div>';
+    feed.innerHTML='';
     return;
   }
-  const c=DB.clients.find(x=>x.id===clientId);
-  if(!c) return;
-  const inp=document.getElementById('t-msg-input');
-  if(inp) inp.placeholder=`Message ${c.name}...`;
   renderMessages(clientId,'trainer',feed);
 }
 
 function sendTrainerMessage(){
-  const sel=document.getElementById('t-msg-client-sel');
-  const clientId=sel?sel.value:'';
+  const clientId=activeTrainerChatId;
   const inp=document.getElementById('t-msg-input');
   const text=(inp?inp.value:'').trim();
   if(!text||!clientId) return;
   addMessage(clientId,'trainer',text);
   inp.value='';
+  markChatRead(clientId);
+  renderTrainerChatList();
   renderTrainerMessages();
   const c=DB.clients.find(x=>x.id===clientId);
   if(c) addNotification(clientId,'message',`New message from your trainer`,text.slice(0,60)+(text.length>60?'...':''));
@@ -7056,8 +7225,9 @@ async function renderClientMessages(refresh){
   if(!c) return;
   const feed=document.getElementById('c-msg-feed');
   const tnl=document.getElementById('c-msg-trainer-name');
-  if(tnl) tnl.textContent=DB.trainer.name;
+  if(tnl) tnl.textContent=DB.trainer.name||'Your trainer';
   renderMessages(currentClientId,'client',feed);
+  markChatRead(currentClientId);
 }
 
 function sendClientMessage(){
@@ -7066,6 +7236,7 @@ function sendClientMessage(){
   if(!text||!currentClientId) return;
   addMessage(currentClientId,'client',text);
   inp.value='';
+  markChatRead(currentClientId);
   renderClientMessages(false);
   const c=DB.clients.find(x=>x.id===currentClientId);
   if(c) addNotification('trainer','message',`New message from ${c.name}`,text.slice(0,60)+(text.length>60?'...':''));
