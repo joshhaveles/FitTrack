@@ -9,12 +9,13 @@
 (function () {
   var q = location.search || '';
   var h = location.hash || '';
+  if (q.indexOf('v=') === -1) q = q ? (q + '&v=sched1') : '?v=sched1';
   location.replace('app.html' + q + h);
 })();
 </script>
 </head>
 <body style="background:#121212;color:#a8a8a8;font-family:-apple-system,sans-serif;padding:40px 20px;text-align:center;">
 <p>Opening FitTrack…</p>
-<p><a href="app.html" style="color:#00e676;">Tap here if nothing happens</a></p>
+<p><a href="app.html?v=sched1" style="color:#00e676;">Tap here if nothing happens</a></p>
 </body>
 </html>

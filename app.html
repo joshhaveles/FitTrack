@@ -10,7 +10,16 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="FitTrack"/>
 <title>FitTrack Pro</title>
-<link rel="manifest" href="manifest.json?v=fill1"/>
+<script>
+(function(){
+  if(location.protocol==='file:') return;
+  if(/[?&]v=sched1(?:&|$)/.test(location.search)) return;
+  var u=new URL(location.href);
+  u.searchParams.set('v','sched1');
+  location.replace(u.href);
+})();
+</script>
+<link rel="manifest" href="manifest.json?v=sched1"/>
 <link rel="icon" href="icon-192.png"/>
 <link rel="apple-touch-icon" href="icon-192.png"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
@@ -849,22 +858,23 @@ select.finp{cursor:pointer;}
 .time-slot{display:flex;gap:10px;min-height:32px;position:relative;}
 .time-slot-label{font-family:"DM Mono",monospace;font-size:10px;color:var(--text3);min-width:36px;padding-top:3px;flex-shrink:0;}
 .time-slot-line{flex:1;border-top:1px solid var(--border);position:relative;}
-.time-slot-event{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r-xs);padding:8px 10px;margin-bottom:4px;cursor:default;transition:all .15s;border-left:3px solid;}
+.time-slot-event{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r-xs);padding:8px 10px;margin-bottom:4px;cursor:pointer;transition:all .15s;border-left:3px solid;}
 .time-slot-event:hover{background:var(--bg3);}
-.sched-card{flex-wrap:wrap;cursor:default;}
-.sched-card-main{display:flex;align-items:center;gap:12px;flex:1 1 auto;min-width:0;cursor:pointer;}
-.sched-event-main{cursor:pointer;}
-.sched-actions{display:flex;gap:8px;width:100%;margin-top:8px;}
-.sched-actions .btn{flex:1;min-height:44px;font-size:13px;}
+.sched-card{flex-wrap:nowrap;align-items:center;cursor:default;gap:10px;}
+.sched-card-main{display:flex;align-items:center;gap:12px;flex:1;min-width:0;cursor:pointer;}
+.sched-event-main{cursor:pointer;flex:1;min-width:0;}
+.sched-actions{display:flex;flex-direction:column;gap:6px;flex-shrink:0;width:auto;margin-top:0;}
+.sched-actions .btn{flex:0 0 auto;min-height:40px;min-width:76px;font-size:13px;font-weight:700;}
+.sched-actions .btn-secondary{border-color:rgba(0,230,118,.4);color:var(--lime);background:var(--lime-dim);}
+.sched-hint{font-size:12px;color:var(--text2);line-height:1.4;margin-top:10px;}
+#t-schedule-list{padding-bottom:96px;}
 #modal-add-session .modal-sheet,#modal-delete-session .modal-sheet{display:flex;flex-direction:column;max-height:min(90dvh,90vh);}
 #modal-add-session .ms-sheet-body{flex:1;overflow-y:auto;min-height:0;-webkit-overflow-scrolling:touch;}
 #modal-add-session .ms-sheet-actions,#modal-delete-session .ms-sheet-actions{flex-shrink:0;display:flex;flex-direction:column;gap:8px;padding-top:8px;padding-bottom:max(12px,env(safe-area-inset-bottom));}
 #modal-add-session .finp{font-size:16px;}
 #modal-delete-session{z-index:560;}
 @media(min-width:768px){
-  .sched-card{flex-wrap:nowrap;align-items:center;}
-  .sched-actions{width:auto;flex:0 0 auto;margin-top:0;}
-  .sched-actions .btn{flex:0 0 auto;min-height:36px;min-width:76px;}
+  .sched-actions .btn{min-height:36px;}
 }
 
 /* Nav arrows */
@@ -1096,8 +1106,9 @@ select.finp{cursor:pointer;}
           <div class="cal-nav-arrow" onclick="shiftCal(1)">›</div>
           <div class="cal-nav-arrow" onclick="goToday()" title="Today" style="font-size:10px;font-weight:700;color:var(--lime);">●</div>
         </div>
+        <div class="sched-hint">Each appointment has Edit and Delete on the right.</div>
       </div>
-      <div id="t-schedule-list" style="padding-bottom:16px;"></div>
+      <div id="t-schedule-list"></div>
     </div>
 
     <!-- TRAINER: CLIENTS TAB -->
@@ -3205,7 +3216,12 @@ function switchTab(role, tab){
   }
   // Show/hide FAB — visible on home/schedule/clients, hidden on log/library/ai/messages/payments
   const fab=document.getElementById('trainer-fab');
-  if(fab) fab.style.display=(role==='t'&&['home','schedule','clients'].includes(tab))?'flex':'none';
+  if(fab){
+    const showFab=role==='t'&&['home','schedule','clients'].includes(tab);
+    fab.style.display=showFab?'flex':'none';
+    fab.onclick=tab==='schedule'?function(){openNewScheduledSession();}:function(){switchTab('t','log');};
+    fab.title=tab==='schedule'?'Schedule session':'Log Session';
+  }
   if(role==='t'&&tab==='clients') renderClientGrid();
   if(role==='t'&&tab==='schedule') renderSchedule();
   if(role==='t'&&tab==='library') renderLibrary();
@@ -3300,7 +3316,7 @@ function initTrainer(){
 }
 
 function renderTrainerStats(){
-  const today = new Date().toISOString().split('T')[0];
+  const today = todayStr();
   const todayCount = DB.schedule.filter(s=>s.date===today).length;
   const totalSessions = DB.clients.reduce((a,c)=>a+c.history.length,0);
   document.getElementById('t-stats').innerHTML=`
@@ -3311,7 +3327,7 @@ function renderTrainerStats(){
 }
 
 function renderTodaySessions(){
-  const today = new Date().toISOString().split('T')[0];
+  const today = todayStr();
   const todaySessions = DB.schedule.filter(s=>s.date===today).sort((a,b)=>a.time.localeCompare(b.time));
   const el = document.getElementById('t-today-sessions');
   if(!todaySessions.length){
@@ -3384,7 +3400,13 @@ function goToday(){
   renderSchedule();
 }
 
-function dateStr(d){return d.toISOString().split('T')[0];}
+function dateStr(d){
+  const x=d instanceof Date?d:new Date(d);
+  const y=x.getFullYear();
+  const m=String(x.getMonth()+1).padStart(2,'0');
+  const day=String(x.getDate()).padStart(2,'0');
+  return y+'-'+m+'-'+day;
+}
 function todayStr(){return dateStr(new Date());}
 
 function renderSchedule(){
@@ -3400,23 +3422,24 @@ function renderDayView(){
   const label=new Date(ds+'T12:00:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
   document.getElementById('cal-period-label').innerHTML=`${label}${isToday?' <span class="chip chip-lime" style="font-size:9px;padding:2px 6px;vertical-align:middle;">TODAY</span>':''}`;
   const sessions=DB.schedule.filter(s=>s.date===ds).sort((a,b)=>a.time.localeCompare(b.time));
-  let html='<div class="day-timeline">';
+  let html='';
+  if(sessions.length){
+    html+=sessions.map(s=>scheduledSessionCardHtml(s)).join('');
+  }
+  html+='<div class="day-timeline">';
   const hours=Array.from({length:14},(_,i)=>i+6); // 6am–7pm
   hours.forEach(h=>{
     const timeLabel=(h>12?h-12:h)+':00'+(h>=12?' PM':' AM');
-    const slotSessions=sessions.filter(s=>{const sh=parseInt(s.time.split(':')[0]);return sh===h;});
+    const slotSessions=sessions.filter(s=>{const sh=parseInt(String(s.time||'').split(':')[0],10);return sh===h;});
     html+=`<div class="time-slot">
       <div class="time-slot-label">${timeLabel}</div>
       <div class="time-slot-line">
         ${slotSessions.map(s=>{
           const c=DB.clients.find(x=>x.id===s.clientId)||{name:'Unknown',color:'#888',initials:'?',id:''};
           const sid=s.id||'';
-          return `<div class="time-slot-event" style="border-left-color:${c.color}">
-            <div class="sched-event-main" onclick="openEditScheduledSession('${sid}')">
-              <div style="font-weight:700;font-size:13px;">${escapeHtml(clientName(c, 'Unknown'))}</div>
-              <div style="font-size:11px;color:var(--text2);">${escapeHtml(s.time||'')} · ${escapeHtml(s.type||'')} · ${s.duration||60} min</div>
-            </div>
-            ${scheduledApptActions(sid)}
+          return `<div class="time-slot-event" style="border-left-color:${c.color}" onclick="openEditScheduledSession('${sid}')">
+            <div style="font-weight:700;font-size:13px;">${escapeHtml(clientName(c, 'Unknown'))}</div>
+            <div style="font-size:11px;color:var(--text2);">${escapeHtml(s.time||'')} · ${escapeHtml(s.type||'')} · ${s.duration||60} min · tap to edit</div>
           </div>`;
         }).join('')}
       </div>
@@ -3919,8 +3942,7 @@ function openNewScheduledSession(){
   if(saveBtn) saveBtn.textContent='Schedule';
   const del=document.getElementById('ms-delete-btn');
   if(del) del.style.display='none';
-  const today=new Date().toISOString().split('T')[0];
-  document.getElementById('ms-date').value=today;
+  document.getElementById('ms-date').value=todayStr();
   document.getElementById('ms-time').value='09:00';
   document.getElementById('ms-dur').value='60';
   const typeEl=document.getElementById('ms-type');
@@ -8397,7 +8419,7 @@ function showToast(msg){
 }
 
 // Set default date in schedule modal
-document.getElementById('ms-date').value=new Date().toISOString().split('T')[0];
+document.getElementById('ms-date').value=todayStr();
 
 // Enter key on login
 document.getElementById('login-user').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('login-pass').focus();});
