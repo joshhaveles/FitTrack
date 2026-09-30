@@ -647,6 +647,7 @@ select.finp{cursor:pointer;}
 .bulk-client-item:last-child{border-bottom:none;}
 .bulk-check{width:18px;height:18px;border-radius:4px;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
 .bulk-check.checked{background:var(--lime);border-color:var(--lime);color:#000;}
+.assign-client-list{max-height:min(36vh,280px);overflow-y:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--border);border-radius:var(--r-sm);padding:0 10px;margin-bottom:4px;background:var(--bg3);}
 .log-perf-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px;background:var(--lime-dim);border:none;border-top:1px solid rgba(212,245,60,0.2);color:var(--lime);font-size:13px;font-weight:700;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-weight:800;cursor:pointer;transition:background .15s;}
 .log-perf-btn:hover{background:rgba(212,245,60,0.2);}
 .completion-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--green-dim);color:var(--green);margin-left:8px;vertical-align:middle;}
@@ -1097,7 +1098,7 @@ select.finp{cursor:pointer;}
       <div class="topbar">
         <div class="topbar-title">Workout Library</div>
         <div style="display:flex;gap:8px;">
-          <div class="icon-btn" onclick="openBulkAssignModal()" title="Assign to multiple clients" style="font-size:13px;">👥</div>
+          <div class="icon-btn" onclick="openAssignModal({pickClients:true})" title="Assign a workout" style="font-size:13px;">📋</div>
           <div class="icon-btn" onclick="openCreateTemplateModal()">＋</div>
         </div>
       </div>
@@ -2164,13 +2165,18 @@ select.finp{cursor:pointer;}
     <textarea class="finp" id="aw-desc" placeholder="When to do it, intensity, rest periods..." style="min-height:72px;"></textarea>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
       <div class="flabel" style="margin-bottom:0;">Exercises</div>
-      <button class="btn btn-secondary btn-sm" onclick="addAssignExRow()">+ Add</button>
+      <button type="button" class="btn btn-secondary btn-sm" onclick="addAssignExRow()">+ Add</button>
     </div>
     <div class="ex-row-hdr"><span>Exercise</span><span>Sets</span><span>Reps</span><span id="assign-wt-hdr">Wt.</span><span></span></div>
     <div id="assign-ex-rows"></div>
+    <div class="flabel" style="margin-top:14px;">Assign to</div>
+    <div style="font-size:12px;color:var(--text2);margin:-4px 0 8px;">Pick one or more clients. Search if the list is long.</div>
+    <input class="finp" id="aw-client-search" type="search" placeholder="Search clients..." autocomplete="off" enterkeyhint="search" inputmode="search"
+      oninput="renderAssignClientPicker()" style="margin-bottom:8px;font-size:16px;"/>
+    <div id="aw-client-list" class="assign-client-list"></div>
     <div class="gap-8 mt-8">
-      <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-assign')">Cancel</button>
-      <button class="btn btn-primary" style="flex:2" onclick="saveAssignedWorkout()">Assign</button>
+      <button type="button" class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-assign')">Cancel</button>
+      <button type="button" class="btn btn-primary" style="flex:2" onclick="saveAssignedWorkout()">Assign</button>
     </div>
   </div>
 </div>
@@ -3395,6 +3401,9 @@ function renderPanelHistory(){
 function renderPanelAssigned(){
   const c = DB.clients.find(x=>x.id===activeClientPanel);
   const el = document.getElementById('panel-assigned-list');
+  if(!c||!el) return;
+  if(!c.assigned) c.assigned=[];
+  if(!c.videos) c.videos=[];
   // videos first
   let html='';
   if(c.videos&&c.videos.length){
@@ -3756,9 +3765,64 @@ function saveNote(){
 }
 
 function openAddNoteModal(){openModal('modal-add-note');}
-function openAssignModal(){
+
+let assignSelectedClients=new Set();
+
+function openAssignModal(opts){
+  opts=opts||{};
   initAssignExRows();
+  assignSelectedClients=new Set();
+  if(opts.clientId){
+    assignSelectedClients.add(opts.clientId);
+  } else if(!opts.pickClients && activeClientPanel){
+    assignSelectedClients.add(activeClientPanel);
+  }
+  const search=document.getElementById('aw-client-search');
+  if(search) search.value='';
+  renderAssignClientPicker();
   openModal('modal-assign');
+}
+
+function openAssignFromLibrary(templateId){
+  openAssignModal({pickClients:true});
+  if(templateId) loadTemplateIntoAssign(templateId);
+}
+
+function renderAssignClientPicker(){
+  const wrap=document.getElementById('aw-client-list');
+  if(!wrap) return;
+  const q=((document.getElementById('aw-client-search')||{}).value||'').trim().toLowerCase();
+  const clients=(DB.clients||[]).slice().sort(function(a,b){return (a.name||'').localeCompare(b.name||'');});
+  if(!clients.length){
+    wrap.innerHTML='<div class="empty-state" style="padding:20px 8px;"><div class="empty-msg">Add a client first.</div></div>';
+    return;
+  }
+  const matches=clients.filter(function(c){
+    if(!q) return true;
+    const hay=[c.name,c.email,c.username,c.goal,c.initials].join(' ').toLowerCase();
+    return hay.indexOf(q)!==-1;
+  });
+  if(!matches.length){
+    wrap.innerHTML='<div class="empty-state" style="padding:20px 8px;"><div class="empty-msg">No clients match “'+escapeHtml(q)+'”.</div></div>';
+    return;
+  }
+  wrap.innerHTML=matches.map(function(c){
+    const checked=assignSelectedClients.has(c.id);
+    return '<div class="bulk-client-item" onclick="toggleAssignClient(\''+c.id+'\')">'+
+      '<div class="bulk-check'+(checked?' checked':'')+'">'+(checked?'✓':'')+'</div>'+
+      '<div class="avatar-sm" style="background:'+(c.colorBg||c.color+'22')+';color:'+c.color+';width:32px;height:32px;font-size:11px;">'+(c.initials||'?')+'</div>'+
+      '<div>'+
+        '<div style="font-size:13px;font-weight:600;">'+escapeHtml(c.name)+'</div>'+
+        '<div style="font-size:11px;color:var(--text3);">'+escapeHtml(c.goal||'Client')+'</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function toggleAssignClient(clientId){
+  if(assignSelectedClients.has(clientId)) assignSelectedClients.delete(clientId);
+  else assignSelectedClients.add(clientId);
+  renderAssignClientPicker();
 }
 function openShareVideoModal(){
   document.getElementById('sv-url').value='';
@@ -3807,23 +3871,32 @@ document.addEventListener('click', e=>{
 },{passive:true});
 
 function saveAssignedWorkout(){
-  const title=document.getElementById('aw-title').value.trim();
+  const titleEl=document.getElementById('aw-title');
+  const title=(titleEl&&titleEl.value||'').trim();
   if(!title){showToast('Add a title');return;}
-  const rows=document.querySelectorAll('#assign-ex-rows .ex-block');
+  const ids=[].slice.call(assignSelectedClients);
+  if(!ids.length){showToast('Pick at least one client');return;}
   const exercises=[];
-  rows.forEach(row=>{
-    const inps=row.querySelectorAll('input[type!=range]');
-    const rpeInp=row.querySelector('.ex-rpe-slider');
-    const name=(inps[0]&&inps[0].value.trim())||'';
-    if(name) exercises.push({name,sets:(inps[1]&&inps[1].value)||'-',reps:(inps[2]&&inps[2].value)||'-',weight:(inps[3]&&inps[3].value)||'-',unit:trainerUnit,rpe:rpeInp?parseInt(rpeInp.value):null});
+  document.querySelectorAll('#assign-ex-rows .ex-block').forEach(function(row){
+    const ex=readExBlock(row, trainerUnit);
+    if(ex) exercises.push(ex);
   });
-  const c=DB.clients.find(x=>x.id===activeClientPanel);
-  c.assigned.push({id:'a'+Date.now(),title,desc:document.getElementById('aw-desc').value,exercises});
+  const desc=(document.getElementById('aw-desc')||{}).value||'';
+  let count=0;
+  ids.forEach(function(clientId){
+    const c=DB.clients.find(function(x){return x.id===clientId;});
+    if(!c) return;
+    if(!c.assigned) c.assigned=[];
+    const copy=JSON.parse(JSON.stringify(exercises));
+    c.assigned.push({id:(typeof newId==='function'?newId():('a'+Date.now()+Math.random().toString(36).slice(2,5))),title:title,desc:desc,exercises:copy});
+    addNotification(c.id,'workout','New workout assigned','Your trainer assigned you: '+title);
+    count++;
+  });
+  if(!count){showToast('Pick at least one client');return;}
   saveData(DB);
   closeModal('modal-assign');
-  renderPanelAssigned();
-  addNotification(activeClientPanel,'workout','New workout assigned','Your trainer assigned you: '+document.getElementById('aw-title').value);
-  showToast('Workout assigned ✓');
+  if(activeClientPanel && ids.indexOf(activeClientPanel)!==-1) renderPanelAssigned();
+  showToast(count===1?'Workout assigned ✓':'Assigned to '+count+' clients ✓');
 }
 
 function saveSharedVideo(){
@@ -4371,6 +4444,37 @@ function makeExRow(containerId){
   return block;
 }
 
+function exBlockFields(block){
+  const nameInp=block.querySelector('.ex-wrap input');
+  const extras=[].slice.call(block.querySelectorAll('.ex-input-row > input'));
+  const rpeInp=block.querySelector('.ex-rpe-slider');
+  return {nameInp:nameInp, extras:extras, rpeInp:rpeInp};
+}
+
+function readExBlock(block, unit){
+  const f=exBlockFields(block);
+  const name=(f.nameInp&&f.nameInp.value.trim())||'';
+  if(!name) return null;
+  return {
+    name:name,
+    sets:(f.extras[0]&&f.extras[0].value)||'-',
+    reps:(f.extras[1]&&f.extras[1].value)||'-',
+    weight:(f.extras[2]&&f.extras[2].value)||'-',
+    unit:unit||trainerUnit,
+    rpe:f.rpeInp?parseInt(f.rpeInp.value,10):null
+  };
+}
+
+function fillExBlock(block, ex){
+  const f=exBlockFields(block);
+  if(f.nameInp) f.nameInp.value=ex.name||'';
+  if(f.extras[0]) f.extras[0].value=ex.sets&&ex.sets!=='-'?ex.sets:'';
+  if(f.extras[1]) f.extras[1].value=ex.reps&&ex.reps!=='-'?ex.reps:'';
+  if(f.extras[2]) f.extras[2].value=ex.weight&&ex.weight!=='-'?ex.weight:'';
+  const rpeVal=block.querySelector('.ex-rpe-val');
+  if(f.rpeInp&&ex.rpe){f.rpeInp.value=ex.rpe;if(rpeVal) rpeVal.textContent=ex.rpe;}
+}
+
 function initExRows(){
   const c=document.getElementById('ex-rows');
   c.innerHTML='';
@@ -4408,10 +4512,8 @@ function saveSession(){
   const rows=document.querySelectorAll('#ex-rows .ex-block');
   const exercises=[];
   rows.forEach(row=>{
-    const inps=row.querySelectorAll('input[type!=range]');
-    const rpeInp=row.querySelector('.ex-rpe-slider');
-    const name=(inps[0]&&inps[0].value.trim())||'';
-    if(name) exercises.push({name,sets:(inps[1]&&inps[1].value)||'-',reps:(inps[2]&&inps[2].value)||'-',weight:(inps[3]&&inps[3].value)||'-',unit:trainerUnit,rpe:rpeInp?parseInt(rpeInp.value):null});
+    const ex=readExBlock(row, trainerUnit);
+    if(ex) exercises.push(ex);
   });
 
   // Check for exercise weight PBs before saving
@@ -4702,10 +4804,8 @@ function saveClientPerformance(){
   const rows=document.querySelectorAll('#log-perf-ex-rows .ex-block');
   const exercises=[];
   rows.forEach(function(row){
-    const inps=row.querySelectorAll('input[type!=range]');
-    const rpeInp=row.querySelector('.ex-rpe-slider');
-    const name=(inps[0]&&inps[0].value.trim())||'';
-    if(name) exercises.push({name:name,sets:(inps[1]&&inps[1].value)||'-',reps:(inps[2]&&inps[2].value)||'-',weight:(inps[3]&&inps[3].value)||'-',unit:clientUnit,rpe:rpeInp?parseInt(rpeInp.value):null});
+    const ex=readExBlock(row, clientUnit);
+    if(ex) exercises.push(ex);
   });
   if(!c.history) c.history=[];
   c.history.unshift({id:'cp'+Date.now(),date:date,type:(a?a.title:'Self-logged')+' (self-logged)',duration:0,rpe:rpe,notes:notes,exercises:exercises,selfLogged:true,assignedId:assignedId});
@@ -6695,7 +6795,7 @@ function libCardHTML(t){
     '<div class="lib-card-meta">'+
       '<span class="lib-card-ex-count">'+t.exercises.length+' exercises'+(t.dur?' · '+t.dur+' min':'')+'</span>'+
       '<div class="lib-card-actions">'+
-        '<button class="btn btn-secondary btn-sm" onclick="openBulkAssignFromLib(\''+t.id+'\')">Assign</button>'+
+        '<button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();openAssignFromLibrary(\''+t.id+'\')">Assign</button>'+
         '<button class="btn btn-secondary btn-sm" onclick="editTemplate(\''+t.id+'\')">Edit</button>'+
         '<button class="btn btn-danger btn-sm" onclick="deleteTemplate(\''+t.id+'\')">Delete</button>'+
       '</div>'+
@@ -6736,14 +6836,7 @@ function editTemplate(id){
   container.innerHTML='';
   t.exercises.forEach(function(ex){
     const block=makeExRow('tmpl-ex-rows');
-    const inps=block.querySelectorAll('input[type!=range]');
-    if(inps[0]) inps[0].value=ex.name||'';
-    if(inps[1]) inps[1].value=ex.sets||'';
-    if(inps[2]) inps[2].value=ex.reps||'';
-    if(inps[3]) inps[3].value=ex.weight||'';
-    const rpeSlider=block.querySelector('.ex-rpe-slider');
-    const rpeVal=block.querySelector('.ex-rpe-val');
-    if(rpeSlider&&ex.rpe){rpeSlider.value=ex.rpe;if(rpeVal)rpeVal.textContent=ex.rpe;}
+    fillExBlock(block, ex);
     container.appendChild(block);
   });
   openModal('modal-create-template');
@@ -6768,10 +6861,8 @@ function saveTemplate(){
   const rows=document.querySelectorAll('#tmpl-ex-rows .ex-block');
   const exercises=[];
   rows.forEach(function(row){
-    const inps=row.querySelectorAll('input[type!=range]');
-    const rpeInp=row.querySelector('.ex-rpe-slider');
-    const n=(inps[0]&&inps[0].value.trim())||'';
-    if(n) exercises.push({name:n,sets:(inps[1]&&inps[1].value)||'-',reps:(inps[2]&&inps[2].value)||'-',weight:(inps[3]&&inps[3].value)||'-',unit:trainerUnit,rpe:rpeInp?parseInt(rpeInp.value):null});
+    const ex=readExBlock(row, trainerUnit);
+    if(ex) exercises.push(ex);
   });
   if(!DB.workoutLibrary) DB.workoutLibrary=[];
   const editId=document.getElementById('edit-tmpl-id').value;
@@ -6887,14 +6978,7 @@ function loadTemplateIntoAssign(templateId){
   container.innerHTML='';
   t.exercises.forEach(function(ex){
     const block=makeExRow('assign-ex-rows');
-    const inps=block.querySelectorAll('input[type!=range]');
-    if(inps[0]) inps[0].value=ex.name||'';
-    if(inps[1]) inps[1].value=ex.sets||'';
-    if(inps[2]) inps[2].value=ex.reps||'';
-    if(inps[3]) inps[3].value=ex.weight||'';
-    const rpeSlider=block.querySelector('.ex-rpe-slider');
-    const rpeVal=block.querySelector('.ex-rpe-val');
-    if(rpeSlider&&ex.rpe){rpeSlider.value=ex.rpe;if(rpeVal)rpeVal.textContent=ex.rpe;}
+    fillExBlock(block, ex);
     container.appendChild(block);
   });
   showToast('Template loaded ✓');
