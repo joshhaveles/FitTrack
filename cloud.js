@@ -156,7 +156,8 @@
           rpe: s.rpe,
           notes: s.notes || '',
           exercises: s.exercises || [],
-          selfLogged: !!s.self_logged
+          selfLogged: !!s.self_logged,
+          assignedId: s.assigned_id || null
         };
       });
       const assignedList = assigned.filter(function (a) { return a.client_id === row.id; }).map(function (a) {
@@ -339,9 +340,15 @@
             notes: s.notes || null,
             rpe: s.rpe || null,
             exercises: s.exercises || [],
-            self_logged: !!s.selfLogged
+            self_logged: !!s.selfLogged,
+            assigned_id: s.assignedId || null
           });
         }
+
+        const keepSessionIds = hist.map(function (s) { return s.id; }).filter(Boolean);
+        let sessDel = window.sb.from('sessions').delete().eq('client_id', c.id);
+        if (keepSessionIds.length) sessDel = sessDel.not('id', 'in', '(' + keepSessionIds.join(',') + ')');
+        await must(await sessDel, 'sessions prune');
 
         const assigned = c.assigned || [];
         for (let a = 0; a < assigned.length; a++) {
@@ -356,6 +363,12 @@
             exercises: w.exercises || [],
             completions: w.completions || []
           });
+        }
+        if (isTrainer) {
+          const keepAwIds = assigned.map(function (w) { return w.id; }).filter(Boolean);
+          let awDel = window.sb.from('assigned_workouts').delete().eq('client_id', c.id);
+          if (keepAwIds.length) awDel = awDel.not('id', 'in', '(' + keepAwIds.join(',') + ')');
+          await must(await awDel, 'assigned prune');
         }
 
         const bcs = c.bodyComp || [];

@@ -293,6 +293,16 @@ input,select,textarea,button{font-family:-apple-system,BlinkMacSystemFont,'Segoe
 .ex-table td{padding:8px 14px;font-size:13px;border-top:1px solid var(--border);}
 .ex-table td:not(:first-child){text-align:center;font-family:'DM Mono',monospace;font-size:12px;color:var(--text2);}
 .ex-table tr:nth-child(even) td{background:rgba(255,255,255,0.015);}
+.hist-ex-list{border-top:1px solid var(--border);}
+.hist-ex{padding:10px 14px;border-top:1px solid var(--border);}
+.hist-ex:first-child{border-top:none;}
+.hist-ex-name{font-size:13px;font-weight:700;margin-bottom:6px;}
+.hist-ex-line{display:grid;grid-template-columns:78px minmax(0,1fr);gap:8px;align-items:baseline;font-size:12px;color:var(--text3);margin-top:3px;}
+.hist-ex-val{font-family:'DM Mono',monospace;font-size:12px;font-weight:600;color:var(--text2);}
+.hist-ex-done .hist-ex-val{color:var(--lime);}
+.hist-empty{padding:12px 14px;font-size:12px;color:var(--text3);border-top:1px solid var(--border);}
+.card-actions{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--border);}
+.card-actions .btn{flex:1;min-height:40px;}
 
 /* ── ASSIGNED WORKOUT ── */
 .assigned-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);margin:0 16px 12px;overflow:hidden;}
@@ -800,11 +810,13 @@ select.finp{cursor:pointer;}
 /* ── VIDEO-LINKED EXERCISE ── */
 .ex-video-pill{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;background:rgba(91,164,245,0.15);color:var(--blue);margin-left:6px;vertical-align:middle;cursor:pointer;transition:background .15s;}
 .ex-video-pill:hover{background:rgba(91,164,245,0.28);}
-.assigned-ex-row{display:flex;align-items:center;padding:9px 14px;border-top:1px solid var(--border);cursor:pointer;transition:background .15s;}
+.assigned-ex-head{display:none;}
+.assigned-ex-row{display:flex;flex-wrap:wrap;align-items:flex-start;padding:9px 14px;border-top:1px solid var(--border);cursor:pointer;transition:background .15s;}
 .assigned-ex-row:hover{background:var(--bg3);}
 .assigned-ex-row.has-video{cursor:pointer;}
-.assigned-ex-row .ex-name{flex:1;font-size:13px;}
-.assigned-ex-row .ex-vals{display:flex;gap:10px;font-family:"DM Mono",monospace;font-size:11px;color:var(--text2);}
+.assigned-ex-row .ex-name{flex:1 1 100%;font-size:13px;}
+.assigned-ex-row .ex-vals{width:100%;display:flex;justify-content:space-between;gap:8px;padding-top:4px;font-family:"DM Mono",monospace;font-size:11px;color:var(--text2);}
+.assigned-ex-row .ex-vals span{width:auto!important;min-width:0;}
 .assigned-ex-row .ex-play{font-size:14px;margin-left:8px;opacity:.7;}
 .sv-ex-wrap{margin-bottom:14px;}
 .sv-ex-link{display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r-sm);padding:10px 12px;cursor:pointer;transition:all .15s;}
@@ -2169,7 +2181,7 @@ select.finp{cursor:pointer;}
 <div class="modal-overlay hidden" id="modal-assign" onclick="modalOutsideClose(event,'modal-assign')">
   <div class="modal-sheet" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
-    <div class="modal-title">Assign Workout</div>
+    <div class="modal-title" id="assign-modal-title">Assign Workout</div>
     <div class="assign-sheet-body">
     <button type="button" class="btn btn-secondary btn-full" style="margin-bottom:14px;font-size:12px;" onclick="openPickTemplateModal()">📚 Load from library</button>
     <div class="flabel">Workout Title</div>
@@ -2182,11 +2194,13 @@ select.finp{cursor:pointer;}
     </div>
     <div class="ex-row-hdr"><span>Exercise</span><span>Sets</span><span>Reps</span><span id="assign-wt-hdr">Wt.</span><span></span></div>
     <div id="assign-ex-rows"></div>
+    <div id="aw-assign-targets">
     <div class="flabel" style="margin-top:14px;">Assign to</div>
     <div style="font-size:12px;color:var(--text2);margin:-4px 0 8px;">Pick one or more clients. Search if the list is long.</div>
     <input class="finp" id="aw-client-search" type="search" placeholder="Search clients..." autocomplete="off" enterkeyhint="search" inputmode="search"
       oninput="renderAssignClientPicker()" style="margin-bottom:8px;font-size:16px;"/>
     <div id="aw-client-list" class="assign-client-list"></div>
+    </div>
     </div>
     <div class="assign-actions">
       <div id="aw-assign-err"></div>
@@ -2329,7 +2343,7 @@ select.finp{cursor:pointer;}
 
     <div class="gap-8 mt-8">
       <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-log-perf')">Cancel</button>
-      <button class="btn btn-primary" style="flex:2" onclick="saveClientPerformance()">Save Log</button>
+      <button class="btn btn-primary" style="flex:2" id="log-perf-save-btn" onclick="saveClientPerformance()">Save Log</button>
     </div>
   </div>
 </div>
@@ -3060,6 +3074,18 @@ function closePanel(id){
   document.getElementById(id).classList.remove('open');
 }
 
+function refreshWorkoutViews(c){
+  if(!c) return;
+  if(currentClientId===c.id && document.getElementById('c-history')){
+    renderClientWorkouts(c);
+    if(typeof renderClientFeed==='function') renderClientFeed(c);
+  }
+  if(activeClientPanel===c.id){
+    renderPanelHistory();
+    renderPanelAssigned();
+  }
+}
+
 function switchClientTab(tab){
   document.querySelectorAll('.tab-btn').forEach((b,i)=>{
     const tabs=['notes','history','assigned','profile'];
@@ -3417,18 +3443,7 @@ function renderPanelHistory(){
   const el = document.getElementById('panel-history-list');
   if(!c||!c.history.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">🏋️</div><div class="empty-msg">No sessions logged yet</div></div>';return;}
   const sorted = [...(c.history||[])].sort((a,b)=>b.date.localeCompare(a.date));
-  el.innerHTML = sorted.map(h=>`
-    <div class="workout-card">
-      <div class="workout-head">
-        <div><div class="workout-title">${h.type}</div><div class="workout-date">${formatDate(h.date)} · ${h.duration} min · RPE ${h.rpe}</div></div>
-        <span class="chip chip-gray">${h.exercises.length} ex.</span>
-      </div>
-      <table class="ex-table">
-        <thead><tr><th>Exercise</th><th>Sets</th><th>Reps</th><th id="tbl-wt-hdr">Wt.</th><th>RPE</th></tr></thead>
-        <tbody>${h.exercises.map(e=>`<tr><td>${e.name}</td><td>${e.sets}</td><td>${e.reps}</td><td>${displayWeightForViewer(e.weight, e.unit||trainerUnit, trainerUnit)}</td><td>${e.rpe?'<span style="font-size:10px;color:var(--lime);">'+e.rpe+'</span>':''}</td></tr>`).join('')}</tbody>
-      </table>
-      ${h.notes?`<div style="padding:8px 14px 10px;font-size:12px;color:var(--text2);border-top:1px solid var(--border);">${h.notes}</div>`:''}
-    </div>`).join('');
+  el.innerHTML = sorted.map(function(h){ return sessionHistoryCardHTML(h, trainerUnit, c); }).join('');
 }
 
 function renderPanelAssigned(){
@@ -3803,6 +3818,15 @@ let assignSelectedClients=new Set();
 
 function openAssignModal(opts){
   opts=opts||{};
+  const modal=document.getElementById('modal-assign');
+  modal.dataset.editId=opts.assignedId||'';
+  modal.dataset.editClientId=opts.clientId||'';
+  const titleEl=document.getElementById('assign-modal-title');
+  if(titleEl) titleEl.textContent=opts.assignedId?'Edit workout':'Assign Workout';
+  const saveBtn=document.getElementById('aw-assign-btn');
+  if(saveBtn) saveBtn.textContent=opts.assignedId?'Save changes':'Assign';
+  const targets=document.getElementById('aw-assign-targets');
+  if(targets) targets.style.display=opts.assignedId?'none':'block';
   initAssignExRows();
   assignSelectedClients=new Set();
   if(opts.clientId){
@@ -3817,6 +3841,40 @@ function openAssignModal(opts){
   const errEl=document.getElementById('aw-assign-err');
   if(errEl){ errEl.style.display='none'; errEl.textContent=''; }
   openModal('modal-assign');
+}
+
+function openEditAssigned(assignedId, clientId, e){
+  if(e){ e.preventDefault(); e.stopPropagation(); }
+  const cid=clientId||activeClientPanel;
+  const c=DB.clients.find(function(x){return x.id===cid;});
+  if(!c) return;
+  const a=(c.assigned||[]).find(function(x){return x.id===assignedId;});
+  if(!a) return;
+  openAssignModal({clientId:cid, assignedId:assignedId});
+  document.getElementById('aw-title').value=a.title||'';
+  document.getElementById('aw-desc').value=a.desc||'';
+  const container=document.getElementById('assign-ex-rows');
+  container.innerHTML='';
+  (a.exercises||[]).forEach(function(ex){
+    const row=makeExRow('assign-ex-rows');
+    container.appendChild(row);
+    fillExBlock(row, ex);
+  });
+  if(!container.children.length) initAssignExRows();
+}
+
+function deleteAssignedWorkout(assignedId, clientId, e){
+  if(e){ e.preventDefault(); e.stopPropagation(); }
+  const cid=clientId||activeClientPanel;
+  const c=DB.clients.find(function(x){return x.id===cid;});
+  if(!c) return;
+  const a=(c.assigned||[]).find(function(x){return x.id===assignedId;});
+  if(!a) return;
+  if(!confirm('Delete assigned workout “'+(a.title||'Untitled')+'”? This cannot be undone.')) return;
+  c.assigned=(c.assigned||[]).filter(function(x){return x.id!==assignedId;});
+  saveData(DB);
+  refreshWorkoutViews(c);
+  showToast('Assigned workout deleted');
 }
 
 function openAssignFromLibrary(templateId){
@@ -3896,14 +3954,31 @@ function saveAssignedWorkout(){
     const titleEl=document.getElementById('aw-title');
     const title=(titleEl&&titleEl.value||'').trim();
     if(!title){ fail('Add a workout title first.'); return; }
-    const ids=selectedAssignClientIds();
-    if(!ids.length){ fail('Pick at least one client below.'); return; }
+    const modal=document.getElementById('modal-assign');
+    const editId=modal&&modal.dataset.editId;
+    const ids=editId?[]:selectedAssignClientIds();
+    if(!editId && !ids.length){ fail('Pick at least one client below.'); return; }
     const exercises=[];
     document.querySelectorAll('#assign-ex-rows .ex-block').forEach(function(row){
       const ex=readExBlock(row, trainerUnit);
       if(ex) exercises.push(ex);
     });
     const desc=(document.getElementById('aw-desc')||{}).value||'';
+    if(editId){
+      const cid=modal.dataset.editClientId;
+      const c=DB.clients.find(function(x){return x.id===cid;});
+      if(!c){ fail('Could not find that client.'); return; }
+      const a=(c.assigned||[]).find(function(x){return x.id===editId;});
+      if(!a){ fail('That workout is no longer assigned.'); return; }
+      a.title=title;
+      a.desc=desc;
+      a.exercises=exercises;
+      saveData(DB);
+      closeModal('modal-assign');
+      refreshWorkoutViews(c);
+      showToast('Workout updated ✓');
+      return;
+    }
     let count=0;
     let firstClient=null;
     ids.forEach(function(clientId){
@@ -4528,6 +4603,20 @@ function exBlockFields(block){
 }
 
 function readExBlock(block, unit){
+  const perf=block.querySelectorAll('.perf-ex-input-row input');
+  if(perf.length){
+    const name=(perf[0]&&perf[0].value.trim())||'';
+    if(!name) return null;
+    const rpeInp=block.querySelector('.ex-rpe-slider');
+    return {
+      name:name,
+      sets:(perf[1]&&perf[1].value)||'-',
+      reps:(perf[2]&&perf[2].value)||'-',
+      weight:(perf[3]&&perf[3].value)||'-',
+      unit:unit||trainerUnit,
+      rpe:rpeInp?parseInt(rpeInp.value,10):null
+    };
+  }
   const f=exBlockFields(block);
   const name=(f.nameInp&&f.nameInp.value.trim())||'';
   if(!name) return null;
@@ -4539,6 +4628,77 @@ function readExBlock(block, unit){
     unit:unit||trainerUnit,
     rpe:f.rpeInp?parseInt(f.rpeInp.value,10):null
   };
+}
+
+function formatExLoad(ex, viewerUnit){
+  if(!ex) return '—';
+  const bits=[];
+  if(ex.sets && ex.sets!=='-') bits.push(ex.sets+' ×');
+  if(ex.reps && ex.reps!=='-') bits.push(String(ex.reps));
+  const wt=displayWeightForViewer(ex.weight, ex.unit||'kg', viewerUnit||'kg');
+  if(wt && wt!=='-') bits.push('@ '+wt+' '+(viewerUnit||'kg'));
+  return bits.join(' ') || '—';
+}
+
+function assignedWorkoutForHistory(h, client){
+  if(!h || !client) return null;
+  if(h.assignedId){
+    const byId=(client.assigned||[]).find(function(x){return x.id===h.assignedId;});
+    if(byId) return byId;
+  }
+  if(!h.selfLogged) return null;
+  const t=String(h.type||'').replace(/\s*\(self-logged\)\s*$/i,'').trim().toLowerCase();
+  if(!t) return null;
+  return (client.assigned||[]).find(function(x){return String(x.title||'').toLowerCase()===t;})||null;
+}
+
+function prescribedForHistoryEx(h, e, client){
+  if(e && e.prescribed) return e.prescribed;
+  const a=assignedWorkoutForHistory(h, client);
+  if(!a) return null;
+  const name=(e&&e.name||'').toLowerCase();
+  return (a.exercises||[]).find(function(p){return p.name && p.name.toLowerCase()===name;})||null;
+}
+
+function sessionHistoryCardHTML(h, viewerUnit, client){
+  const unit=viewerUnit||'kg';
+  let exes=(h.exercises||[]).slice();
+  const program=assignedWorkoutForHistory(h, client);
+  if(!exes.length && program && program.exercises && program.exercises.length){
+    exes=program.exercises.map(function(p){
+      return {name:p.name,sets:'-',reps:'-',weight:'-',unit:p.unit||unit,prescribed:p,rpe:null};
+    });
+  }
+  const dur=h.duration?(' · '+h.duration+' min'):'';
+  let body='';
+  if(!exes.length){
+    body='<div class="hist-empty">No exercise details were saved for this session. Log the workout again to record sets, reps, and weight.</div>';
+  } else {
+    body='<div class="hist-ex-list">'+exes.map(function(e){
+      const pre=prescribedForHistoryEx(h,e,client);
+      const assigned=pre?formatExLoad(pre, unit):'';
+      const done=formatExLoad(e, unit);
+      const rpe=e.rpe?(' · RPE '+e.rpe):'';
+      return '<div class="hist-ex">'+
+        '<div class="hist-ex-name">'+escapeHtml(e.name||'Exercise')+'</div>'+
+        (assigned?'<div class="hist-ex-line"><span>Assigned</span><span class="hist-ex-val">'+escapeHtml(assigned)+'</span></div>':'')+
+        '<div class="hist-ex-line hist-ex-done"><span>Done</span><span class="hist-ex-val">'+escapeHtml(done)+rpe+'</span></div>'+
+      '</div>';
+    }).join('')+'</div>';
+  }
+  return '<div class="workout-card">'+
+    '<div class="workout-head">'+
+      '<div><div class="workout-title">'+escapeHtml(h.type||'Session')+'</div>'+
+      '<div class="workout-date">'+formatDate(h.date)+dur+(h.rpe!=null?' · RPE '+h.rpe:'')+(h.selfLogged?' · <span style="color:var(--lime);font-size:10px;">self-logged</span>':'')+'</div></div>'+
+      '<span class="chip chip-gray">'+(exes.length||0)+' ex.</span>'+
+    '</div>'+
+    body+
+    (h.notes?'<div style="padding:8px 14px 10px;font-size:12px;color:var(--text2);border-top:1px solid var(--border);">'+escapeHtml(h.notes)+'</div>':'')+
+    '<div class="card-actions">'+
+      '<button type="button" class="btn btn-secondary btn-sm" onclick="editSession(\''+escapeHtml(h.id||'')+'\',\''+escapeHtml(client&&client.id||'')+'\',event)">Edit</button>'+
+      '<button type="button" class="btn btn-danger btn-sm" onclick="deleteSession(\''+escapeHtml(h.id||'')+'\',\''+escapeHtml(client&&client.id||'')+'\',event)">Delete</button>'+
+    '</div>'+
+  '</div>';
 }
 
 function fillExBlock(block, ex){
@@ -4716,16 +4876,7 @@ function renderClientWorkouts(c){
   document.getElementById('c-assigned').innerHTML=html;
   const sorted=[...(c.history||[])].sort((a,b)=>b.date.localeCompare(a.date));
   document.getElementById('c-history').innerHTML=sorted.length
-    ? sorted.map(h=>`
-      <div class="workout-card">
-        <div class="workout-head">
-          <div><div class="workout-title">${h.type}</div><div class="workout-date">${formatDate(h.date)}${h.duration?' · '+h.duration+' min':''} · RPE ${h.rpe}${h.selfLogged?' · <span style="color:var(--lime);font-size:10px;">self-logged</span>':''}</div></div>
-        </div>
-        <table class="ex-table">
-          <thead><tr><th>Exercise</th><th>Sets</th><th>Reps</th><th>${clientUnit}</th><th>RPE</th></tr></thead>
-          <tbody>${h.exercises.map(e=>`<tr><td>${e.name}</td><td>${e.sets}</td><td>${e.reps}</td><td>${displayWeightForViewer(e.weight, e.unit||trainerUnit, clientUnit)}</td><td>${e.rpe?'<span style="font-size:10px;color:var(--lime);">'+e.rpe+'</span>':''}</td></tr>`).join('')}</tbody>
-        </table>
-      </div>`).join('')
+    ? sorted.map(function(h){ return sessionHistoryCardHTML(h, clientUnit, c); }).join('')
     : '<div class="empty-state"><div class="empty-icon">🏋️</div><div class="empty-msg">No sessions yet</div></div>';
 }
 
@@ -4791,11 +4942,11 @@ function assignedCardHTML(a, viewerUnit, clientObj){
       ${a.desc?`<div class="assigned-desc">${a.desc}</div>`:''}
     </div>
     ${a.exercises.length?`<div>
-      <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:0;background:var(--bg3);padding:5px 14px;">
-        <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;">Exercise</span>
-        <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;width:36px;text-align:center;">Sets</span>
-        <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;width:36px;text-align:center;">Reps</span>
-        <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;width:44px;text-align:center;">${vu}</span>
+      <div class="assigned-ex-head">
+        <span>Exercise</span>
+        <span style="width:36px;text-align:center;">Sets</span>
+        <span style="width:36px;text-align:center;">Reps</span>
+        <span style="width:44px;text-align:center;">${vu}</span>
       </div>
       ${a.exercises.map(e=>{
         const linkedVid=getVideoForExerciseForClient(e.name, cObj);
@@ -4808,45 +4959,71 @@ function assignedCardHTML(a, viewerUnit, clientObj){
             ${hasVideo?`<span class="ex-video-pill">▶ watch</span>`:''}
           </div>
           <div class="ex-vals">
-            <span style="width:36px;text-align:center;">${e.sets}</span>
-            <span style="width:36px;text-align:center;">${e.reps}</span>
-            <span style="width:44px;text-align:center;">${displayWeightForViewer(e.weight, e.unit||trainerUnit, vu)}</span>
+            <span>Sets ${e.sets}</span>
+            <span>Reps ${e.reps}</span>
+            <span>${displayWeightForViewer(e.weight, e.unit||trainerUnit, vu)} ${vu}</span>
           </div>
         </div>`;
       }).join('')}
     </div>`:''}
 
   ${(activeRole==='client'&&currentClientId)?('<button class="log-perf-btn" onclick="openLogPerfModal(\''+a.id+'\',event)">\u2713 Log my performance</button>'):''}
+  ${(activeRole==='trainer'&&cObj)?('<div class="card-actions"><button type="button" class="btn btn-secondary btn-sm" onclick="openEditAssigned(\''+a.id+'\',\''+cObj.id+'\',event)">Edit</button><button type="button" class="btn btn-danger btn-sm" onclick="deleteAssignedWorkout(\''+a.id+'\',\''+cObj.id+'\',event)">Delete</button></div>'):''}
   </div>`;
 }
 
 
-function openLogPerfModal(assignedId, e){
+function openLogPerfModal(assignedId, e, sessionId, clientId){
   if(e) e.stopPropagation();
-  const c=DB.clients.find(x=>x.id===currentClientId);
+  const cid=clientId||currentClientId;
+  const c=DB.clients.find(function(x){return x.id===cid;});
   if(!c) return;
-  const a=c.assigned.find(x=>x.id===assignedId);
-  if(!a) return;
-  document.getElementById('modal-log-perf').dataset.assignedId=assignedId;
-  document.getElementById('log-perf-title').textContent='Log: '+a.title;
-  document.getElementById('log-perf-desc').textContent=a.desc||'';
-  document.getElementById('log-perf-date').value=new Date().toISOString().split('T')[0];
-  document.getElementById('log-perf-rpe').value=7;
-  document.getElementById('log-perf-rpe-val').textContent='7';
-  document.getElementById('log-perf-notes').value='';
-  document.getElementById('log-perf-wt-hdr').textContent=clientUnit;
+  const viewerUnit=activeRole==='client'?clientUnit:trainerUnit;
+  const modal=document.getElementById('modal-log-perf');
+  const h=sessionId?(c.history||[]).find(function(x){return x.id===sessionId;}):null;
+  const programId=(h&&h.assignedId)||assignedId||'';
+  const a=(c.assigned||[]).find(function(x){return x.id===programId;});
+  modal.dataset.assignedId=programId;
+  modal.dataset.sessionId=sessionId||'';
+  modal.dataset.clientId=cid;
+  document.getElementById('log-perf-wt-hdr').textContent=viewerUnit;
+  const saveBtn=document.getElementById('log-perf-save-btn');
+  if(h){
+    document.getElementById('log-perf-title').textContent='Edit session';
+    document.getElementById('log-perf-desc').textContent=h.type||'';
+    document.getElementById('log-perf-date').value=h.date||new Date().toISOString().split('T')[0];
+    document.getElementById('log-perf-rpe').value=h.rpe||7;
+    document.getElementById('log-perf-rpe-val').textContent=String(h.rpe||7);
+    document.getElementById('log-perf-notes').value=h.notes||'';
+    if(saveBtn) saveBtn.textContent='Save changes';
+    const exes=(h.exercises&&h.exercises.length)?h.exercises:((a&&a.exercises)||[]);
+    fillPerfExRows(exes, viewerUnit);
+  } else {
+    if(!a) return;
+    document.getElementById('log-perf-title').textContent='Log: '+a.title;
+    document.getElementById('log-perf-desc').textContent=a.desc||'';
+    document.getElementById('log-perf-date').value=new Date().toISOString().split('T')[0];
+    document.getElementById('log-perf-rpe').value=7;
+    document.getElementById('log-perf-rpe-val').textContent='7';
+    document.getElementById('log-perf-notes').value='';
+    if(saveBtn) saveBtn.textContent='Save Log';
+    fillPerfExRows(a.exercises, viewerUnit);
+  }
+  openModal('modal-log-perf');
+}
+
+function fillPerfExRows(exList, viewerUnit){
   const rows=document.getElementById('log-perf-ex-rows');
   rows.innerHTML='';
-  const exList=(a.exercises&&a.exercises.length)?a.exercises:[{name:'',sets:'',reps:'',weight:''}];
-  exList.forEach(function(ex){
+  const list=(exList&&exList.length)?exList:[{name:'',sets:'',reps:'',weight:'',unit:viewerUnit}];
+  list.forEach(function(ex){
     const row=document.createElement('div');
     row.className='perf-ex-input-row';
-    const rpeId='prpe_'+Math.random().toString(36).slice(2,7);
     row.innerHTML=
-      '<input class="finp" value="'+ex.name+'" placeholder="Exercise" style="padding:7px 9px;font-size:12px;"/>'+
-      '<input class="finp" value="'+ex.sets+'" placeholder="3" type="number" style="padding:7px 9px;font-size:12px;text-align:center;"/>'+
-      '<input class="finp" value="'+ex.reps+'" placeholder="10" style="padding:7px 9px;font-size:12px;text-align:center;"/>'+
-      '<input class="finp" placeholder="'+clientUnit+'" style="padding:7px 9px;font-size:12px;text-align:center;"/>';
+      '<input class="finp" value="'+(ex.name||'')+'" placeholder="Exercise" style="padding:7px 9px;font-size:12px;"/>'+
+      '<input class="finp" value="'+(ex.sets&&ex.sets!=='-'?ex.sets:'')+'" placeholder="3" type="number" style="padding:7px 9px;font-size:12px;text-align:center;"/>'+
+      '<input class="finp" value="'+(ex.reps&&ex.reps!=='-'?ex.reps:'')+'" placeholder="10" style="padding:7px 9px;font-size:12px;text-align:center;"/>'+
+      '<input class="finp" value="'+(ex.weight&&ex.weight!=='-'?displayWeightForViewer(ex.weight, ex.unit||'kg', viewerUnit):'')+'" placeholder="'+viewerUnit+'" style="padding:7px 9px;font-size:12px;text-align:center;"/>';
     const rpeRow=document.createElement('div');
     rpeRow.className='ex-rpe-row';
     const rpeS=document.createElement('input');
@@ -4866,25 +5043,71 @@ function openLogPerfModal(assignedId, e){
     block.appendChild(rpeRow);
     rows.appendChild(block);
   });
-  openModal('modal-log-perf');
+}
+
+function editSession(sessionId, clientId, e){
+  if(e){ e.preventDefault(); e.stopPropagation(); }
+  openLogPerfModal(null, e, sessionId, clientId);
+}
+
+function deleteSession(sessionId, clientId, e){
+  if(e){ e.preventDefault(); e.stopPropagation(); }
+  const c=DB.clients.find(function(x){return x.id===clientId;});
+  if(!c) return;
+  const h=(c.history||[]).find(function(x){return x.id===sessionId;});
+  if(!h) return;
+  if(!confirm('Delete this session from history?')) return;
+  c.history=(c.history||[]).filter(function(x){return x.id!==sessionId;});
+  c.sessions=Math.max(0,(c.sessions||1)-1);
+  saveData(DB);
+  refreshWorkoutViews(c);
+  const statEl=document.querySelector('#c-stats .stat-n');
+  if(statEl && currentClientId===c.id) statEl.textContent=c.sessions;
+  showToast('Session deleted');
 }
 
 function saveClientPerformance(){
-  const c=DB.clients.find(x=>x.id===currentClientId);
+  const modal=document.getElementById('modal-log-perf');
+  const cid=modal.dataset.clientId||currentClientId;
+  const c=DB.clients.find(function(x){return x.id===cid;});
   if(!c) return;
-  const assignedId=document.getElementById('modal-log-perf').dataset.assignedId;
-  const a=c.assigned.find(x=>x.id===assignedId);
+  const assignedId=modal.dataset.assignedId;
+  const sessionId=modal.dataset.sessionId;
+  const a=(c.assigned||[]).find(function(x){return x.id===assignedId;});
   const date=document.getElementById('log-perf-date').value||new Date().toISOString().split('T')[0];
   const rpe=parseInt(document.getElementById('log-perf-rpe').value)||7;
   const notes=document.getElementById('log-perf-notes').value;
+  const viewerUnit=activeRole==='client'?clientUnit:trainerUnit;
   const rows=document.querySelectorAll('#log-perf-ex-rows .ex-block');
   const exercises=[];
-  rows.forEach(function(row){
-    const ex=readExBlock(row, clientUnit);
-    if(ex) exercises.push(ex);
+  rows.forEach(function(row, idx){
+    const ex=readExBlock(row, viewerUnit);
+    if(!ex) return;
+    const planned=(a&&a.exercises&&a.exercises[idx])||(a&&a.exercises||[]).find(function(p){return p.name&&p.name.toLowerCase()===ex.name.toLowerCase();});
+    if(planned){
+      ex.prescribed={sets:planned.sets,reps:planned.reps,weight:planned.weight,unit:planned.unit||trainerUnit};
+    } else if(sessionId){
+      const prev=(c.history||[]).find(function(x){return x.id===sessionId;});
+      const old=(prev&&prev.exercises||[])[idx];
+      if(old&&old.prescribed) ex.prescribed=old.prescribed;
+    }
+    exercises.push(ex);
   });
   if(!c.history) c.history=[];
-  c.history.unshift({id:'cp'+Date.now(),date:date,type:(a?a.title:'Self-logged')+' (self-logged)',duration:0,rpe:rpe,notes:notes,exercises:exercises,selfLogged:true,assignedId:assignedId});
+  if(sessionId){
+    const h=c.history.find(function(x){return x.id===sessionId;});
+    if(!h){ showToast('Session not found'); return; }
+    h.date=date;
+    h.rpe=rpe;
+    h.notes=notes;
+    h.exercises=exercises;
+    saveData(DB);
+    closeModal('modal-log-perf');
+    refreshWorkoutViews(c);
+    showToast('Session updated ✓');
+    return;
+  }
+  c.history.unshift({id:(typeof newId==='function'?newId():('cp'+Date.now())),date:date,type:(a?a.title:'Self-logged')+' (self-logged)',duration:0,rpe:rpe,notes:notes,exercises:exercises,selfLogged:true,assignedId:assignedId||null});
   if(a){if(!a.completions)a.completions=[];a.completions.unshift({date:date,rpe:rpe,notes:notes});}
   c.sessions=(c.sessions||0)+1;
   saveData(DB);
@@ -4898,10 +5121,9 @@ function saveClientPerformance(){
     c.history.slice(1).forEach(function(sess){
       sess.exercises.forEach(function(e){if(e.name.toLowerCase()===ex.name.toLowerCase()){const w=parseFloat(e.weight);if(w>prevBest)prevBest=w;}});
     });
-    if(newW>prevBest) pbs.push({name:ex.name,value:newW,prev:prevBest,unit:clientUnit,type:'exercise',icon:'\ud83c\udfc6'});
+    if(newW>prevBest) pbs.push({name:ex.name,value:newW,prev:prevBest,unit:viewerUnit,type:'exercise',icon:'\ud83c\udfc6'});
   });
-  renderClientWorkouts(c);
-  renderClientFeed(c);
+  refreshWorkoutViews(c);
   const statEl=document.querySelector('#c-stats .stat-n');
   if(statEl) statEl.textContent=c.sessions;
   if(pbs.length>0){
