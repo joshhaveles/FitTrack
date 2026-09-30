@@ -876,6 +876,11 @@ select.finp{cursor:pointer;}
 #modal-add-session .ms-sheet-actions,#modal-delete-session .ms-sheet-actions{flex-shrink:0;display:flex;flex-direction:column;gap:8px;padding-top:8px;padding-bottom:max(12px,env(safe-area-inset-bottom));}
 #modal-add-session .finp{font-size:16px;}
 #modal-delete-session{z-index:560;}
+#log-appt-banner{margin:0 16px 12px;padding:12px 14px;background:var(--lime-dim);border:1px solid rgba(0,230,118,.28);border-radius:12px;display:none;}
+#log-appt-banner.show{display:block;}
+#log-appt-banner-copy{font-size:13px;color:var(--text);line-height:1.45;margin-bottom:10px;}
+#t-tab-log .finp,#t-tab-log .inp{font-size:16px;}
+#t-tab-log .form-section{padding-bottom:max(24px,env(safe-area-inset-bottom));}
 @media(min-width:768px){
   .sched-actions .btn{min-height:36px;}
 }
@@ -1128,7 +1133,11 @@ select.finp{cursor:pointer;}
 
     <!-- TRAINER: LOG TAB -->
     <div id="t-tab-log" class="scroll-area hidden" style="flex:1;">
-      <div class="topbar"><div class="topbar-title">Log Session</div></div>
+      <div class="topbar"><div class="topbar-title" id="t-log-title">Log Session</div></div>
+      <div id="log-appt-banner">
+        <div id="log-appt-banner-copy"></div>
+        <button type="button" class="btn btn-secondary btn-full" onclick="cancelLogScheduledSession()">Back to schedule</button>
+      </div>
       <div class="form-section">
         <div class="form-block">
           <div class="form-block-title">Session Details</div>
@@ -1161,7 +1170,7 @@ select.finp{cursor:pointer;}
             <span class="rpe-val" id="rpe-display">7</span>
           </div>
         </div>
-        <button class="btn btn-primary btn-full" onclick="saveSession()">Save Session</button>
+        <button type="button" class="btn btn-primary btn-full" onclick="saveSession()">Save Session</button>
         <div style="height:16px;"></div>
       </div>
     </div>
@@ -1852,6 +1861,7 @@ select.finp{cursor:pointer;}
       <textarea class="finp" id="ms-notes" placeholder="Session goals..."></textarea>
     </div>
     <div class="ms-sheet-actions">
+      <button type="button" class="btn btn-primary btn-full" id="ms-log-btn" style="display:none" onclick="openLogScheduledSession()">Log this session</button>
       <button type="button" class="btn btn-danger btn-full" id="ms-delete-btn" style="display:none" onclick="openDeleteScheduledSheet()">Delete</button>
       <button type="button" class="btn btn-secondary btn-full" onclick="closeModal('modal-add-session')">Cancel</button>
       <button type="button" class="btn btn-primary btn-full" id="ms-save-btn" onclick="saveScheduledSession()">Schedule</button>
@@ -3228,6 +3238,7 @@ function switchTab(role, tab){
   }
   if(role==='t'&&tab==='clients') renderClientGrid();
   if(role==='t'&&tab==='schedule') renderSchedule();
+  if(role==='t'&&tab==='log') syncLogApptBanner();
   if(role==='t'&&tab==='library') renderLibrary();
   if(role==='t'&&tab==='ai') initAITab();
   if(role==='t'&&tab==='payments') initPaymentsTab();
@@ -3937,6 +3948,7 @@ function saveBodyComp(){
 // ══════════════════════════════════════════════════
 let editingScheduledId=null;
 let pendingDeleteScheduledId=null;
+let loggingScheduledId=null;
 
 function populateScheduleClientSelect(selectedId){
   const ms=document.getElementById('ms-client');
@@ -3983,9 +3995,14 @@ function openNewScheduledSession(){
   const title=document.getElementById('ms-sheet-title');
   if(title) title.textContent='Schedule Session';
   const saveBtn=document.getElementById('ms-save-btn');
-  if(saveBtn) saveBtn.textContent='Schedule';
+  if(saveBtn){
+    saveBtn.textContent='Schedule';
+    saveBtn.className='btn btn-primary btn-full';
+  }
   const del=document.getElementById('ms-delete-btn');
   if(del) del.style.display='none';
+  const logBtn=document.getElementById('ms-log-btn');
+  if(logBtn) logBtn.style.display='none';
   document.getElementById('ms-date').value=todayStr();
   document.getElementById('ms-time').value='09:00';
   document.getElementById('ms-dur').value='60';
@@ -4003,9 +4020,14 @@ function openEditScheduledSession(id){
   const title=document.getElementById('ms-sheet-title');
   if(title) title.textContent='Edit Session';
   const saveBtn=document.getElementById('ms-save-btn');
-  if(saveBtn) saveBtn.textContent='Save';
+  if(saveBtn){
+    saveBtn.textContent='Save';
+    saveBtn.className='btn btn-secondary btn-full';
+  }
   const del=document.getElementById('ms-delete-btn');
   if(del) del.style.display='';
+  const logBtn=document.getElementById('ms-log-btn');
+  if(logBtn) logBtn.style.display='';
   document.getElementById('ms-date').value=s.date||'';
   document.getElementById('ms-time').value=s.time||'09:00';
   document.getElementById('ms-dur').value=String(s.duration||60);
@@ -4017,6 +4039,69 @@ function openEditScheduledSession(id){
   }
   document.getElementById('ms-notes').value=s.notes||'';
   openModal('modal-add-session');
+}
+
+function setSelectValue(el, value){
+  if(!el) return;
+  const v=value||'';
+  el.value=v;
+  if(v && el.value!==v){
+    const opt=document.createElement('option');
+    opt.value=v;
+    opt.textContent=v;
+    el.appendChild(opt);
+    el.value=v;
+  }
+}
+
+function syncLogApptBanner(){
+  const banner=document.getElementById('log-appt-banner');
+  const copy=document.getElementById('log-appt-banner-copy');
+  const title=document.getElementById('t-log-title');
+  const s=loggingScheduledId?(DB.schedule||[]).find(x=>x.id===loggingScheduledId):null;
+  if(!banner) return;
+  if(!s){
+    banner.classList.remove('show');
+    if(title) title.textContent='Log Session';
+    return;
+  }
+  const c=(DB.clients||[]).find(x=>x.id===s.clientId);
+  const when=(s.date||'')+' · '+(typeof formatApptTime==='function'?formatApptTime(s.time): (s.time||''));
+  if(copy) copy.textContent='Logging the booked session with '+(clientName(c,'this client'))+' on '+when+'. Saving moves it to history.';
+  banner.classList.add('show');
+  if(title) title.textContent='Log booked session';
+}
+
+function openLogScheduledSession(id){
+  const sid=id||editingScheduledId;
+  const s=(DB.schedule||[]).find(x=>x.id===sid);
+  if(!s){showToast('Session not found');return;}
+  loggingScheduledId=sid;
+  closeModal('modal-add-session');
+  if(typeof renderClientGrid==='function') renderClientGrid();
+  switchTab('t','log');
+  populateScheduleClientSelect(s.clientId);
+  const logSel=document.getElementById('log-client-sel');
+  if(logSel){
+    if(!logSel.options.length) renderClientGrid();
+    logSel.value=s.clientId;
+  }
+  document.getElementById('log-date').value=s.date||todayStr();
+  document.getElementById('log-dur').value=String(s.duration||60);
+  setSelectValue(document.getElementById('log-type'), s.type||'Strength training');
+  document.getElementById('log-notes').value=s.notes||'';
+  document.getElementById('log-rpe').value='7';
+  document.getElementById('rpe-display').textContent='7';
+  initExRows();
+  syncLogApptBanner();
+  const notes=document.getElementById('log-notes');
+  if(notes) notes.focus();
+}
+
+function cancelLogScheduledSession(){
+  loggingScheduledId=null;
+  syncLogApptBanner();
+  switchTab('t','schedule');
 }
 
 function openDeleteScheduledSheet(id){
@@ -5105,16 +5190,14 @@ function saveSession(){
     if(ex) exercises.push(ex);
   });
 
-  // Check for exercise weight PBs before saving
   const pbs=[];
   exercises.forEach(ex=>{
     const newW=parseFloat(ex.weight);
     if(!newW||isNaN(newW)) return;
-    // Find previous best weight for this exercise
     let prevBest=0;
     c.history.forEach(sess=>{
       (sess.exercises||[]).forEach(e=>{
-        if(e.name.toLowerCase()===ex.name.toLowerCase()){
+        if(e.name&&e.name.toLowerCase()===ex.name.toLowerCase()){
           const w=parseFloat(e.weight);
           if(w>prevBest) prevBest=w;
         }
@@ -5123,8 +5206,19 @@ function saveSession(){
     if(newW>prevBest) pbs.push({name:ex.name, value:newW, prev:prevBest, unit:'kg', type:'exercise'});
   });
 
+  let apptTime=null;
+  const fromAppt=loggingScheduledId;
+  if(fromAppt){
+    const appt=(DB.schedule||[]).find(s=>s.id===fromAppt);
+    if(appt) apptTime=appt.time||null;
+    DB.schedule=(DB.schedule||[]).filter(s=>s.id!==fromAppt);
+  }
+  const histId=fromAppt||(typeof newId==='function'?newId():('h'+Date.now()));
+  if(!c.history) c.history=[];
   c.history.unshift({
-    id:'h'+Date.now(),date,
+    id:histId,
+    date,
+    time:apptTime,
     type:document.getElementById('log-type').value,
     duration:parseInt(document.getElementById('log-dur').value)||60,
     rpe:parseInt(document.getElementById('log-rpe').value),
@@ -5132,6 +5226,7 @@ function saveSession(){
     exercises
   });
   c.sessions=(c.sessions||0)+1;
+  loggingScheduledId=null;
   saveData(DB);
   initExRows();
   document.getElementById('log-notes').value='';
@@ -5139,15 +5234,21 @@ function saveSession(){
   document.getElementById('rpe-display').textContent='7';
   document.getElementById('log-dur').value='60';
   document.getElementById('log-type').selectedIndex=0;
+  syncLogApptBanner();
   renderTrainerStats();
   renderClientGrid();
+  renderTodaySessions();
+  renderSchedule();
+  if(fromAppt){
+    addNotification(c.id,'session','Session logged','Your '+date+' session is in your history.');
+    switchTab('t','schedule');
+  }
 
   if(pbs.length>0){
-    // Show the most impressive PB (biggest absolute value)
     const best=pbs.sort((a,b)=>b.value-a.value)[0];
     setTimeout(()=>showPB(best, clientName(c)), 400);
   } else {
-    showToast(`Session logged for ${clientName(c)} ✓`);
+    showToast(fromAppt?('Logged and removed from the calendar ✓'):('Session logged for '+clientName(c)+' ✓'));
   }
 }
 
