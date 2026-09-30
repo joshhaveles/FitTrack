@@ -9,7 +9,6 @@
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="FitTrack"/>
-<meta name="ft-build" content="fill2"/>
 <title>FitTrack Pro</title>
 <link rel="manifest" href="manifest.json?v=fill1"/>
 <link rel="icon" href="icon-192.png"/>
@@ -717,7 +716,6 @@ select.finp{cursor:pointer;}
 .msg-list-pane{display:flex;flex-direction:column;flex:1;min-height:0;min-width:0;width:100%;background:var(--bg);}
 .msg-list-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:max(14px,env(safe-area-inset-top)) 16px 12px;flex-shrink:0;}
 .msg-list-title{font-size:28px;font-weight:800;letter-spacing:-.6px;line-height:1.1;}
-.msg-build-tag{font-size:11px;font-weight:700;color:var(--lime);margin-top:4px;}
 .msg-new-btn,.msg-new-icon{display:inline-flex;align-items:center;justify-content:center;background:var(--lime);color:#0a0a0a;border:none;cursor:pointer;flex-shrink:0;font-weight:800;}
 .msg-new-btn{display:none;gap:6px;border-radius:20px;padding:8px 14px;min-height:36px;font-size:13px;}
 .msg-new-icon{width:44px;height:44px;border-radius:50%;font-size:22px;line-height:1;}
@@ -997,7 +995,6 @@ select.finp{cursor:pointer;}
       <div class="login-demo" id="login-help">
         Trainers: create an account, then sign in.<br/>
         Clients: create your account from an invite, then sign in.
-        <div style="margin-top:10px;font-size:10px;color:var(--text3);">Build fill2</div>
       </div>
       <div class="login-fix-section" id="login-fix-wrap">
         <span class="login-fix-link" onclick="openLoginFix()">Can't log in? Fix login issues</span>
@@ -1146,10 +1143,7 @@ select.finp{cursor:pointer;}
       <div class="msg-layout">
         <div class="msg-list-pane">
           <div class="msg-list-header">
-            <div>
-              <div class="msg-list-title">Messages</div>
-              <div class="msg-build-tag">Build fill2</div>
-            </div>
+            <div class="msg-list-title">Messages</div>
             <button type="button" class="msg-new-btn" onclick="openNewChatPicker()">New chat</button>
             <button type="button" class="msg-new-icon" onclick="openNewChatPicker()" aria-label="New chat">+</button>
           </div>
@@ -1625,7 +1619,6 @@ select.finp{cursor:pointer;}
           <div style="flex:1;min-width:0;">
             <div class="topbar-title" id="c-msg-trainer-name">Messages</div>
             <div class="msg-thread-sub">Your trainer</div>
-            <div class="msg-build-tag">Build fill2</div>
           </div>
         </div>
         <button type="button" class="msg-chat-icon" id="c-msg-tools" onclick="openDeleteConversationSheet()" aria-label="Delete chat">
@@ -2939,7 +2932,7 @@ function showSignup(){
   document.getElementById('btn-signin').style.display='none';
   document.getElementById('btn-signup').style.display='block';
   document.getElementById('login-role-tabs').style.display='none';
-  document.getElementById('login-help').innerHTML='Create a trainer account, then you will come back here to sign in.<div style="margin-top:10px;font-size:10px;color:var(--text3);">Build fill2</div>';
+  document.getElementById('login-help').innerHTML='Create a trainer account, then you will come back here to sign in.';
   document.getElementById('login-fix-wrap').style.display='none';
   document.getElementById('login-pass').autocomplete='new-password';
   const sub=document.querySelector('.login-sub');
@@ -2957,7 +2950,7 @@ function showClientSignup(){
   hideLoginAlerts();
   showAuthBlock('client');
   document.getElementById('login-role-tabs').style.display='none';
-  document.getElementById('login-help').innerHTML='Use your email as your username, or pick a username and add your email. Then sign in.<div style="margin-top:10px;font-size:10px;color:var(--text3);">Build fill2</div>';
+  document.getElementById('login-help').innerHTML='Use your email as your username, or pick a username and add your email. Then sign in.';
   document.getElementById('login-fix-wrap').style.display='none';
   const sub=document.querySelector('.login-sub');
   if(sub) sub.textContent='Create your client account';
@@ -2982,7 +2975,7 @@ function showSignIn(keepAlerts){
   document.getElementById('btn-signin').style.display='block';
   document.getElementById('btn-signup').style.display='none';
   document.getElementById('login-role-tabs').style.display='flex';
-  document.getElementById('login-help').innerHTML='Trainers: create an account, then sign in.<br/>Clients: create your account from an invite, then sign in.<div style="margin-top:10px;font-size:10px;color:var(--text3);">Build fill2</div>';
+  document.getElementById('login-help').innerHTML='Trainers: create an account, then sign in.<br/>Clients: create your account from an invite, then sign in.';
   document.getElementById('login-fix-wrap').style.display='block';
   document.getElementById('login-pass').autocomplete='current-password';
   const sub=document.querySelector('.login-sub');
