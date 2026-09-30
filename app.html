@@ -13,13 +13,13 @@
 <script>
 (function(){
   if(location.protocol==='file:') return;
-  if(/[?&]v=ex1(?:&|$)/.test(location.search)) return;
+  if(/[?&]v=hist1(?:&|$)/.test(location.search)) return;
   var u=new URL(location.href);
-  u.searchParams.set('v','ex1');
+  u.searchParams.set('v','hist1');
   location.replace(u.href);
 })();
 </script>
-<link rel="manifest" href="manifest.json?v=ex1"/>
+<link rel="manifest" href="manifest.json?v=hist1"/>
 <link rel="icon" href="icon-192.png"/>
 <link rel="apple-touch-icon" href="icon-192.png"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
@@ -318,6 +318,9 @@ input,select,textarea,button{font-family:-apple-system,BlinkMacSystemFont,'Segoe
 .hist-ex-line{display:grid;grid-template-columns:78px minmax(0,1fr);gap:8px;align-items:baseline;font-size:12px;color:var(--text3);margin-top:3px;}
 .hist-ex-val{font-family:'DM Mono',monospace;font-size:12px;font-weight:600;color:var(--text2);}
 .hist-ex-done .hist-ex-val{color:var(--lime);}
+.hist-search-wrap{position:sticky;top:0;z-index:4;background:var(--bg);padding:0 16px 12px;}
+.hist-search-wrap .finp{margin-bottom:0;font-size:16px;min-height:44px;}
+.hist-search-meta{font-size:12px;color:var(--text3);margin-top:8px;line-height:1.4;}
 .hist-empty{padding:12px 14px;font-size:12px;color:var(--text3);border-top:1px solid var(--border);}
 .card-actions{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--border);}
 .card-actions .btn{flex:1;min-height:40px;}
@@ -1519,6 +1522,10 @@ select.finp{cursor:pointer;}
       <div class="feed-section-label" style="padding:16px 16px 8px;">ASSIGNED PROGRAMS</div>
       <div id="c-assigned"></div>
       <div class="feed-section-label" style="margin-top:8px;padding:8px 16px;">SESSION HISTORY</div>
+      <div class="hist-search-wrap">
+        <input class="finp" id="c-history-search" type="search" placeholder="Search an exercise, sets, or weight" autocomplete="off" enterkeyhint="search" oninput="renderClientWorkoutsFromSearch()"/>
+        <div class="hist-search-meta" id="c-history-search-meta"></div>
+      </div>
       <div id="c-history" style="padding:0 0 80px;"></div>
     </div>
 
@@ -1789,6 +1796,10 @@ select.finp{cursor:pointer;}
 
     <!-- History tab -->
     <div class="tab-content" id="ct-history">
+      <div class="hist-search-wrap">
+        <input class="finp" id="panel-history-search" type="search" placeholder="Search an exercise, sets, or weight" autocomplete="off" enterkeyhint="search" oninput="renderPanelHistory()"/>
+        <div class="hist-search-meta" id="panel-history-search-meta"></div>
+      </div>
       <div id="panel-history-list"></div>
     </div>
 
@@ -3699,6 +3710,10 @@ function openClientPanel(clientId){
   document.getElementById('panel-client-avatar').textContent=clientInitials(c);
   document.getElementById('panel-client-name').textContent=clientName(c);
   document.getElementById('panel-client-goal').textContent=`${c.goal} · ${c.sessions} sessions`;
+  const histSearch=document.getElementById('panel-history-search');
+  if(histSearch) histSearch.value='';
+  const histMeta=document.getElementById('panel-history-search-meta');
+  if(histMeta) histMeta.textContent='';
   // Reset to notes tab
   document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',i===0));
   document.querySelectorAll('.tab-content').forEach((tc,i)=>tc.classList.toggle('active',i===0));
@@ -3720,9 +3735,21 @@ function renderPanelNotes(){
 function renderPanelHistory(){
   const c = DB.clients.find(x=>x.id===activeClientPanel);
   const el = document.getElementById('panel-history-list');
-  if(!c||!c.history.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">🏋️</div><div class="empty-msg">No sessions logged yet</div></div>';return;}
-  const sorted = [...(c.history||[])].sort((a,b)=>b.date.localeCompare(a.date));
-  el.innerHTML = sorted.map(function(h){ return sessionHistoryCardHTML(h, trainerUnit, c); }).join('');
+  const meta=document.getElementById('panel-history-search-meta');
+  const q=((document.getElementById('panel-history-search')||{}).value||'');
+  if(!el) return;
+  if(!c||!(c.history||[]).length){
+    if(meta) meta.textContent='';
+    el.innerHTML='<div class="empty-state"><div class="empty-icon">🏋️</div><div class="empty-msg">No sessions logged yet</div></div>';
+    return;
+  }
+  const hits=filterHistoryHits(c, q, trainerUnit);
+  if(meta) meta.textContent=historySearchMeta(q, hits.length, c.history.length);
+  if(!hits.length){
+    el.innerHTML='<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-msg">No sessions match that search</div><div class="empty-sub" style="margin-top:6px;">Try an exercise name, or a set/reps/weight value.</div></div>';
+    return;
+  }
+  el.innerHTML = hits.map(function(hit){ return sessionHistoryCardHTML(hit.h, trainerUnit, c, hit.exes); }).join('');
 }
 
 function renderPanelAssigned(){
@@ -5390,6 +5417,33 @@ function formatExLoad(ex, viewerUnit){
   return bits.join(' ') || '—';
 }
 
+function historyExHaystack(e, viewerUnit){
+  const unit=viewerUnit||'kg';
+  const bits=[e&&e.name||'', e&&e.sets, e&&e.reps, e&&e.weight, e&&e.rpe, formatExLoad(e||{}, unit)];
+  (e&&e.setLogs||[]).forEach(function(s,i){
+    bits.push('set '+(i+1), s&&s.reps, s&&s.weight, s&&s.rir);
+    bits.push(displayWeightForViewer(s&&s.weight, (e&&e.unit)||'kg', unit));
+  });
+  return bits.filter(function(x){return x!=null && String(x)!=='';}).join(' ').toLowerCase();
+}
+
+function filterHistoryHits(c, q, viewerUnit){
+  const sorted=[...((c&&c.history)||[])].sort(function(a,b){return String(b.date||'').localeCompare(String(a.date||''));});
+  const ql=String(q||'').trim().toLowerCase();
+  if(!ql) return sorted.map(function(h){return {h:h, exes:null};});
+  const hits=[];
+  sorted.forEach(function(h){
+    const matching=(h.exercises||[]).filter(function(e){return historyExHaystack(e, viewerUnit).indexOf(ql)!==-1;});
+    if(matching.length) hits.push({h:h, exes:matching});
+  });
+  return hits;
+}
+
+function historySearchMeta(q, hitCount, total){
+  if(!String(q||'').trim()) return total? (total+' session'+(total===1?'':'s')) : '';
+  return hitCount+' match'+(hitCount===1?'':'es');
+}
+
 function assignedWorkoutForHistory(h, client){
   if(!h || !client) return null;
   if(h.assignedId){
@@ -5410,7 +5464,7 @@ function prescribedForHistoryEx(h, e, client){
   return (a.exercises||[]).find(function(p){return p.name && p.name.toLowerCase()===name;})||null;
 }
 
-function sessionHistoryCardHTML(h, viewerUnit, client){
+function sessionHistoryCardHTML(h, viewerUnit, client, filterExes){
   const unit=viewerUnit||'kg';
   let exes=(h.exercises||[]).slice();
   const program=assignedWorkoutForHistory(h, client);
@@ -5419,6 +5473,7 @@ function sessionHistoryCardHTML(h, viewerUnit, client){
       return {name:p.name,sets:'-',reps:'-',weight:'-',unit:p.unit||unit,prescribed:p,rpe:null};
     });
   }
+  if(filterExes) exes=filterExes;
   const dur=h.duration?(' · '+h.duration+' min'):'';
   let body='';
   if(!exes.length){
@@ -5799,10 +5854,31 @@ function renderClientWorkouts(c){
     html+='<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-msg">No programs assigned yet</div></div>';
   }
   document.getElementById('c-assigned').innerHTML=html;
-  const sorted=[...(c.history||[])].sort((a,b)=>b.date.localeCompare(a.date));
-  document.getElementById('c-history').innerHTML=sorted.length
-    ? sorted.map(function(h){ return sessionHistoryCardHTML(h, clientUnit, c); }).join('')
-    : '<div class="empty-state"><div class="empty-icon">🏋️</div><div class="empty-msg">No sessions yet</div></div>';
+  renderClientHistoryList(c);
+}
+
+function renderClientWorkoutsFromSearch(){
+  const c=DB.clients.find(function(x){return x.id===currentClientId;});
+  if(c) renderClientHistoryList(c);
+}
+
+function renderClientHistoryList(c){
+  const el=document.getElementById('c-history');
+  const meta=document.getElementById('c-history-search-meta');
+  if(!el) return;
+  const q=((document.getElementById('c-history-search')||{}).value||'');
+  if(!(c.history||[]).length){
+    if(meta) meta.textContent='';
+    el.innerHTML='<div class="empty-state"><div class="empty-icon">🏋️</div><div class="empty-msg">No sessions yet</div></div>';
+    return;
+  }
+  const hits=filterHistoryHits(c, q, clientUnit);
+  if(meta) meta.textContent=historySearchMeta(q, hits.length, c.history.length);
+  if(!hits.length){
+    el.innerHTML='<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-msg">No sessions match that search</div><div class="empty-sub" style="margin-top:6px;">Try an exercise name, or a set/reps/weight value.</div></div>';
+    return;
+  }
+  el.innerHTML=hits.map(function(hit){ return sessionHistoryCardHTML(hit.h, clientUnit, c, hit.exes); }).join('');
 }
 
 function renderClientVideos(c){
