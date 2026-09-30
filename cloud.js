@@ -8,6 +8,7 @@
   window.cloudReady = false;
   let persistTimer = null;
   let persisting = false;
+  let pendingDb = null;
 
   function newId() {
     return crypto.randomUUID();
@@ -323,7 +324,12 @@
   }
 
   async function persistCloud(db) {
-    if (!window.sbUser || !window.cloudReady || persisting) return;
+    if (!window.sbUser || !window.cloudReady) return;
+    if (!db) return;
+    if (persisting) {
+      pendingDb = db;
+      return;
+    }
     const user = window.sbUser;
     const trainerId = db.trainer && db.trainer.id ? db.trainer.id : (user.id);
     const isTrainer = db.trainer && db.trainer.id === user.id;
@@ -397,7 +403,12 @@
         }
 
         const keepSessionIds = hist.map(function (s) { return s.id; }).filter(Boolean);
-        let sessDel = window.sb.from('sessions').delete().eq('client_id', c.id);
+        (db.schedule || []).forEach(function (item) {
+          if (item.clientId !== c.id) return;
+          item.id = ensureUuid(item.id);
+          if (item.id) keepSessionIds.push(item.id);
+        });
+        let sessDel = window.sb.from('sessions').delete().eq('client_id', c.id).eq('status', 'completed');
         if (keepSessionIds.length) sessDel = sessDel.not('id', 'in', '(' + keepSessionIds.join(',') + ')');
         await must(await sessDel, 'sessions prune');
 
@@ -570,14 +581,25 @@
       if (typeof showToast === 'function') showToast('Cloud sync issue — saved on this device');
     } finally {
       persisting = false;
+      if (pendingDb) {
+        const next = pendingDb;
+        pendingDb = null;
+        persistCloud(next);
+      }
     }
   }
   window.persistCloud = persistCloud;
 
   window.queueCloudSave = function (db) {
     if (!window.sbUser || !window.cloudReady) return;
+    pendingDb = db;
+    if (persisting) return;
     clearTimeout(persistTimer);
-    persistTimer = setTimeout(function () { persistCloud(db); }, 500);
+    persistTimer = setTimeout(function () {
+      const toSave = pendingDb;
+      pendingDb = null;
+      persistCloud(toSave);
+    }, 500);
   };
 
   window.pullMessages = async function () {

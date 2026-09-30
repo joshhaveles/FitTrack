@@ -2829,7 +2829,7 @@ select.finp{cursor:pointer;}
   <div class="scroll-area" id="notif-list" style="flex:1;"></div>
 </div>
 <div id="notif-overlay" style="display:none;position:fixed;inset:0;z-index:299;" onclick="closeNotifPanel()"></div>
-<script src="cloud.js"></script>
+<script src="cloud.js?v=sync1"></script>
 <div class="alert-banner" id="alert-banner" onclick="handleAlertClick()">
   <div class="alert-icon" id="alert-icon"></div>
   <div class="alert-body">
@@ -5113,7 +5113,7 @@ function saveSession(){
     // Find previous best weight for this exercise
     let prevBest=0;
     c.history.forEach(sess=>{
-      sess.exercises.forEach(e=>{
+      (sess.exercises||[]).forEach(e=>{
         if(e.name.toLowerCase()===ex.name.toLowerCase()){
           const w=parseFloat(e.weight);
           if(w>prevBest) prevBest=w;
@@ -5314,25 +5314,25 @@ function videoCardHTML(v,showDelete){
 
 function assignedCardHTML(a, viewerUnit, clientObj){
   const vu = viewerUnit || trainerUnit;
-  // clientObj is the client whose videos we look up; fall back to active panel
   const cObj = clientObj || DB.clients.find(x=>x.id===(currentClientId||activeClientPanel));
+  const exes=Array.isArray(a.exercises)?a.exercises:[];
   return `<div class="assigned-card">
     <div class="assigned-head">
       <div style="display:flex;align-items:center;gap:0;">
         <div class="assigned-label">Assigned program</div>
         ${a.completions&&a.completions.length?`<span class="completion-badge">✓ ${a.completions.length}x done</span>`:''}
       </div>
-      <div class="assigned-title">${a.title}</div>
+      <div class="assigned-title">${a.title||'Workout'}</div>
       ${a.desc?`<div class="assigned-desc">${a.desc}</div>`:''}
     </div>
-    ${a.exercises.length?`<div>
+    ${exes.length?`<div>
       <div class="assigned-ex-head">
         <span>Exercise</span>
         <span style="width:36px;text-align:center;">Sets</span>
         <span style="width:36px;text-align:center;">Reps</span>
         <span style="width:44px;text-align:center;">${vu}</span>
       </div>
-      ${a.exercises.map(e=>{
+      ${exes.map(e=>{
         const linkedVid=getVideoForExerciseForClient(e.name, cObj);
         const hasVideo=!!linkedVid;
         const encoded=hasVideo?encodeURIComponent(JSON.stringify(linkedVid)):'';
@@ -5565,7 +5565,7 @@ function saveClientPerformance(){
     if(!newW||isNaN(newW)) return;
     let prevBest=0;
     c.history.slice(1).forEach(function(sess){
-      sess.exercises.forEach(function(e){if(e.name.toLowerCase()===ex.name.toLowerCase()){const w=parseFloat(e.weight);if(w>prevBest)prevBest=w;}});
+      (sess.exercises||[]).forEach(function(e){if(e.name&&e.name.toLowerCase()===ex.name.toLowerCase()){const w=parseFloat(e.weight);if(w>prevBest)prevBest=w;}});
     });
     if(newW>prevBest) pbs.push({name:ex.name,value:newW,prev:prevBest,unit:viewerUnit,type:'exercise',icon:'\ud83c\udfc6'});
   });
