@@ -958,6 +958,10 @@ select.finp{cursor:pointer;}
 .set-log-n{font-size:12px;font-weight:700;color:var(--text2);}
 .set-log-row .finp{margin-bottom:0;min-height:44px;font-size:16px;text-align:center;}
 .set-log-add{margin:0 0 4px;min-height:40px;width:100%;}
+.set-log-item{margin-bottom:10px;}
+.set-log-rir{display:flex;align-items:center;gap:8px;padding-left:52px;margin-top:6px;}
+.set-log-rir-lbl{font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.4px;text-transform:uppercase;flex-shrink:0;}
+.set-log-rir .finp{margin-bottom:0;min-height:40px;max-width:88px;font-size:16px;text-align:center;}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -5048,14 +5052,15 @@ function parseSetCount(v){
 function setLogsFromEx(ex){
   if(ex&&Array.isArray(ex.setLogs)&&ex.setLogs.length){
     return ex.setLogs.map(function(s){
-      return {reps:dashToEmpty(s&&s.reps),weight:dashToEmpty(s&&s.weight)};
+      return {reps:dashToEmpty(s&&s.reps),weight:dashToEmpty(s&&s.weight),rir:dashToEmpty(s&&s.rir)};
     });
   }
-  const n=Math.max(1,parseSetCount(ex&&ex.sets)||1);
+  const n=parseSetCount(ex&&ex.sets);
+  if(!n) return [];
   const reps=dashToEmpty(ex&&ex.reps);
   const wt=dashToEmpty(ex&&ex.weight);
   const out=[];
-  for(let i=0;i<n;i++) out.push({reps:reps,weight:wt});
+  for(let i=0;i<n;i++) out.push({reps:reps,weight:wt,rir:''});
   return out;
 }
 
@@ -5085,7 +5090,16 @@ function summarizeSetLogs(setLogs){
   };
 }
 
-function makeSetLogRow(i, unit, reps, weight){
+function toggleSetLogChrome(block, show){
+  const hdr=block.querySelector('.set-log-hdr');
+  const add=block.querySelector('.set-log-add');
+  if(hdr) hdr.style.display=show?'grid':'none';
+  if(add) add.style.display=show?'':'none';
+}
+
+function makeSetLogRow(i, unit, reps, weight, rir){
+  const item=document.createElement('div');
+  item.className='set-log-item';
   const row=document.createElement('div');
   row.className='set-log-row';
   const lab=document.createElement('div');
@@ -5096,30 +5110,49 @@ function makeSetLogRow(i, unit, reps, weight){
   row.appendChild(lab);
   row.appendChild(r);
   row.appendChild(w);
-  return row;
+  const rirWrap=document.createElement('div');
+  rirWrap.className='set-log-rir';
+  const rirLbl=document.createElement('span');
+  rirLbl.className='set-log-rir-lbl';
+  rirLbl.textContent='RIR';
+  const rirInp=makePerfField('set-log-rir-inp','e.g. 2', rir||'', {inputMode:'decimal'});
+  rirInp.setAttribute('aria-label','Reps in reserve');
+  rirWrap.appendChild(rirLbl);
+  rirWrap.appendChild(rirInp);
+  item.appendChild(row);
+  item.appendChild(rirWrap);
+  return item;
 }
 
 function readSetLogRows(block){
-  return [].slice.call(block.querySelectorAll('.set-log-row')).map(function(row){
-    const repsInp=row.querySelector('.set-log-reps');
-    const wtInp=row.querySelector('.set-log-wt');
-    return {reps:((repsInp&&repsInp.value)||'').trim(),weight:((wtInp&&wtInp.value)||'').trim()};
+  return [].slice.call(block.querySelectorAll('.set-log-item')).map(function(item){
+    const repsInp=item.querySelector('.set-log-reps');
+    const wtInp=item.querySelector('.set-log-wt');
+    const rirInp=item.querySelector('.set-log-rir-inp');
+    return {
+      reps:((repsInp&&repsInp.value)||'').trim(),
+      weight:((wtInp&&wtInp.value)||'').trim(),
+      rir:((rirInp&&rirInp.value)||'').trim()
+    };
   });
 }
 
 function syncSetLogRows(block, unit){
   const setsInp=block.querySelector('.log-ex-sets');
-  let n=parseSetCount(setsInp&&setsInp.value);
-  if(!n) n=1;
+  const n=parseSetCount(setsInp&&setsInp.value);
   const list=block.querySelector('.set-log-list');
   if(!list) return;
   const prev=readSetLogRows(block);
   list.innerHTML='';
+  if(!n){
+    toggleSetLogChrome(block, false);
+    return;
+  }
+  toggleSetLogChrome(block, true);
   for(let i=0;i<n;i++){
     const p=prev[i]||{};
-    list.appendChild(makeSetLogRow(i, unit, p.reps, p.weight));
+    list.appendChild(makeSetLogRow(i, unit, p.reps, p.weight, p.rir));
   }
-  if(setsInp&&!setsInp.value) setsInp.value=String(n);
 }
 
 function addSetLogRow(block, unit){
@@ -5133,13 +5166,19 @@ function addSetLogRow(block, unit){
 function fillSetLogRows(block, ex, unit, viewerUnit){
   const logs=setLogsFromEx(ex);
   const setsInp=block.querySelector('.log-ex-sets');
-  if(setsInp) setsInp.value=String(logs.length||3);
   const list=block.querySelector('.set-log-list');
   if(!list) return;
   list.innerHTML='';
+  if(!logs.length){
+    if(setsInp) setsInp.value='';
+    toggleSetLogChrome(block, false);
+    return;
+  }
+  if(setsInp) setsInp.value=String(logs.length);
+  toggleSetLogChrome(block, true);
   logs.forEach(function(s,i){
     const wt=s.weight?displayWeightForViewer(s.weight, (ex&&ex.unit)||'kg', viewerUnit||unit||'kg'):'';
-    list.appendChild(makeSetLogRow(i, viewerUnit||unit||'kg', s.reps, wt));
+    list.appendChild(makeSetLogRow(i, viewerUnit||unit||'kg', s.reps, wt, s.rir));
   });
 }
 
@@ -5160,7 +5199,7 @@ function readExBlock(block, unit){
   const name=(nameInp&&nameInp.value.trim())||'';
   if(!name) return null;
   const rpeInp=block.querySelector('.ex-rpe-slider');
-  const setRows=block.querySelectorAll('.set-log-row');
+  const setRows=block.querySelectorAll('.set-log-item');
   if(setRows.length){
     const setLogs=readSetLogRows(block);
     const sum=summarizeSetLogs(setLogs);
@@ -5218,7 +5257,8 @@ function formatExLoad(ex, viewerUnit){
       if(dashToEmpty(s.reps)) bits.push(s.reps+' reps');
       const wt=displayWeightForViewer(s.weight, ex.unit||'kg', vu);
       if(wt&&wt!=='-'&&dashToEmpty(s.weight)) bits.push(wt+' '+vu);
-      return 'S'+(i+1)+' '+(bits.join(' @ ')||'—');
+      if(dashToEmpty(s.rir)) bits.push('RIR '+s.rir);
+      return 'S'+(i+1)+' '+(bits.join(' · ')||'—');
     }).join(' · ');
   }
   const bits=[];
@@ -5274,6 +5314,7 @@ function sessionHistoryCardHTML(h, viewerUnit, client){
           if(dashToEmpty(s.reps)) bits.push(s.reps+' reps');
           const wt=displayWeightForViewer(s.weight, e.unit||'kg', unit);
           if(wt&&wt!=='-'&&dashToEmpty(s.weight)) bits.push(wt+' '+unit);
+          if(dashToEmpty(s.rir)) bits.push('RIR '+s.rir);
           return '<div class="hist-ex-line hist-ex-done"><span>Set '+(i+1)+'</span><span class="hist-ex-val">'+escapeHtml(bits.join(' · ')||'—')+'</span></div>';
         }).join('')+(e.rpe?'<div class="hist-ex-line"><span>RPE</span><span class="hist-ex-val">'+escapeHtml(String(e.rpe))+'</span></div>':'');
       } else {
@@ -5312,9 +5353,10 @@ function makeLogExBlock(containerId, unit){
   sets.className='finp log-ex-sets';
   sets.placeholder='Sets';
   sets.inputMode='numeric';
-  sets.value='3';
+  sets.value='';
   sets.setAttribute('aria-label','Sets');
   sets.addEventListener('change',function(){syncSetLogRows(block, unit);});
+  sets.addEventListener('input',function(){syncSetLogRows(block, unit);});
   const del=document.createElement('button');
   del.className='ex-remove';
   del.textContent='×';
@@ -5329,6 +5371,7 @@ function makeLogExBlock(containerId, unit){
   hdr.className='set-log-hdr';
   hdr.innerHTML='<span></span><span>Reps</span><span></span>';
   hdr.lastChild.textContent=unit;
+  hdr.style.display='none';
   block.appendChild(hdr);
   const list=document.createElement('div');
   list.className='set-log-list';
@@ -5337,23 +5380,9 @@ function makeLogExBlock(containerId, unit){
   addBtn.type='button';
   addBtn.className='btn btn-secondary btn-sm set-log-add';
   addBtn.textContent='+ Add set';
+  addBtn.style.display='none';
   addBtn.onclick=function(){addSetLogRow(block, unit);};
   block.appendChild(addBtn);
-  const rpeRow=document.createElement('div');
-  rpeRow.className='ex-rpe-row';
-  const rpeSlider=document.createElement('input');
-  rpeSlider.type='range';rpeSlider.min='1';rpeSlider.max='10';rpeSlider.value='7';
-  rpeSlider.className='ex-rpe-slider';
-  const rpeValSpan=document.createElement('span');
-  rpeValSpan.className='ex-rpe-val';rpeValSpan.textContent='7';
-  rpeSlider.addEventListener('input',function(){rpeValSpan.textContent=this.value;});
-  const rpeLabel=document.createElement('span');
-  rpeLabel.className='ex-rpe-label';rpeLabel.textContent='Ex. RPE';
-  rpeRow.appendChild(rpeLabel);
-  rpeRow.appendChild(rpeSlider);
-  rpeRow.appendChild(rpeValSpan);
-  block.appendChild(rpeRow);
-  syncSetLogRows(block, unit);
   return block;
 }
 
@@ -5821,13 +5850,13 @@ function buildPerfRowModels(h, program, prefillAssignedIntoDone){
     const d=done[i]||{};
     const p=plan[i]||d.prescribed||null;
     const useDone=hasDoneLoad(d);
-    const source=useDone?d:(prefillAssignedIntoDone&&p?p:{sets:'3'});
+    const source=useDone?d:{sets:'',reps:'',weight:''};
     out.push({
       name:d.name||(p&&p.name)||'',
-      sets:source.sets,
-      reps:source.reps,
-      weight:source.weight,
-      setLogs:setLogsFromEx(source),
+      sets:useDone?source.sets:'',
+      reps:useDone?source.reps:'',
+      weight:useDone?source.weight:'',
+      setLogs:useDone?setLogsFromEx(d):[],
       unit:d.unit||(p&&p.unit),
       rpe:d.rpe,
       prescribed:d.prescribed||p||null
@@ -5862,12 +5891,13 @@ function fillPerfExRows(exList, viewerUnit){
     doneLbl.className='flabel';
     doneLbl.textContent='How many sets';
     card.appendChild(doneLbl);
-    const sets=makePerfField('log-ex-sets','Sets', (ex.setLogs&&ex.setLogs.length)||ex.sets||'3', {inputMode:'numeric'});
+    const sets=makePerfField('log-ex-sets','Sets', (ex.setLogs&&ex.setLogs.length)?ex.setLogs.length:'', {inputMode:'numeric'});
     card.appendChild(sets);
     const hdr=document.createElement('div');
     hdr.className='set-log-hdr';
     hdr.innerHTML='<span></span><span>Reps</span><span></span>';
     hdr.lastChild.textContent=viewerUnit||'kg';
+    hdr.style.display='none';
     card.appendChild(hdr);
     const setList=document.createElement('div');
     setList.className='set-log-list';
@@ -5876,29 +5906,13 @@ function fillPerfExRows(exList, viewerUnit){
     addBtn.type='button';
     addBtn.className='btn btn-secondary btn-sm set-log-add';
     addBtn.textContent='+ Add set';
+    addBtn.style.display='none';
     card.appendChild(addBtn);
-    const rpeRow=document.createElement('div');
-    rpeRow.className='ex-rpe-row';
-    rpeRow.style.borderBottom='none';
-    rpeRow.style.marginBottom='0';
-    rpeRow.style.paddingTop='10px';
-    const rpeS=document.createElement('input');
-    rpeS.type='range';rpeS.min='1';rpeS.max='10';
-    rpeS.value=String(ex.rpe||7);
-    rpeS.className='ex-rpe-slider';
-    const rpeV=document.createElement('span');
-    rpeV.className='ex-rpe-val';rpeV.textContent=String(ex.rpe||7);
-    rpeS.addEventListener('input',function(){rpeV.textContent=this.value;});
-    const rpeLbl=document.createElement('span');
-    rpeLbl.className='ex-rpe-label';rpeLbl.textContent='Ex. RPE';
-    rpeRow.appendChild(rpeLbl);
-    rpeRow.appendChild(rpeS);
-    rpeRow.appendChild(rpeV);
     const block=document.createElement('div');
     block.className='ex-block';
     block.appendChild(card);
-    block.appendChild(rpeRow);
     sets.addEventListener('change',function(){syncSetLogRows(block, viewerUnit);});
+    sets.addEventListener('input',function(){syncSetLogRows(block, viewerUnit);});
     addBtn.onclick=function(){addSetLogRow(block, viewerUnit);};
     fillSetLogRows(block, ex, viewerUnit, viewerUnit);
     rows.appendChild(block);
