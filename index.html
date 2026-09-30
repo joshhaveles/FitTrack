@@ -9,8 +9,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="FitTrack"/>
+<meta name="ft-build" content="fill1"/>
 <title>FitTrack Pro</title>
-<link rel="manifest" href="manifest.json"/>
+<link rel="manifest" href="manifest.json?v=fill1"/>
 <link rel="icon" href="icon-192.png"/>
 <link rel="apple-touch-icon" href="icon-192.png"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
@@ -48,16 +49,15 @@
   --r-xs: 8px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-html,body{height:100%;overflow:hidden;}
+html,body{height:100%;width:100%;overflow:hidden;}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;}
 h1,h2,h3,.syne{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-weight:800;}
 input,select,textarea,button{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;}
 
 /* ── SCROLLABLE WRAPPER ── */
-#app{height:100vh;height:100dvh;overflow:hidden;display:flex;flex-direction:column;}
+#app{height:100vh;height:100dvh;width:100%;overflow:hidden;display:flex;flex-direction:column;}
 .screen{display:none;flex:1;flex-direction:column;overflow:hidden;width:100%;min-width:0;}
-.screen.active{display:flex;flex-direction:column;flex:1;width:100%;}
-@media(min-width:768px){.screen.active{flex-direction:row;}}
+.screen.active{display:flex;flex-direction:column;flex:1;width:100%;min-width:0;}
 .scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
 .scroll-area::-webkit-scrollbar{width:3px;}
 .scroll-area::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px;}
@@ -99,11 +99,8 @@ input,select,textarea,button{font-family:-apple-system,BlinkMacSystemFont,'Segoe
 
 /* ── DESKTOP RESPONSIVE ── */
 @media(min-width:768px){
-  /* Screen fills viewport */
-  .screen.active{flex-direction:row;}
-
   /* Mobile frame = full width flex row */
-  .mobile-frame{max-width:100%;margin:0;flex-direction:row;flex:1;min-width:0;width:100%;}
+  .mobile-frame{max-width:none;margin:0;flex-direction:row;flex:1;min-width:0;width:100%;}
 
   /* Content area fills all remaining space */
   [id^="t-tab-"]:not(.hidden),
@@ -999,6 +996,7 @@ select.finp{cursor:pointer;}
       <div class="login-demo" id="login-help">
         Trainers: create an account, then sign in.<br/>
         Clients: create your account from an invite, then sign in.
+        <div style="margin-top:10px;font-size:10px;color:var(--text3);">Build fill1</div>
       </div>
       <div class="login-fix-section" id="login-fix-wrap">
         <span class="login-fix-link" onclick="openLoginFix()">Can't log in? Fix login issues</span>
@@ -1009,7 +1007,7 @@ select.finp{cursor:pointer;}
 
 <!-- ═══════════════════════════════ TRAINER APP ═══════════════════════════════ -->
 <div class="screen" id="screen-trainer">
-  <div class="mobile-frame" id="trainer-frame" style="background:var(--bg);flex:1;overflow:hidden;">
+  <div class="mobile-frame" id="trainer-frame" style="background:var(--bg);flex:1;width:100%;overflow:hidden;">
 
     <!-- TRAINER: DASHBOARD TAB -->
     <div id="t-tab-home" class="scroll-area" style="flex:1;">
@@ -1381,7 +1379,7 @@ select.finp{cursor:pointer;}
 
 <!-- ═══════════════════════════════ CLIENT APP ═══════════════════════════════ -->
 <div class="screen" id="screen-client">
-  <div class="mobile-frame" id="client-frame" style="background:var(--bg);flex:1;overflow:hidden;">
+  <div class="mobile-frame" id="client-frame" style="background:var(--bg);flex:1;width:100%;overflow:hidden;">
 
     <!-- CLIENT: HOME TAB -->
     <div id="c-tab-home" class="scroll-area" style="flex:1;position:relative;">
@@ -8267,6 +8265,9 @@ document.getElementById('ms-date').value=new Date().toISOString().split('T')[0];
 // Enter key on login
 document.getElementById('login-user').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('login-pass').focus();});
 if(typeof bindAssignSaveBtn==='function') bindAssignSaveBtn();
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js?v=fill1').catch(function(){});
+}
 </script>
 </body>
 </html>
