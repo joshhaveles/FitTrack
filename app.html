@@ -13,13 +13,13 @@
 <script>
 (function(){
   if(location.protocol==='file:') return;
-  if(/[?&]v=sched1(?:&|$)/.test(location.search)) return;
+  if(/[?&]v=sched2(?:&|$)/.test(location.search)) return;
   var u=new URL(location.href);
-  u.searchParams.set('v','sched1');
+  u.searchParams.set('v','sched2');
   location.replace(u.href);
 })();
 </script>
-<link rel="manifest" href="manifest.json?v=sched1"/>
+<link rel="manifest" href="manifest.json?v=sched2"/>
 <link rel="icon" href="icon-192.png"/>
 <link rel="apple-touch-icon" href="icon-192.png"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
@@ -866,7 +866,6 @@ select.finp{cursor:pointer;}
 .sched-actions{display:flex;flex-direction:column;gap:6px;flex-shrink:0;width:auto;margin-top:0;}
 .sched-actions .btn{flex:0 0 auto;min-height:40px;min-width:76px;font-size:13px;font-weight:700;}
 .sched-actions .btn-secondary{border-color:rgba(0,230,118,.4);color:var(--lime);background:var(--lime-dim);}
-.sched-hint{font-size:12px;color:var(--text2);line-height:1.4;margin-top:10px;}
 #t-schedule-list{padding-bottom:96px;}
 #modal-add-session .modal-sheet,#modal-delete-session .modal-sheet{display:flex;flex-direction:column;max-height:min(90dvh,90vh);}
 #modal-add-session .ms-sheet-body{flex:1;overflow-y:auto;min-height:0;-webkit-overflow-scrolling:touch;}
@@ -1106,7 +1105,6 @@ select.finp{cursor:pointer;}
           <div class="cal-nav-arrow" onclick="shiftCal(1)">›</div>
           <div class="cal-nav-arrow" onclick="goToday()" title="Today" style="font-size:10px;font-weight:700;color:var(--lime);">●</div>
         </div>
-        <div class="sched-hint">Each appointment has Edit and Delete on the right.</div>
       </div>
       <div id="t-schedule-list"></div>
     </div>
@@ -3422,11 +3420,7 @@ function renderDayView(){
   const label=new Date(ds+'T12:00:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
   document.getElementById('cal-period-label').innerHTML=`${label}${isToday?' <span class="chip chip-lime" style="font-size:9px;padding:2px 6px;vertical-align:middle;">TODAY</span>':''}`;
   const sessions=DB.schedule.filter(s=>s.date===ds).sort((a,b)=>a.time.localeCompare(b.time));
-  let html='';
-  if(sessions.length){
-    html+=sessions.map(s=>scheduledSessionCardHtml(s)).join('');
-  }
-  html+='<div class="day-timeline">';
+  let html='<div class="day-timeline">';
   const hours=Array.from({length:14},(_,i)=>i+6); // 6am–7pm
   hours.forEach(h=>{
     const timeLabel=(h>12?h-12:h)+':00'+(h>=12?' PM':' AM');
@@ -3439,7 +3433,7 @@ function renderDayView(){
           const sid=s.id||'';
           return `<div class="time-slot-event" style="border-left-color:${c.color}" onclick="openEditScheduledSession('${sid}')">
             <div style="font-weight:700;font-size:13px;">${escapeHtml(clientName(c, 'Unknown'))}</div>
-            <div style="font-size:11px;color:var(--text2);">${escapeHtml(s.time||'')} · ${escapeHtml(s.type||'')} · ${s.duration||60} min · tap to edit</div>
+            <div style="font-size:11px;color:var(--text2);">${escapeHtml(s.time||'')} · ${escapeHtml(s.type||'')} · ${s.duration||60} min</div>
           </div>`;
         }).join('')}
       </div>
@@ -3474,7 +3468,7 @@ function renderWeekView(){
     </div>`;
     if(sessions.length){
       sessions.forEach(s=>{
-        html+=scheduledSessionCardHtml(s,{style:isToday?'border-color:rgba(212,245,60,0.2);':''});
+        html+=scheduledSessionCardHtml(s,{style:isToday?'border-color:rgba(212,245,60,0.2);':'',actions:false});
       });
     } else {
       html+=`<div style="padding:4px 16px 10px;font-size:12px;color:var(--text3);">No sessions</div>`;
@@ -3917,8 +3911,10 @@ function scheduledSessionCardHtml(s, extras){
   const sid=s.id||'';
   const chip=extras.chip?'<span class="chip chip-lime" style="font-size:10px">Confirmed</span>':'';
   const style=extras.style?` style="${extras.style}"`:'';
-  return `<div class="session-card sched-card"${style}>
-    <div class="sched-card-main" onclick="openEditScheduledSession('${sid}')">
+  const showActions=extras.actions!==false;
+  const cardClick=showActions?'':` onclick="openEditScheduledSession('${sid}')"`;
+  return `<div class="session-card${showActions?' sched-card':''}"${style}${cardClick}>
+    <div class="sched-card-main"${showActions?` onclick="openEditScheduledSession('${sid}')"`:''}>
       <div class="session-dot" style="background:${c.color}"></div>
       <div class="session-info">
         <div class="session-name">${escapeHtml(clientName(c, 'Unknown'))}</div>
@@ -3929,7 +3925,7 @@ function scheduledSessionCardHtml(s, extras){
         ${chip}
       </div>
     </div>
-    ${scheduledApptActions(sid)}
+    ${showActions?scheduledApptActions(sid):''}
   </div>`;
 }
 
