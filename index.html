@@ -183,6 +183,7 @@ input,select,textarea,button{font-family:-apple-system,BlinkMacSystemFont,'Segoe
   .sec-header{padding:4px 32px;}
   .session-card{margin:0 32px 10px;}
   .client-grid{padding:0 32px 32px;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));}
+  .client-search-wrap{padding:0 32px 12px;}
   .feed-hello{padding:24px 32px 12px;}
   .feed-section-label{padding:0 32px;}
   #c-feed .note-item,.note-item{margin:0 32px 10px;}
@@ -247,6 +248,7 @@ input,select,textarea,button{font-family:-apple-system,BlinkMacSystemFont,'Segoe
 .chip-green{background:var(--green-dim);color:var(--green);}
 
 /* ── CLIENT GRID ── */
+.client-search-wrap{padding:0 16px 10px;}
 .client-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px 16px;}
 .client-tile{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px;cursor:pointer;transition:all .15s;box-shadow:0 4px 16px rgba(0,0,0,0.35);}
 .client-tile:active{background:var(--bg3);}
@@ -647,7 +649,11 @@ select.finp{cursor:pointer;}
 .bulk-client-item:last-child{border-bottom:none;}
 .bulk-check{width:18px;height:18px;border-radius:4px;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
 .bulk-check.checked{background:var(--lime);border-color:var(--lime);color:#000;}
-.assign-client-list{max-height:min(36vh,280px);overflow-y:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--border);border-radius:var(--r-sm);padding:0 10px;margin-bottom:4px;background:var(--bg3);}
+.assign-client-list{max-height:min(28vh,220px);overflow-y:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--border);border-radius:var(--r-sm);padding:0 10px;margin-bottom:4px;background:var(--bg3);}
+#modal-assign .modal-sheet{display:flex;flex-direction:column;max-height:min(90dvh,90vh);overflow:hidden;padding-bottom:0;}
+#modal-assign .assign-sheet-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:8px;}
+#modal-assign .assign-actions{flex-shrink:0;display:flex;gap:8px;padding:12px 0 max(16px,env(safe-area-inset-bottom));background:var(--bg2);border-top:1px solid var(--border);z-index:2;}
+.bulk-client-item{min-height:48px;}
 .log-perf-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px;background:var(--lime-dim);border:none;border-top:1px solid rgba(212,245,60,0.2);color:var(--lime);font-size:13px;font-weight:700;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-weight:800;cursor:pointer;transition:background .15s;}
 .log-perf-btn:hover{background:rgba(212,245,60,0.2);}
 .completion-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--green-dim);color:var(--green);margin-left:8px;vertical-align:middle;}
@@ -1015,6 +1021,10 @@ select.finp{cursor:pointer;}
       <div class="topbar">
         <div class="topbar-title">Clients</div>
         <div class="icon-btn" onclick="openModal('modal-add-client')">＋</div>
+      </div>
+      <div class="client-search-wrap">
+        <input class="finp" id="t-client-search" type="search" placeholder="Search clients..." autocomplete="off" enterkeyhint="search" inputmode="search"
+          oninput="renderClientGrid()" style="margin-bottom:0;font-size:16px;"/>
       </div>
       <div class="client-grid" id="t-client-grid"></div>
     </div>
@@ -2155,10 +2165,11 @@ select.finp{cursor:pointer;}
 </div>
 
 <div class="modal-overlay hidden" id="modal-assign" onclick="modalOutsideClose(event,'modal-assign')">
-  <div class="modal-sheet">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
     <div class="modal-title">Assign Workout</div>
-    <button class="btn btn-secondary btn-full" style="margin-bottom:14px;font-size:12px;" onclick="openPickTemplateModal()">📚 Load from library</button>
+    <div class="assign-sheet-body">
+    <button type="button" class="btn btn-secondary btn-full" style="margin-bottom:14px;font-size:12px;" onclick="openPickTemplateModal()">📚 Load from library</button>
     <div class="flabel">Workout Title</div>
     <input class="finp" id="aw-title" placeholder="e.g. Home Upper Body A"/>
     <div class="flabel">Description / Instructions</div>
@@ -2174,7 +2185,8 @@ select.finp{cursor:pointer;}
     <input class="finp" id="aw-client-search" type="search" placeholder="Search clients..." autocomplete="off" enterkeyhint="search" inputmode="search"
       oninput="renderAssignClientPicker()" style="margin-bottom:8px;font-size:16px;"/>
     <div id="aw-client-list" class="assign-client-list"></div>
-    <div class="gap-8 mt-8">
+    </div>
+    <div class="assign-actions">
       <button type="button" class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-assign')">Cancel</button>
       <button type="button" class="btn btn-primary" style="flex:2" onclick="saveAssignedWorkout()">Assign</button>
     </div>
@@ -3026,6 +3038,7 @@ function switchTab(role, tab){
   // Show/hide FAB — visible on home/schedule/clients, hidden on log/library/ai/messages/payments
   const fab=document.getElementById('trainer-fab');
   if(fab) fab.style.display=(role==='t'&&['home','schedule','clients'].includes(tab))?'flex':'none';
+  if(role==='t'&&tab==='clients') renderClientGrid();
   if(role==='t'&&tab==='schedule') renderSchedule();
   if(role==='t'&&tab==='library') renderLibrary();
   if(role==='t'&&tab==='ai') initAITab();
@@ -3332,7 +3345,20 @@ function monthDayClick(ds){
 }
 
 function renderClientGrid(){
-  document.getElementById('t-client-grid').innerHTML = DB.clients.map(c=>`
+  const grid=document.getElementById('t-client-grid');
+  if(!grid) return;
+  const q=((document.getElementById('t-client-search')||{}).value||'').trim().toLowerCase();
+  const clients=(DB.clients||[]).filter(function(c){
+    if(!q) return true;
+    const hay=[c.name,c.email,c.username,c.goal,c.initials,c.medNotes].join(' ').toLowerCase();
+    return hay.indexOf(q)!==-1;
+  });
+  if(!clients.length){
+    grid.innerHTML=q
+      ? '<div class="empty-state" style="grid-column:1/-1;"><div class="empty-icon">👤</div><div class="empty-msg">No clients match “'+escapeHtml(q)+'”.</div></div>'
+      : '<div class="empty-state" style="grid-column:1/-1;"><div class="empty-icon">👤</div><div class="empty-msg">No clients yet. Tap + to add one.</div></div>';
+  } else {
+    grid.innerHTML = clients.map(c=>`
     <div class="client-tile" onclick="openClientPanel('${c.id}')">
       <div class="ct-avatar" style="background:${c.colorBg};color:${c.color}">${c.initials}</div>
       <div class="ct-name">${c.name}</div>
@@ -3344,10 +3370,12 @@ function renderClientGrid(){
       <div class="prog-bar"><div class="prog-fill" style="width:${Math.min(100,c.sessions*3)}%;background:${c.color}"></div></div>
     </div>
   `).join('');
-  // Populate selects
-  const opts = DB.clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
-  document.getElementById('ms-client').innerHTML=opts;
-  document.getElementById('log-client-sel').innerHTML=opts;
+  }
+  const opts = (DB.clients||[]).map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  const ms=document.getElementById('ms-client');
+  const logSel=document.getElementById('log-client-sel');
+  if(ms) ms.innerHTML=opts;
+  if(logSel) logSel.innerHTML=opts;
 }
 
 // ══════════════════════════════════════════════════
@@ -3874,7 +3902,7 @@ function saveAssignedWorkout(){
   const titleEl=document.getElementById('aw-title');
   const title=(titleEl&&titleEl.value||'').trim();
   if(!title){showToast('Add a title');return;}
-  const ids=[].slice.call(assignSelectedClients);
+  const ids=Array.from(assignSelectedClients);
   if(!ids.length){showToast('Pick at least one client');return;}
   const exercises=[];
   document.querySelectorAll('#assign-ex-rows .ex-block').forEach(function(row){
