@@ -2379,9 +2379,12 @@ select.finp{cursor:pointer;}
 
 <!-- AI FORM ANALYSIS MODAL -->
 <div class="modal-overlay hidden" id="modal-form-analysis" onclick="modalOutsideClose(event,'modal-form-analysis')">
-  <div class="modal-sheet" style="max-height:95vh;">
-    <div class="modal-handle"></div>
-    <div class="modal-title">AI Form Analysis</div>
+  <div class="modal-sheet" style="max-height:95vh;" onclick="event.stopPropagation()">
+    <div class="modal-handle" onclick="closeFormAnalysis()" style="cursor:pointer;"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;">
+      <div class="modal-title" style="margin-bottom:0;">AI Form Analysis</div>
+      <button type="button" class="icon-btn" onclick="closeFormAnalysis()" aria-label="Close" title="Close">✕</button>
+    </div>
     <div id="form-analysis-dormant" style="text-align:center;padding:10px 0 20px;">
       <div style="font-size:44px;margin-bottom:12px;">🎥</div>
       <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-weight:800;font-size:18px;font-weight:900;margin-bottom:8px;">Record your form</div>
@@ -2420,6 +2423,7 @@ select.finp{cursor:pointer;}
         <div class="upload-status-sub" id="upload-status-sub">0%</div>
       </div>
       <button class="btn btn-primary btn-full" id="form-analyse-btn" onclick="submitFormAnalysis()">Analyse my form</button>
+      <button type="button" class="btn btn-secondary btn-full" style="margin-top:10px;" onclick="closeFormAnalysis()">Cancel</button>
     </div>
     <div id="form-analysis-results" style="display:none;"></div>
   </div>
@@ -5820,6 +5824,13 @@ const FORM_ANALYSIS_BACKEND = '__BACKEND_URL__/form-analysis';
 // ── END BACKEND CONFIG ────────────────────────────────
 
 let formVideoFile = null;
+let formUploadTimer = null;
+
+function closeFormAnalysis(){
+  if(formUploadTimer){ clearInterval(formUploadTimer); formUploadTimer=null; }
+  resetFormAnalysis();
+  closeModal('modal-form-analysis');
+}
 
 function handleFormVideo(input){
   formVideoFile=input.files[0];
@@ -5853,11 +5864,12 @@ function submitFormAnalysis(){
     // Demo mode — simulate XHR progress
     setProgress(0,'Uploading...','0%');
     let pct=0;
-    const uploadInterval=setInterval(function(){
+    formUploadTimer=setInterval(function(){
       pct+=Math.random()*18+8;
       if(pct>=100){
         pct=100;
-        clearInterval(uploadInterval);
+        clearInterval(formUploadTimer);
+        formUploadTimer=null;
         setProgress(100,'Processing Form...','Analysing technique...');
         setTimeout(function(){
           setProgress(100,'Analysis Complete!','');
@@ -5954,7 +5966,7 @@ function renderFormResult(data){
     renderFormSection('⚠️ Safety notes','var(--red)',data.safety)+
     '<div style="margin-top:16px;display:flex;gap:8px;">'+
       '<button class="btn btn-secondary" style="flex:1;font-size:12px;" onclick="resetFormAnalysis()">Analyse another</button>'+
-      '<button class="btn btn-primary" style="flex:1;font-size:12px;" onclick="closeModal(&quot;modal-form-analysis&quot;)">Done</button>'+
+      '<button class="btn btn-primary" style="flex:1;font-size:12px;" onclick="closeFormAnalysis()">Done</button>'+
     '</div>'+
     '<div style="margin-top:8px;font-size:11px;color:var(--text3);text-align:center;">'+
       (FORM_ANALYSIS_BACKEND.includes('__BACKEND')
