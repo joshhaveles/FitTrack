@@ -377,7 +377,7 @@ select.finp{cursor:pointer;}
 .rpe-val{font-family:'DM Mono',monospace;font-size:16px;font-weight:500;color:var(--lime);min-width:24px;text-align:right;}
 
 /* ── TOAST ── */
-.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:10px 18px;font-size:13px;font-weight:500;opacity:0;transition:all .3s;z-index:300;white-space:nowrap;pointer-events:none;}
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:10px 18px;font-size:13px;font-weight:500;opacity:0;transition:all .3s;z-index:800;white-space:nowrap;pointer-events:none;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
 /* ── EMPTY STATE ── */
@@ -652,7 +652,9 @@ select.finp{cursor:pointer;}
 .assign-client-list{max-height:min(28vh,220px);overflow-y:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--border);border-radius:var(--r-sm);padding:0 10px;margin-bottom:4px;background:var(--bg3);}
 #modal-assign .modal-sheet{display:flex;flex-direction:column;max-height:min(90dvh,90vh);overflow:hidden;padding-bottom:0;}
 #modal-assign .assign-sheet-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:8px;}
-#modal-assign .assign-actions{flex-shrink:0;display:flex;gap:8px;padding:12px 0 max(16px,env(safe-area-inset-bottom));background:var(--bg2);border-top:1px solid var(--border);z-index:2;}
+#modal-assign .assign-actions{flex-shrink:0;display:flex;flex-direction:column;gap:8px;padding:12px 0 max(16px,env(safe-area-inset-bottom));background:var(--bg2);border-top:1px solid var(--border);z-index:5;position:relative;}
+#aw-assign-btn{touch-action:manipulation;min-height:48px;position:relative;z-index:6;}
+#aw-assign-err{display:none;color:var(--red);font-size:12px;font-weight:700;line-height:1.4;}
 .bulk-client-item{min-height:48px;}
 .log-perf-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px;background:var(--lime-dim);border:none;border-top:1px solid rgba(212,245,60,0.2);color:var(--lime);font-size:13px;font-weight:700;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-weight:800;cursor:pointer;transition:background .15s;}
 .log-perf-btn:hover{background:rgba(212,245,60,0.2);}
@@ -2187,8 +2189,11 @@ select.finp{cursor:pointer;}
     <div id="aw-client-list" class="assign-client-list"></div>
     </div>
     <div class="assign-actions">
-      <button type="button" class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-assign')">Cancel</button>
-      <button type="button" class="btn btn-primary" style="flex:2" onclick="saveAssignedWorkout()">Assign</button>
+      <div id="aw-assign-err"></div>
+      <div style="display:flex;gap:8px;width:100%;">
+        <button type="button" class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-assign')">Cancel</button>
+        <button type="button" class="btn btn-primary" id="aw-assign-btn" style="flex:2">Assign</button>
+      </div>
     </div>
   </div>
 </div>
@@ -3808,6 +3813,9 @@ function openAssignModal(opts){
   const search=document.getElementById('aw-client-search');
   if(search) search.value='';
   renderAssignClientPicker();
+  bindAssignSaveBtn();
+  const errEl=document.getElementById('aw-assign-err');
+  if(errEl){ errEl.style.display='none'; errEl.textContent=''; }
   openModal('modal-assign');
 }
 
@@ -3836,7 +3844,7 @@ function renderAssignClientPicker(){
   }
   wrap.innerHTML=matches.map(function(c){
     const checked=assignSelectedClients.has(c.id);
-    return '<div class="bulk-client-item" onclick="toggleAssignClient(\''+c.id+'\')">'+
+    return '<div class="bulk-client-item" data-client-id="'+c.id+'" onclick="event.stopPropagation();toggleAssignClient(\''+c.id+'\')">'+
       '<div class="bulk-check'+(checked?' checked':'')+'">'+(checked?'✓':'')+'</div>'+
       '<div class="avatar-sm" style="background:'+(c.colorBg||c.color+'22')+';color:'+c.color+';width:32px;height:32px;font-size:11px;">'+(c.initials||'?')+'</div>'+
       '<div>'+
@@ -3848,9 +3856,78 @@ function renderAssignClientPicker(){
 }
 
 function toggleAssignClient(clientId){
+  if(!assignSelectedClients) assignSelectedClients=new Set();
   if(assignSelectedClients.has(clientId)) assignSelectedClients.delete(clientId);
   else assignSelectedClients.add(clientId);
   renderAssignClientPicker();
+}
+
+function selectedAssignClientIds(){
+  const ids=[];
+  function add(id){ if(id && ids.indexOf(id)===-1) ids.push(id); }
+  if(assignSelectedClients && typeof assignSelectedClients.forEach==='function'){
+    assignSelectedClients.forEach(add);
+  }
+  document.querySelectorAll('#aw-client-list [data-client-id]').forEach(function(row){
+    if(row.querySelector('.bulk-check.checked')) add(row.getAttribute('data-client-id'));
+  });
+  if(!ids.length && activeClientPanel) add(activeClientPanel);
+  return ids;
+}
+
+function bindAssignSaveBtn(){
+  const btn=document.getElementById('aw-assign-btn');
+  if(!btn || btn.dataset.bound==='1') return;
+  btn.dataset.bound='1';
+  btn.addEventListener('click', function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    saveAssignedWorkout();
+  });
+}
+
+function saveAssignedWorkout(){
+  const errEl=document.getElementById('aw-assign-err');
+  function fail(msg){
+    if(errEl){ errEl.textContent=msg; errEl.style.display='block'; }
+    showToast(msg);
+  }
+  try{
+    const titleEl=document.getElementById('aw-title');
+    const title=(titleEl&&titleEl.value||'').trim();
+    if(!title){ fail('Add a workout title first.'); return; }
+    const ids=selectedAssignClientIds();
+    if(!ids.length){ fail('Pick at least one client below.'); return; }
+    const exercises=[];
+    document.querySelectorAll('#assign-ex-rows .ex-block').forEach(function(row){
+      const ex=readExBlock(row, trainerUnit);
+      if(ex) exercises.push(ex);
+    });
+    const desc=(document.getElementById('aw-desc')||{}).value||'';
+    let count=0;
+    let firstClient=null;
+    ids.forEach(function(clientId){
+      const c=DB.clients.find(function(x){return x.id===clientId;});
+      if(!c) return;
+      if(!c.assigned) c.assigned=[];
+      const copy=JSON.parse(JSON.stringify(exercises));
+      c.assigned.push({id:(typeof newId==='function'?newId():('a'+Date.now()+Math.random().toString(36).slice(2,5))),title:title,desc:desc,exercises:copy});
+      addNotification(c.id,'workout','New workout assigned','Your trainer assigned you: '+title);
+      count++;
+      if(!firstClient) firstClient=c;
+    });
+    if(!count){ fail('Could not find that client. Try picking them again.'); return; }
+    saveData(DB);
+    closeModal('modal-assign');
+    if(firstClient){
+      openClientPanel(firstClient.id);
+      switchClientTab('assigned');
+    }
+    showToast(count===1?'Workout assigned to '+firstClient.name+' ✓':'Assigned to '+count+' clients ✓');
+  }catch(err){
+    console.error(err);
+    fail(err.message||'Could not assign workout');
+  }
 }
 function openShareVideoModal(){
   document.getElementById('sv-url').value='';
@@ -3897,35 +3974,6 @@ document.addEventListener('click', e=>{
   const inp=document.getElementById('sv-exercise');
   if(drop&&!drop.contains(e.target)&&e.target!==inp) drop.style.display='none';
 },{passive:true});
-
-function saveAssignedWorkout(){
-  const titleEl=document.getElementById('aw-title');
-  const title=(titleEl&&titleEl.value||'').trim();
-  if(!title){showToast('Add a title');return;}
-  const ids=Array.from(assignSelectedClients);
-  if(!ids.length){showToast('Pick at least one client');return;}
-  const exercises=[];
-  document.querySelectorAll('#assign-ex-rows .ex-block').forEach(function(row){
-    const ex=readExBlock(row, trainerUnit);
-    if(ex) exercises.push(ex);
-  });
-  const desc=(document.getElementById('aw-desc')||{}).value||'';
-  let count=0;
-  ids.forEach(function(clientId){
-    const c=DB.clients.find(function(x){return x.id===clientId;});
-    if(!c) return;
-    if(!c.assigned) c.assigned=[];
-    const copy=JSON.parse(JSON.stringify(exercises));
-    c.assigned.push({id:(typeof newId==='function'?newId():('a'+Date.now()+Math.random().toString(36).slice(2,5))),title:title,desc:desc,exercises:copy});
-    addNotification(c.id,'workout','New workout assigned','Your trainer assigned you: '+title);
-    count++;
-  });
-  if(!count){showToast('Pick at least one client');return;}
-  saveData(DB);
-  closeModal('modal-assign');
-  if(activeClientPanel && ids.indexOf(activeClientPanel)!==-1) renderPanelAssigned();
-  showToast(count===1?'Workout assigned ✓':'Assigned to '+count+' clients ✓');
-}
 
 function saveSharedVideo(){
   const url=document.getElementById('sv-url').value.trim();
@@ -7628,6 +7676,7 @@ document.getElementById('ms-date').value=new Date().toISOString().split('T')[0];
 
 // Enter key on login
 document.getElementById('login-user').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('login-pass').focus();});
+if(typeof bindAssignSaveBtn==='function') bindAssignSaveBtn();
 </script>
 </body>
 </html>
