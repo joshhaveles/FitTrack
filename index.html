@@ -334,6 +334,7 @@ input,select,textarea,button{font-family:-apple-system,BlinkMacSystemFont,'Segoe
 .form-block-title{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-weight:800;font-size:15px;font-weight:800;margin-bottom:14px;}
 .flabel{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px;}
 .finp{width:100%;background:#2a2a2a;border:1px solid #444;border-radius:12px;padding:14px 15px;min-height:48px;color:var(--text);font-size:14px;outline:none;margin-bottom:12px;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none;}
+#modal-add-client .finp{font-size:16px;}
 .finp:focus{border-color:var(--lime);box-shadow:0 0 0 2px rgba(0,230,118,0.15);}
 .finp::placeholder{color:var(--text3);}
 textarea.finp{resize:vertical;min-height:72px;}
@@ -1044,7 +1045,7 @@ select.finp{cursor:pointer;}
     <div id="t-tab-clients" class="scroll-area hidden" style="flex:1;">
       <div class="topbar">
         <div class="topbar-title">Clients</div>
-        <div class="icon-btn" onclick="openModal('modal-add-client')">＋</div>
+        <div class="icon-btn" onclick="openAddClientModal()">＋</div>
       </div>
       <div class="client-search-wrap">
         <input class="finp" id="t-client-search" type="search" placeholder="Search clients..." autocomplete="off" enterkeyhint="search" inputmode="search"
@@ -1437,8 +1438,8 @@ select.finp{cursor:pointer;}
           </div>
           <div class="flabel">Medical notes / limitations</div>
           <textarea class="finp" id="c-prof-notes" placeholder="Injuries, conditions, preferences..."></textarea>
-          <div class="flabel">New Password</div>
-          <input class="finp" type="password" id="c-prof-password" placeholder="Leave blank to keep current"/>
+          <div class="flabel">New password</div>
+          <input class="finp" type="password" id="c-prof-password" placeholder="Leave blank to keep your current password" autocomplete="new-password"/>
           <button class="btn btn-primary btn-full" onclick="saveClientOwnProfile()">Save Changes</button>
         </div>
 
@@ -1675,9 +1676,6 @@ select.finp{cursor:pointer;}
           <div class="flabel">Limitations / Medical Notes</div>
           <textarea class="finp" id="prof-notes"></textarea>
           <button class="btn btn-primary btn-full" onclick="saveClientProfile()">Save Changes</button>
-          <div style="margin-top:10px;">
-            <button class="btn btn-secondary btn-full" onclick="openResetPasswordModal()">🔑 Reset Client Password</button>
-          </div>
         </div>
 
         <div class="form-block">
@@ -1770,9 +1768,10 @@ select.finp{cursor:pointer;}
   <div class="modal-sheet">
     <div class="modal-handle"></div>
     <div class="modal-title">Add Client</div>
+    <div style="font-size:13px;color:var(--text2);margin:-4px 0 14px;line-height:1.5;">Add them to your roster. They create their own login and password from your invite link.</div>
     <div class="fgrid-2">
-      <div><div class="flabel">First Name</div><input class="finp" id="ac-fname" placeholder="First"/></div>
-      <div><div class="flabel">Last Name</div><input class="finp" id="ac-lname" placeholder="Last"/></div>
+      <div><div class="flabel">First Name</div><input class="finp" id="ac-fname" placeholder="First" autocomplete="given-name"/></div>
+      <div><div class="flabel">Last Name</div><input class="finp" id="ac-lname" placeholder="Last" autocomplete="family-name"/></div>
     </div>
     <div class="flabel">Goal</div>
     <select class="finp" id="ac-goal">
@@ -1783,17 +1782,14 @@ select.finp{cursor:pointer;}
       <div><div class="flabel">Age</div><input class="finp" type="number" id="ac-age" placeholder="30"/></div>
       <div><div class="flabel">Sessions/week</div><input class="finp" type="number" id="ac-spw" placeholder="2"/></div>
     </div>
-    <div class="flabel">Login email</div>
+    <div class="flabel">Email</div>
     <input class="finp" id="ac-email" placeholder="client@email.com" autocomplete="email"/>
-    <div class="flabel">Username (optional)</div>
-    <input class="finp" id="ac-username" placeholder="e.g. sarah"/>
-    <div class="flabel">Login Password</div>
-    <input class="finp" type="password" id="ac-password" placeholder="At least 6 characters"/>
+    <div style="font-size:12px;color:var(--text3);margin:-6px 0 12px;line-height:1.4;">Used to match them when they sign up. They choose their own password.</div>
     <div class="flabel">Notes / Limitations</div>
     <textarea class="finp" id="ac-notes" placeholder="Medical conditions, restrictions..."></textarea>
     <div class="gap-8 mt-8">
-      <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-add-client')">Cancel</button>
-      <button class="btn btn-primary" style="flex:2" onclick="saveNewClient()">Add Client</button>
+      <button type="button" class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-add-client')">Cancel</button>
+      <button type="button" class="btn btn-primary" style="flex:2" onclick="saveNewClient()">Add Client</button>
     </div>
   </div>
 </div>
@@ -2254,24 +2250,6 @@ select.finp{cursor:pointer;}
   </div>
 </div>
 
-<!-- RESET CLIENT PASSWORD MODAL -->
-<div class="modal-overlay hidden" id="modal-reset-pw" onclick="modalOutsideClose(event,'modal-reset-pw')">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <div class="modal-title">Reset Client Password</div>
-    <div style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6;">Set a new password for <b id="reset-pw-client-name"></b>. Share the new password with them directly.</div>
-    <div class="flabel">New Password</div>
-    <input class="finp" type="password" id="reset-pw-new" placeholder="Enter new password"/>
-    <div class="flabel">Confirm Password</div>
-    <input class="finp" type="password" id="reset-pw-confirm" placeholder="Confirm new password"/>
-    <div id="reset-pw-err" style="display:none;font-size:12px;color:var(--red);margin-bottom:10px;"></div>
-    <div class="gap-8 mt-8">
-      <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-reset-pw')">Cancel</button>
-      <button class="btn btn-primary" style="flex:2" onclick="doResetClientPassword()">Set Password</button>
-    </div>
-  </div>
-</div>
-
 <!-- LOGIN FIX MODAL -->
 <div class="modal-overlay hidden" id="modal-login-fix" onclick="modalOutsideClose(event,'modal-login-fix')">
   <div class="modal-sheet">
@@ -2288,14 +2266,7 @@ select.finp{cursor:pointer;}
       <div class="divider"></div>
     </div>
     <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px;">Client account</div>
-    <div style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.6;">Reset a client's password if they're locked out.</div>
-    <div class="flabel">Client Username</div>
-    <input class="finp" id="fix-client-user" placeholder="Client username"/>
-    <div class="flabel">New Password</div>
-    <input class="finp" type="password" id="fix-client-pass" placeholder="New password"/>
-    <div id="fix-client-err" style="display:none;font-size:12px;color:var(--red);margin-bottom:8px;"></div>
-    <button class="btn btn-primary btn-full" onclick="fixClientLogin()">Reset Client Password</button>
-    <div style="margin-top:12px;font-size:11px;color:var(--text3);text-align:center;">Changes take effect immediately on next login.</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.6;">Clients reset their own password in My Profile after they sign in. Trainers cannot set or change a client password.</div>
     <div class="divider"></div>
     <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px;">Clear all saved data</div>
     <div style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.6;">Resets the app to demo data. Use this if things look broken after an update.</div>
@@ -3813,16 +3784,22 @@ function saveScheduledSession(){
   showToast('Session scheduled ✓');
 }
 
+function openAddClientModal(){
+  ['ac-fname','ac-lname','ac-email','ac-notes','ac-age','ac-spw'].forEach(function(id){
+    const el=document.getElementById(id);
+    if(el) el.value='';
+  });
+  const goal=document.getElementById('ac-goal');
+  if(goal) goal.selectedIndex=0;
+  openModal('modal-add-client');
+}
+
 async function saveNewClient(){
   const fname=document.getElementById('ac-fname').value.trim();
   const lname=document.getElementById('ac-lname').value.trim();
   const email=toAuthEmail(document.getElementById('ac-email').value);
-  const username=document.getElementById('ac-username').value.trim();
-  const password=document.getElementById('ac-password').value;
-  const usernameLower=(username||(email?email.split('@')[0]:'')).toLowerCase();
-  if(!fname||!email||!password){showToast('Name, email & password required');return;}
-  if(password.length<6){showToast('Password must be at least 6 characters');return;}
-  if(DB.clients.find(c=>c.username===usernameLower||c.email===email)){showToast('That client login already exists');return;}
+  if(!fname||!email){showToast('Name and email required');return;}
+  if(DB.clients.find(c=>c.email===email)){showToast('That client email already exists');return;}
   const colors=['#d4f53c','#5ba4f5','#f5935b','#c46bff','#5bf5a4','#f55b5b'];
   const bg=['rgba(212,245,60,.15)','rgba(91,164,245,.15)','rgba(245,147,91,.15)','rgba(196,107,255,.15)','rgba(91,245,164,.15)','rgba(245,91,91,.15)'];
   const i=DB.clients.length%colors.length;
@@ -3830,9 +3807,7 @@ async function saveNewClient(){
   const initials=(fname[0]+(lname[0]||'')).toUpperCase();
   try{
     await invokeFn('create-client',{
-      username:usernameLower,
       email,
-      password,
       name,
       goal:document.getElementById('ac-goal').value,
       age:parseInt(document.getElementById('ac-age').value)||0,
@@ -3847,8 +3822,8 @@ async function saveNewClient(){
     renderClientGrid();
     renderTrainerStats();
     closeModal('modal-add-client');
-    ['ac-fname','ac-lname','ac-email','ac-username','ac-password','ac-notes'].forEach(id=>document.getElementById(id).value='');
-    showToast(`${name} added ✓`);
+    ['ac-fname','ac-lname','ac-email','ac-notes'].forEach(id=>document.getElementById(id).value='');
+    showToast(name+' added. Share your invite so they can create a login.');
   }catch(e){
     showToast(e.message||'Could not add client');
   }
@@ -4132,7 +4107,6 @@ function saveClientProfile(){
   c.age=parseInt(document.getElementById('prof-age').value)||c.age;
   c.sessionsPw=parseInt(document.getElementById('prof-sessions-pw').value)||c.sessionsPw;
   c.medNotes=document.getElementById('prof-notes').value;
-  // Password is NOT accessible by trainer — use Reset Password button instead
   c.initials=clientInitials(c);
   saveData(DB);
   document.getElementById('panel-client-name').textContent=clientName(c);
@@ -4140,41 +4114,9 @@ function saveClientProfile(){
   showToast('Profile saved ✓');
 }
 
-function openResetPasswordModal(){
-  const c=DB.clients.find(x=>x.id===activeClientPanel);
-  if(!c) return;
-  document.getElementById('reset-pw-client-name').textContent=clientName(c);
-  document.getElementById('reset-pw-new').value='';
-  document.getElementById('reset-pw-confirm').value='';
-  document.getElementById('reset-pw-err').style.display='none';
-  openModal('modal-reset-pw');
-}
-
-async function doResetClientPassword(){
-  const c=DB.clients.find(x=>x.id===activeClientPanel);
-  const np=document.getElementById('reset-pw-new').value;
-  const cp=document.getElementById('reset-pw-confirm').value;
-  const err=document.getElementById('reset-pw-err');
-  if(!np){err.textContent='Please enter a new password.';err.style.display='block';return;}
-  if(np!==cp){err.textContent='Passwords do not match.';err.style.display='block';return;}
-  if(np.length<6){err.textContent='Password must be at least 6 characters.';err.style.display='block';return;}
-  try{
-    await invokeFn('manage-client',{action:'reset',client_id:c.id,password:np});
-    closeModal('modal-reset-pw');
-    showToast(`Password reset for ${clientName(c)} ✓`);
-  }catch(e){
-    err.textContent=e.message||'Could not reset password.';
-    err.style.display='block';
-  }
-}
-
 function openLoginFix(){
-  // Pre-fill trainer username
   document.getElementById('fix-trainer-user').value=DB.trainer.username||'';
   document.getElementById('fix-trainer-pass').value='';
-  document.getElementById('fix-client-user').value='';
-  document.getElementById('fix-client-pass').value='';
-  document.getElementById('fix-client-err').style.display='none';
   openModal('modal-login-fix');
 }
 
@@ -4199,12 +4141,6 @@ async function fixTrainerLogin(){
   }catch(e){
     showToast(e.message||'Could not send reset email');
   }
-}
-
-function fixClientLogin(){
-  const err=document.getElementById('fix-client-err');
-  err.textContent='Sign in as the trainer, open the client, and use Reset Password.';
-  err.style.display='block';
 }
 
 // ── CLIENT SELF-EDIT FUNCTIONS ──────────────────────

@@ -356,7 +356,7 @@
           id: c.id,
           trainer_id: trainerId,
           name: c.name,
-          username: c.username,
+          username: c.username || null,
           email: c.email || toAuthEmail(c.username),
           goal: c.goal || null,
           age: c.age != null ? String(c.age) : null,
