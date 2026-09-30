@@ -51,14 +51,65 @@
     return map[(color || '').toLowerCase()] || 'rgba(0,230,118,.15)';
   }
 
+  function looksLikeLoginHandle(value, username) {
+    const t = String(value || '').trim();
+    if (!t) return true;
+    if (t.indexOf('@') !== -1) return true;
+    const u = String(username || '').trim().toLowerCase();
+    return !!(u && t.toLowerCase() === u);
+  }
+
+  function humanizeLoginHandle(value) {
+    const raw = String(value || '').trim();
+    if (!raw) return '';
+    const local = raw.indexOf('@') !== -1 ? raw.split('@')[0] : raw;
+    if (!/[._\-\s]/.test(local)) return '';
+    return local.split(/[._\-\s]+/).filter(Boolean).map(function (w) {
+      return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+    }).join(' ');
+  }
+
+  function personName(person, fallback) {
+    const p = person || {};
+    const name = String(p.name || '').trim();
+    const username = String(p.username || '').trim();
+    const email = String(p.email || '').trim();
+    if (name && !looksLikeLoginHandle(name, username)) return name;
+    const fromEmail = humanizeLoginHandle(email);
+    if (fromEmail) return fromEmail;
+    const fromUser = humanizeLoginHandle(username);
+    if (fromUser) return fromUser;
+    if (name) return name;
+    return fallback || 'Client';
+  }
+
+  function personFirstName(person, fallback) {
+    const full = personName(person, fallback || '');
+    if (!full) return fallback || 'there';
+    return full.split(/\s+/)[0];
+  }
+
+  function personInitials(person) {
+    const full = personName(person, '');
+    if (!full) return '?';
+    const parts = full.split(/\s+/).filter(Boolean);
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+
+  window.personName = personName;
+  window.personFirstName = personFirstName;
+  window.personInitials = personInitials;
+
   function mapClient(row, extras) {
     const color = row.color || '#00e676';
+    const display = personName(row, 'Client');
     return {
       id: row.id,
       username: row.username || '',
       password: '',
-      name: row.name || row.username || 'Client',
-      initials: row.initials || (row.name || '?').split(' ').map(function (n) { return n[0]; }).join('').toUpperCase().slice(0, 2),
+      name: display,
+      initials: row.initials && !looksLikeLoginHandle(row.initials, row.username) ? row.initials : personInitials({ name: display, username: row.username, email: row.email }),
       color: color,
       colorBg: row.color_bg || colorBgFor(color),
       goal: row.goal || '',
@@ -244,7 +295,7 @@
       id: trainerRow ? trainerRow.id : trainerId,
       username: trainerRow ? trainerRow.username : '',
       password: '',
-      name: trainerRow ? (trainerRow.name || trainerRow.username) : '',
+      name: trainerRow ? personName(trainerRow, 'Trainer') : '',
       email: trainerRow ? trainerRow.email : '',
       business_name: trainerRow ? trainerRow.business_name : '',
       credentials: trainerRow ? trainerRow.credentials : ''

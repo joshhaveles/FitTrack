@@ -1424,6 +1424,8 @@ select.finp{cursor:pointer;}
           <div class="form-block-title">👤 Personal Info</div>
           <div class="flabel">Full Name</div>
           <input class="finp" id="c-prof-name" placeholder="Your name"/>
+          <div class="flabel">Login username</div>
+          <input class="finp" id="c-prof-username" readonly autocomplete="username" style="opacity:.85;"/>
           <div class="flabel">Goal</div>
           <select class="finp" id="c-prof-goal">
             <option>Weight loss</option><option>Muscle gain</option><option>Endurance</option>
@@ -1659,6 +1661,8 @@ select.finp{cursor:pointer;}
           <div class="form-block-title">Client Info</div>
           <div class="flabel">Full Name</div>
           <input class="finp" id="prof-name"/>
+          <div class="flabel">Login username</div>
+          <input class="finp" id="prof-username" readonly autocomplete="username" style="opacity:.85;"/>
           <div class="flabel">Goal</div>
           <select class="finp" id="prof-goal">
             <option>Weight loss</option><option>Muscle gain</option><option>Endurance</option>
@@ -2727,6 +2731,29 @@ const STORE = {
   del(k){localStorage.removeItem('ft_'+k)}
 };
 
+function clientName(person, fallback){
+  if(typeof window.personName==='function') return window.personName(person, fallback||'Client');
+  return (person && person.name) || fallback || 'Client';
+}
+function clientFirstName(person, fallback){
+  if(typeof window.personFirstName==='function') return window.personFirstName(person, fallback||'there');
+  const n=clientName(person, fallback||'');
+  return n ? n.split(/\s+/)[0] : (fallback||'there');
+}
+function clientInitials(person){
+  if(typeof window.personInitials==='function') return window.personInitials(person);
+  return (person && person.initials) || '?';
+}
+function applyClientDisplayNames(d){
+  if(!d) return d;
+  if(d.trainer) d.trainer.name=clientName(d.trainer, d.trainer.name||'Trainer');
+  (d.clients||[]).forEach(function(c){
+    c.name=clientName(c, 'Client');
+    if(!c.initials) c.initials=clientInitials(c);
+  });
+  return d;
+}
+
 function loadData(){
   let d = STORE.get('data_v2');
   if(!d) d = (typeof emptyCloudData==='function') ? emptyCloudData() : {trainer:{username:'',name:'FitTrack'},clients:[],schedule:[]};
@@ -2747,6 +2774,7 @@ function loadData(){
     if(!c.history) c.history=[];
     if(!c.bodyComp) c.bodyComp=[];
   });
+  applyClientDisplayNames(d);
   return d;
 }
 function saveData(d, skipCloud){
@@ -3146,11 +3174,11 @@ function initTrainer(){
   const now = new Date();
   const hours = now.getHours();
   const greeting = hours<12?'Good morning':hours<17?'Good afternoon':'Good evening';
-  document.getElementById('t-greeting').textContent = `${greeting}, ${DB.trainer.name.split(' ')[0]} 👋`;
+  document.getElementById('t-greeting').textContent = `${greeting}, ${clientFirstName(DB.trainer)} 👋`;
   const tAv=document.getElementById('trainer-avatar');
-  if(tAv) tAv.textContent=DB.trainer.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+  if(tAv) tAv.textContent=clientInitials(DB.trainer);
   const tmn=document.getElementById('trainer-menu-name');
-  if(tmn) tmn.textContent=DB.trainer.name;
+  if(tmn) tmn.textContent=clientName(DB.trainer, 'Trainer');
   document.getElementById('t-date-sub').textContent = now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
   renderTrainerStats();
   renderTodaySessions();
@@ -3164,8 +3192,8 @@ function initTrainer(){
   // Populate desktop sidebar
   const tAsb=document.getElementById('trainer-avatar-sidebar');
   const tNsb=document.getElementById('trainer-name-sidebar');
-  if(tAsb) tAsb.textContent=DB.trainer.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
-  if(tNsb) tNsb.textContent=DB.trainer.name;
+  if(tAsb) tAsb.textContent=clientInitials(DB.trainer);
+  if(tNsb) tNsb.textContent=clientName(DB.trainer, 'Trainer');
   applyResponsiveLayout();
   initSidebarState();
   if(typeof pullMessages==='function'){
@@ -3237,7 +3265,7 @@ function renderTodaySessions(){
     return `<div class="session-card" onclick="openClientPanel('${c.id}')">
       <div class="session-dot" style="background:${c.color}"></div>
       <div class="session-info">
-        <div class="session-name">${c.name}</div>
+        <div class="session-name">${escapeHtml(clientName(c, 'Unknown'))}</div>
         <div class="session-meta">${s.type} · ${s.duration} min</div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
@@ -3301,7 +3329,7 @@ function renderDayView(){
         ${slotSessions.map(s=>{
           const c=DB.clients.find(x=>x.id===s.clientId)||{name:'Unknown',color:'#888',initials:'?',id:''};
           return `<div class="time-slot-event" style="border-left-color:${c.color}" onclick="openClientPanel('${c.id}')">
-            <div style="font-weight:700;font-size:13px;">${c.name}</div>
+            <div style="font-weight:700;font-size:13px;">${escapeHtml(clientName(c, 'Unknown'))}</div>
             <div style="font-size:11px;color:var(--text2);">${s.time} · ${s.type} · ${s.duration} min</div>
           </div>`;
         }).join('')}
@@ -3341,7 +3369,7 @@ function renderWeekView(){
         html+=`<div class="session-card${isToday?' ':' '}" onclick="openClientPanel('${c.id}')" style="${isToday?'border-color:rgba(212,245,60,0.2);':''}">
           <div class="session-dot" style="background:${c.color}"></div>
           <div class="session-info">
-            <div class="session-name">${c.name}</div>
+            <div class="session-name">${escapeHtml(clientName(c, 'Unknown'))}</div>
             <div class="session-meta">${s.type} · ${s.duration} min</div>
           </div>
           <div style="text-align:right;"><div class="session-time">${s.time}</div></div>
@@ -3415,8 +3443,8 @@ function renderClientGrid(){
   } else {
     grid.innerHTML = clients.map(c=>`
     <div class="client-tile" onclick="openClientPanel('${c.id}')">
-      <div class="ct-avatar" style="background:${c.colorBg};color:${c.color}">${c.initials}</div>
-      <div class="ct-name">${c.name}</div>
+      <div class="ct-avatar" style="background:${c.colorBg};color:${c.color}">${escapeHtml(clientInitials(c))}</div>
+      <div class="ct-name">${escapeHtml(clientName(c))}</div>
       <div class="ct-goal">${c.goal}</div>
       <div class="ct-stats">
         <div><div class="ct-stat-v" style="color:${c.color}">${c.sessions}</div><div class="ct-stat-l">Sessions</div></div>
@@ -3426,7 +3454,7 @@ function renderClientGrid(){
     </div>
   `).join('');
   }
-  const opts = (DB.clients||[]).map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  const opts = (DB.clients||[]).map(c=>`<option value="${c.id}">${escapeHtml(clientName(c))}</option>`).join('');
   const ms=document.getElementById('ms-client');
   const logSel=document.getElementById('log-client-sel');
   if(ms) ms.innerHTML=opts;
@@ -3441,8 +3469,8 @@ function openClientPanel(clientId){
   const c = DB.clients.find(x=>x.id===clientId);
   if(!c) return;
   document.getElementById('panel-client-avatar').style.cssText=`background:${c.colorBg};color:${c.color};width:38px;height:38px;font-size:13px;`;
-  document.getElementById('panel-client-avatar').textContent=c.initials;
-  document.getElementById('panel-client-name').textContent=c.name;
+  document.getElementById('panel-client-avatar').textContent=clientInitials(c);
+  document.getElementById('panel-client-name').textContent=clientName(c);
   document.getElementById('panel-client-goal').textContent=`${c.goal} · ${c.sessions} sessions`;
   // Reset to notes tab
   document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',i===0));
@@ -3492,7 +3520,9 @@ function renderPanelAssigned(){
 
 function renderPanelProfile(){
   const c = DB.clients.find(x=>x.id===activeClientPanel);
-  document.getElementById('prof-name').value=c.name;
+  document.getElementById('prof-name').value=clientName(c);
+  const profUser=document.getElementById('prof-username');
+  if(profUser) profUser.value=c.username||'';
   document.getElementById('prof-age').value=c.age||'';
   document.getElementById('prof-sessions-pw').value=c.sessionsPw||'';
   document.getElementById('prof-notes').value=c.medNotes||'';
@@ -3753,7 +3783,7 @@ function saveBodyComp(){
   }
 
   if(compPBs.length>0){
-    setTimeout(()=>showPB(compPBs[0], c.name), 400);
+    setTimeout(()=>showPB(compPBs[0], clientName(c)), 400);
   } else {
     showToast('Measurements saved ✓');
   }
@@ -3928,9 +3958,9 @@ function renderAssignClientPicker(){
     const checked=assignSelectedClients.has(c.id);
     return '<div class="bulk-client-item" data-client-id="'+c.id+'" onclick="event.stopPropagation();toggleAssignClient(\''+c.id+'\')">'+
       '<div class="bulk-check'+(checked?' checked':'')+'">'+(checked?'✓':'')+'</div>'+
-      '<div class="avatar-sm" style="background:'+(c.colorBg||c.color+'22')+';color:'+c.color+';width:32px;height:32px;font-size:11px;">'+(c.initials||'?')+'</div>'+
+      '<div class="avatar-sm" style="background:'+(c.colorBg||c.color+'22')+';color:'+c.color+';width:32px;height:32px;font-size:11px;">'+escapeHtml(clientInitials(c))+'</div>'+
       '<div>'+
-        '<div style="font-size:13px;font-weight:600;">'+escapeHtml(c.name)+'</div>'+
+        '<div style="font-size:13px;font-weight:600;">'+escapeHtml(clientName(c))+'</div>'+
         '<div style="font-size:11px;color:var(--text3);">'+escapeHtml(c.goal||'Client')+'</div>'+
       '</div>'+
     '</div>';
@@ -4022,7 +4052,7 @@ function saveAssignedWorkout(){
       openClientPanel(firstClient.id);
       switchClientTab('assigned');
     }
-    showToast(count===1?'Workout assigned to '+firstClient.name+' ✓':'Assigned to '+count+' clients ✓');
+    showToast(count===1?'Workout assigned to '+clientName(firstClient)+' ✓':'Assigned to '+count+' clients ✓');
   }catch(err){
     console.error(err);
     fail(err.message||'Could not assign workout');
@@ -4097,15 +4127,15 @@ function saveSharedVideo(){
 
 function saveClientProfile(){
   const c=DB.clients.find(x=>x.id===activeClientPanel);
-  c.name=document.getElementById('prof-name').value.trim()||c.name;
+  c.name=document.getElementById('prof-name').value.trim()||clientName(c);
   c.goal=document.getElementById('prof-goal').value;
   c.age=parseInt(document.getElementById('prof-age').value)||c.age;
   c.sessionsPw=parseInt(document.getElementById('prof-sessions-pw').value)||c.sessionsPw;
   c.medNotes=document.getElementById('prof-notes').value;
   // Password is NOT accessible by trainer — use Reset Password button instead
-  c.initials=(c.name.split(' ').map(n=>n[0]).join('').toUpperCase()).slice(0,2);
+  c.initials=clientInitials(c);
   saveData(DB);
-  document.getElementById('panel-client-name').textContent=c.name;
+  document.getElementById('panel-client-name').textContent=clientName(c);
   renderClientGrid();
   showToast('Profile saved ✓');
 }
@@ -4113,7 +4143,7 @@ function saveClientProfile(){
 function openResetPasswordModal(){
   const c=DB.clients.find(x=>x.id===activeClientPanel);
   if(!c) return;
-  document.getElementById('reset-pw-client-name').textContent=c.name;
+  document.getElementById('reset-pw-client-name').textContent=clientName(c);
   document.getElementById('reset-pw-new').value='';
   document.getElementById('reset-pw-confirm').value='';
   document.getElementById('reset-pw-err').style.display='none';
@@ -4131,7 +4161,7 @@ async function doResetClientPassword(){
   try{
     await invokeFn('manage-client',{action:'reset',client_id:c.id,password:np});
     closeModal('modal-reset-pw');
-    showToast(`Password reset for ${c.name} ✓`);
+    showToast(`Password reset for ${clientName(c)} ✓`);
   }catch(e){
     err.textContent=e.message||'Could not reset password.';
     err.style.display='block';
@@ -4181,7 +4211,9 @@ function fixClientLogin(){
 function loadClientSettingsTab(){
   const c=DB.clients.find(x=>x.id===currentClientId);
   if(!c) return;
-  document.getElementById('c-prof-name').value=c.name||'';
+  document.getElementById('c-prof-name').value=clientName(c);
+  const cProfUser=document.getElementById('c-prof-username');
+  if(cProfUser) cProfUser.value=c.username||'';
   document.getElementById('c-prof-age').value=c.age||'';
   document.getElementById('c-prof-spw').value=c.sessionsPw||'';
   document.getElementById('c-prof-notes').value=c.medNotes||'';
@@ -4232,10 +4264,10 @@ function saveClientOwnProfile(){
       if(res.error) showToast(res.error.message);
     });
   }
-  c.initials=(c.name.split(' ').map(n=>n[0]).join('').toUpperCase()).slice(0,2);
+  c.initials=clientInitials(c);
   saveData(DB);
   // Refresh greeting
-  document.getElementById('c-hello-name').textContent=`${new Date().getHours()<12?'Good morning':'Good afternoon'}, ${c.name.split(' ')[0]} 👋`;
+  document.getElementById('c-hello-name').textContent=`${new Date().getHours()<12?'Good morning':'Good afternoon'}, ${clientFirstName(c)} 👋`;
   // Update avatar initials
   const av=document.getElementById('c-avatar');
   if(av) av.textContent=c.initials;
@@ -4871,9 +4903,9 @@ function saveSession(){
   if(pbs.length>0){
     // Show the most impressive PB (biggest absolute value)
     const best=pbs.sort((a,b)=>b.value-a.value)[0];
-    setTimeout(()=>showPB(best, c.name), 400);
+    setTimeout(()=>showPB(best, clientName(c)), 400);
   } else {
-    showToast(`Session logged for ${c.name} ✓`);
+    showToast(`Session logged for ${clientName(c)} ✓`);
   }
 }
 
@@ -4884,20 +4916,20 @@ function initClient(c){
   activeRole='client';
   clientUnit = c.prefUnit || 'kg'; // load saved preference
 
-  const initials=(c.name.split(' ').map(n=>n[0]).join('').toUpperCase()).slice(0,2);
+  const initials=clientInitials(c);
   const el=document.getElementById('c-avatar');
   el.textContent=initials;
   el.style.cssText=`background:${c.colorBg};color:${c.color};width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;cursor:pointer;`;
 
   const hrs=new Date().getHours();
   const g=hrs<12?'Good morning':'Good afternoon';
-  document.getElementById('c-hello-name').textContent=`${g}, ${c.name.split(' ')[0]} 👋`;
+  document.getElementById('c-hello-name').textContent=`${g}, ${clientFirstName(c)} 👋`;
   // Sync secondary avatar initials across all tabs
-  const initials2=c.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+  const initials2=initials;
   ['c-avatar2','c-avatar2b'].forEach(id=>{const el=document.getElementById(id);if(el){el.textContent=initials2;el.style.background=c.colorBg;el.style.color=c.color;}});
-  ['client-menu2-name'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=c.name;});
+  ['client-menu2-name'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=clientName(c);});
   const cmn=document.getElementById('client-menu-name');
-  if(cmn) cmn.textContent=c.name;
+  if(cmn) cmn.textContent=clientName(c);
   document.getElementById('c-hello-sub').textContent=`${c.goal} · ${c.sessions} sessions completed`;
 
   document.getElementById('c-stats').innerHTML=`
@@ -4912,7 +4944,7 @@ function initClient(c){
   const cAsb=document.getElementById('c-avatar-sidebar');
   const cNsb=document.getElementById('c-name-sidebar');
   if(cAsb){cAsb.textContent=initials;cAsb.style.cssText=`background:${c.colorBg};color:${c.color};width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;`;}
-  if(cNsb) cNsb.textContent=c.name;
+  if(cNsb) cNsb.textContent=clientName(c);
   applyResponsiveLayout();
   if(typeof pullMessages==='function'){
     pullMessages().then(function(){ updateNotifBadges(); });
@@ -5253,7 +5285,7 @@ function saveClientPerformance(){
   c.sessions=(c.sessions||0)+1;
   saveData(DB);
   closeModal('modal-log-perf');
-  addNotification('trainer','session',c.name+' logged a workout','Completed: '+(a?a.title:'self-logged')+' \u00b7 RPE '+rpe);
+  addNotification('trainer','session',clientName(c)+' logged a workout','Completed: '+(a?a.title:'self-logged')+' \u00b7 RPE '+rpe);
   const pbs=[];
   exercises.forEach(function(ex){
     const newW=parseFloat(ex.weight);
@@ -5269,8 +5301,8 @@ function saveClientPerformance(){
   if(statEl) statEl.textContent=c.sessions;
   if(pbs.length>0){
     const best=pbs.sort(function(a,b){return b.value-a.value;})[0];
-    addNotification('trainer','pb',c.name+' hit a Personal Best!','New PB on '+best.name+': '+best.value+best.unit);
-    setTimeout(function(){showPB(best,c.name);},400);
+    addNotification('trainer','pb',clientName(c)+' hit a Personal Best!','New PB on '+best.name+': '+best.value+best.unit);
+    setTimeout(function(){showPB(best,clientName(c));},400);
   } else {
     showToast('Workout logged \u2713');
   }
@@ -5367,7 +5399,7 @@ function generateInviteLink(){
 
 function shareInviteLink(){
   const link = generateInviteLink();
-  const trainerName = (DB.trainer && DB.trainer.name) ? DB.trainer.name : 'Your trainer';
+  const trainerName = clientName(DB.trainer, 'Your trainer');
   const subject = trainerName + ' invited you to FitTrack';
   const body = 'Hi,\n\n' + trainerName + ' invited you to train together on FitTrack.\n\nOpen this link to get started:\n' + link + '\n';
   const mailto = 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
@@ -5496,7 +5528,7 @@ function initPaymentsTab(){
   // Populate client select
   const sel = document.getElementById('inv-client');
   if(sel) sel.innerHTML = DB.clients.map(function(c){
-    return '<option value="'+c.id+'">'+c.name+'</option>';
+    return '<option value="'+c.id+'">'+escapeHtml(clientName(c))+'</option>';
   }).join('');
   // Show/hide dormant banner
   const banner = document.getElementById('pay-dormant-banner');
@@ -5549,7 +5581,7 @@ function renderInvoices(){
       '<div class="invoice-card-head">'+
         '<div>'+
           '<div class="invoice-amount">'+formatCurrency(inv.amount,inv.currency||'USD')+'</div>'+
-          '<div class="invoice-meta">'+c.name+' · '+inv.desc+'</div>'+
+          '<div class="invoice-meta">'+escapeHtml(clientName(c))+' · '+inv.desc+'</div>'+
         '</div>'+
         '<span class="invoice-status '+displayStatus+'">'+displayStatus.charAt(0).toUpperCase()+displayStatus.slice(1)+'</span>'+
       '</div>'+
@@ -5585,7 +5617,7 @@ function saveInvoice(action){
   if(!DB.invoices) DB.invoices=[];
   const serviceType=document.getElementById('inv-service-type')?document.getElementById('inv-service-type').value:'personal_training';
   const hsaEligible=document.getElementById('inv-hsa-eligible')?document.getElementById('inv-hsa-eligible').checked:false;
-  const businessName=document.getElementById('inv-business-name')?document.getElementById('inv-business-name').value:DB.trainer.name;
+  const businessName=document.getElementById('inv-business-name')?document.getElementById('inv-business-name').value:clientName(DB.trainer, 'Trainer');
   const credentials=document.getElementById('inv-credentials')?document.getElementById('inv-credentials').value:'';
   const inv = {
     id:'inv_'+Date.now(),
@@ -5631,7 +5663,7 @@ function openInvoiceDetail(invId){
   statusEl.textContent=displayStatus.charAt(0).toUpperCase()+displayStatus.slice(1);
   statusEl.className='invoice-status '+displayStatus;
   document.getElementById('inv-detail-due').textContent=inv.dueDate?'Due '+formatDate(inv.dueDate):'No due date set';
-  document.getElementById('inv-detail-client').textContent=c.name;
+  document.getElementById('inv-detail-client').textContent=clientName(c);
   document.getElementById('inv-detail-desc').textContent=inv.desc;
   const notesWrap=document.getElementById('inv-detail-notes-wrap');
   notesWrap.style.display=inv.notes?'block':'none';
@@ -5640,7 +5672,7 @@ function openInvoiceDetail(invId){
   const actions=document.getElementById('inv-detail-actions');
   let btns='';
   if(inv.status==='draft'){
-    btns+='<button class="btn btn-primary btn-full" onclick="sendInvoiceFromDetail(\''+invId+'\')">Send to '+c.name+'</button>';
+    btns+='<button class="btn btn-primary btn-full" onclick="sendInvoiceFromDetail(\''+invId+'\')">Send to '+escapeHtml(clientName(c))+'</button>';
   }
   if(inv.status!=='paid'){
     btns+='<button class="btn btn-secondary btn-full" onclick="markInvoicePaid(\''+invId+'\')">Mark as paid</button>';
@@ -5717,7 +5749,7 @@ function previewMedicalInvoice(){
   const dueDate=document.getElementById('inv-due').value;
   const serviceType=document.getElementById('inv-service-type').value;
   const hsaEligible=document.getElementById('inv-hsa-eligible').checked;
-  const businessName=document.getElementById('inv-business-name').value||DB.trainer.name;
+  const businessName=document.getElementById('inv-business-name').value||clientName(DB.trainer, 'Trainer');
   const credentials=document.getElementById('inv-credentials').value;
   const c=DB.clients.find(function(x){return x.id===clientId;})||{name:'Client',age:'',goal:''};
   renderMedicalInvoice({clientId,desc,amount,currency,dueDate,serviceType,hsaEligible,businessName,credentials,client:c});
@@ -5732,7 +5764,7 @@ function openMedicalInvoiceFromDetail(){
     clientId:inv.clientId,desc:inv.desc,amount:inv.amount,currency:inv.currency||'USD',
     dueDate:inv.dueDate,serviceType:inv.serviceType||'personal_training',
     hsaEligible:inv.hsaEligible||false,
-    businessName:inv.businessName||DB.trainer.name,
+    businessName:inv.businessName||clientName(DB.trainer, 'Trainer'),
     credentials:inv.credentials||'',client:c,
     invoiceNum:inv.id.slice(-6).toUpperCase(),paidAt:inv.paidAt
   });
@@ -5767,7 +5799,7 @@ function renderMedicalInvoice(data){
       '</div>'+
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;">'+
         '<div><div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Billed to</div>'+
-          '<div style="font-weight:700;font-size:14px;">'+data.client.name+'</div>'+
+          '<div style="font-weight:700;font-size:14px;">'+escapeHtml(clientName(data.client))+'</div>'+
           (data.client.age?'<div style="font-size:12px;color:#6b7280;">Age: '+data.client.age+'</div>':'')+
         '</div>'+
         '<div><div style="font-size:10px;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Provider</div>'+
@@ -6597,7 +6629,7 @@ function startVideoCall(provider){
   const links={
     zoom:'https://zoom.us/start/videomeeting',
     teams:'https://teams.microsoft.com/l/meeting/new',
-    facetime:'facetime://'+(c?c.username+'@fittrack.app':''),
+    facetime:'facetime://'+(c?(c.email||c.username):''),
     meet:'https://meet.google.com/new'
   };
   const url=links[provider]||links.zoom;
@@ -6670,7 +6702,7 @@ function saveClientVO2(){
   photoInput.value='';
   delete photoInput.dataset.base64;
   // Notify trainer
-  addNotification('trainer','session',c.name+' logged VO2max',
+  addNotification('trainer','session',clientName(c)+' logged VO2max',
     'VO2max: '+val+' ml/kg/min');
   renderClientVO2Display(c);
   showToast('VO2max saved ✓');
@@ -6851,7 +6883,7 @@ function initAITab(){
   const sel = document.getElementById('ai-client-ctx');
   if(sel){
     sel.innerHTML = '<option value="">General (no client)</option>' +
-      DB.clients.map(c => '<option value="'+c.id+'">'+c.name+'</option>').join('');
+      DB.clients.map(c => '<option value="'+c.id+'">'+escapeHtml(clientName(c))+'</option>').join('');
   }
   // Show live or dormant based on activation
   const dormant = document.getElementById('ai-dormant');
@@ -6895,7 +6927,7 @@ function updateAIContext(){
   const c = aiClientContext ? DB.clients.find(x => x.id === aiClientContext) : null;
   if(c){
     appendAIMessage('assistant',
-      'Got it — I now have context for **'+c.name+'**. '+
+      'Got it — I now have context for **'+clientName(c)+'**. '+
       'Goal: '+c.goal+'. '+
       (c.sessions ? c.sessions+' sessions logged. ' : '')+
       (c.medNotes && c.medNotes !== 'No known issues' ? 'Note: '+c.medNotes+'. ' : '')+
@@ -6914,7 +6946,7 @@ function buildSystemPrompt(){
     "The trainer reviews and approves everything before it reaches clients.";
   if(c){
     sys += "\n\nCURRENT CLIENT CONTEXT:";
-    sys += "\nName: "+c.name;
+    sys += "\nName: "+clientName(c);
     sys += "\nGoal: "+c.goal;
     sys += "\nAge: "+(c.age||'unknown');
     sys += "\nSessions per week target: "+(c.sessionsPw||'unknown');
@@ -6940,19 +6972,19 @@ const AI_QUICK_PROMPTS = {
   generate: function(){
     const c = aiClientContext ? DB.clients.find(x => x.id === aiClientContext) : null;
     return c
-      ? 'Generate a full week of training sessions for '+c.name+'. Their goal is '+c.goal+'. Include exercise names, sets, reps, rest periods, and brief coaching cues for each.'
+      ? 'Generate a full week of training sessions for '+clientName(c)+'. Their goal is '+c.goal+'. Include exercise names, sets, reps, rest periods, and brief coaching cues for each.'
       : 'Generate a 4-day strength training program for a client whose goal is muscle gain. Include exercise names, sets, reps, rest periods, and RPE targets.';
   },
   progress: function(){
     const c = aiClientContext ? DB.clients.find(x => x.id === aiClientContext) : null;
     if(!c) return 'How do I analyse and present client progress effectively?';
     const sessions = (c.history||[]).length;
-    return 'Summarise '+c.name+"'s progress based on their "+sessions+' logged sessions. What trends should I focus on in our next session?';
+    return 'Summarise '+clientName(c)+"'s progress based on their "+sessions+' logged sessions. What trends should I focus on in our next session?';
   },
   nutrition: function(){
     const c = aiClientContext ? DB.clients.find(x => x.id === aiClientContext) : null;
     return c
-      ? 'What are the ideal daily macro targets for '+c.name+' whose goal is '+c.goal+'? Also suggest meal timing around training sessions.'
+      ? 'What are the ideal daily macro targets for '+clientName(c)+' whose goal is '+c.goal+'? Also suggest meal timing around training sessions.'
       : 'What are general macro guidelines for someone focused on muscle gain who trains 4 times per week?';
   },
   substitute: function(){
@@ -6961,13 +6993,13 @@ const AI_QUICK_PROMPTS = {
   note: function(){
     const c = aiClientContext ? DB.clients.find(x => x.id === aiClientContext) : null;
     return c
-      ? 'Help me write a professional session note for '+c.name+". They completed their session today. The energy was good, they hit a small PB on bench press, but mentioned some lower back tightness during deadlifts."
+      ? 'Help me write a professional session note for '+clientName(c)+". They completed their session today. The energy was good, they hit a small PB on bench press, but mentioned some lower back tightness during deadlifts."
       : 'Help me write a professional session note template I can use for my clients.';
   },
   deload: function(){
     const c = aiClientContext ? DB.clients.find(x => x.id === aiClientContext) : null;
     return c
-      ? 'Design a deload week for '+c.name+' who trains '+( c.sessionsPw||3)+' days per week. Their goal is '+c.goal+'.'
+      ? 'Design a deload week for '+clientName(c)+' who trains '+( c.sessionsPw||3)+' days per week. Their goal is '+c.goal+'.'
       : 'Design a deload week protocol for a client who has been training hard for 8 weeks.';
   }
 };
@@ -6982,7 +7014,7 @@ function aiQuickPrompt(type){
 function appendAIMessage(role, text){
   const msgs = document.getElementById('ai-messages');
   if(!msgs) return;
-  const trainerInitials = DB.trainer.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+  const trainerInitials = clientInitials(DB.trainer);
   const div = document.createElement('div');
   div.className = 'ai-msg '+role;
   // Simple markdown: bold, newlines, bullet points
@@ -7179,7 +7211,7 @@ function exportCalendarICS(){
     lines.push('UID:'+s.id+'@fittrackpro');
     lines.push('DTSTART:'+dtStart);
     lines.push('DTEND:'+dtEnd);
-    lines.push('SUMMARY:'+c.name+' \u2013 '+s.type);
+    lines.push('SUMMARY:'+clientName(c, 'Unknown')+' \u2013 '+s.type);
     if(s.notes) lines.push('DESCRIPTION:'+s.notes.replace(/\n/g,'\\n'));
     lines.push('END:VEVENT');
   });
@@ -7381,9 +7413,9 @@ function renderBulkClientList(){
     const checked=bulkSelectedClients.has(c.id);
     return '<div class="bulk-client-item" onclick="toggleBulkClient(\''+c.id+'\')">'+
       '<div class="bulk-check'+(checked?' checked':'')+'">'+( checked?'✓':'')+'</div>'+
-      '<div class="avatar-sm" style="background:'+c.colorBg+';color:'+c.color+';width:32px;height:32px;font-size:11px;">'+c.initials+'</div>'+
+      '<div class="avatar-sm" style="background:'+c.colorBg+';color:'+c.color+';width:32px;height:32px;font-size:11px;">'+escapeHtml(clientInitials(c))+'</div>'+
       '<div>'+
-        '<div style="font-size:13px;font-weight:600;">'+c.name+'</div>'+
+        '<div style="font-size:13px;font-weight:600;">'+escapeHtml(clientName(c))+'</div>'+
         '<div style="font-size:11px;color:var(--text3);">'+c.goal+'</div>'+
       '</div>'+
     '</div>';
@@ -7640,7 +7672,7 @@ function renderMessages(clientId,myRole,feed){
   const msgs=getMessages(clientId);
   const c=DB.clients.find(x=>x.id===clientId);
   if(!c) return;
-  const trainerInitials=DB.trainer.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+  const trainerInitials=clientInitials(DB.trainer);
   if(!msgs.length){
     feed.innerHTML='<div class="empty-state"><div class="empty-icon">💬</div><div class="empty-msg">No messages yet. Say hello!</div></div>';
     return;
@@ -7652,7 +7684,7 @@ function renderMessages(clientId,myRole,feed){
     if(d!==lastDate){html+=`<div class="msg-day-divider">${d}</div>`;lastDate=d;}
     const mine=m.sender===myRole;
     const color=mine?(myRole==='trainer'?'var(--lime)':c.color):(myRole==='trainer'?c.color:'var(--lime)');
-    const initials=mine?(myRole==='trainer'?trainerInitials:c.initials):(myRole==='trainer'?c.initials:trainerInitials);
+    const initials=mine?(myRole==='trainer'?trainerInitials:clientInitials(c)):(myRole==='trainer'?clientInitials(c):trainerInitials);
     const time=new Date(m.ts).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
     html+=`<div class="msg-item${mine?' mine':''}">
       <div class="msg-avatar" style="background:${color}22;color:${color};">${initials}</div>
@@ -7700,10 +7732,10 @@ function renderTrainerChatList(){
       const preview=(last.sender==='trainer'?'You: ':'')+last.text;
       const active=c.id===activeTrainerChatId?' active':'';
       html+=`<div class="msg-row${unread?' unread':''}${active}" onclick="openTrainerChat('${c.id}')">
-        <div class="msg-avatar" style="background:${c.colorBg||c.color+'22'};color:${c.color};">${c.initials||'?'}</div>
+        <div class="msg-avatar" style="background:${c.colorBg||c.color+'22'};color:${c.color};">${escapeHtml(clientInitials(c))}</div>
         <div class="msg-row-body">
           <div class="msg-row-top">
-            <div class="msg-row-name">${escapeHtml(c.name)}</div>
+            <div class="msg-row-name">${escapeHtml(clientName(c))}</div>
             <div class="msg-row-time">${timeAgo(last.ts)}</div>
           </div>
           <div class="msg-row-preview">${escapeHtml(preview)}</div>
@@ -7747,9 +7779,9 @@ function renderNewChatPickerList(){
   wrap.innerHTML=matches.map(function(c){
     const ongoing=getMessages(c.id).length>0;
     return `<div class="msg-row" onclick="startTrainerChatFromPicker('${c.id}')">
-      <div class="msg-avatar" style="background:${c.colorBg||c.color+'22'};color:${c.color};">${c.initials||'?'}</div>
+      <div class="msg-avatar" style="background:${c.colorBg||c.color+'22'};color:${c.color};">${escapeHtml(clientInitials(c))}</div>
       <div class="msg-row-body">
-        <div class="msg-row-name">${escapeHtml(c.name)}</div>
+        <div class="msg-row-name">${escapeHtml(clientName(c))}</div>
         <div class="msg-row-preview">${ongoing?'Continue conversation':'Start a new conversation'}</div>
       </div>
     </div>`;
@@ -7779,10 +7811,10 @@ function openTrainerChat(clientId,keepList){
   else if(list) list.classList.remove('hidden-mobile');
   const nameEl=document.getElementById('t-msg-thread-name');
   const subEl=document.getElementById('t-msg-thread-sub');
-  if(nameEl) nameEl.textContent=c.name;
+  if(nameEl) nameEl.textContent=clientName(c);
   if(subEl) subEl.textContent=c.goal||'Client';
   const inp=document.getElementById('t-msg-input');
-  if(inp) inp.placeholder='Message '+c.name+'...';
+  if(inp) inp.placeholder='Message '+clientName(c)+'...';
   renderTrainerChatList();
   renderTrainerMessages();
 }
@@ -7839,7 +7871,7 @@ async function renderClientMessages(refresh){
   if(!c) return;
   const feed=document.getElementById('c-msg-feed');
   const tnl=document.getElementById('c-msg-trainer-name');
-  if(tnl) tnl.textContent=DB.trainer.name||'Your trainer';
+  if(tnl) tnl.textContent=clientName(DB.trainer, 'Your trainer');
   renderMessages(currentClientId,'client',feed);
   markChatRead(currentClientId);
 }
@@ -7853,7 +7885,7 @@ function sendClientMessage(){
   markChatRead(currentClientId);
   renderClientMessages(false);
   const c=DB.clients.find(x=>x.id===currentClientId);
-  if(c) addNotification('trainer','message',`New message from ${c.name}`,text.slice(0,60)+(text.length>60?'...':''));
+  if(c) addNotification('trainer','message',`New message from ${clientName(c)}`,text.slice(0,60)+(text.length>60?'...':''));
 }
 
 // ── MORE MENU ──────────────────────────────────────────
