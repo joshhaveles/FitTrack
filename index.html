@@ -673,7 +673,17 @@ select.finp{cursor:pointer;}
 .perf-log-date{font-family:"DM Mono",monospace;font-size:10px;color:var(--text3);margin-bottom:4px;}
 .perf-log-meta{font-size:12px;color:var(--text2);}
 .perf-ex-input-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:6px;margin-bottom:6px;}
-.perf-ex-input-row .finp{margin-bottom:0;padding:7px 9px;font-size:12px;}
+.perf-ex-input-row .finp{margin-bottom:0;padding:7px 9px;font-size:16px;}
+.perf-ex-card{border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px;background:var(--bg3);}
+.perf-ex-card .finp{margin-bottom:8px;font-size:16px;}
+.perf-ex-assigned{font-size:12px;color:var(--text3);margin:0 0 10px;}
+.perf-ex-assigned b{color:var(--text2);font-family:'DM Mono',monospace;font-weight:600;}
+.perf-ex-done-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.perf-ex-done-grid .finp{margin-bottom:0;text-align:center;font-size:16px;}
+.perf-ex-hint{font-size:12px;color:var(--text3);margin:0 0 10px;line-height:1.4;}
+#modal-log-perf .modal-sheet{display:flex;flex-direction:column;max-height:min(92dvh,92vh);overflow:hidden;padding-bottom:0;}
+#modal-log-perf .log-perf-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:8px;}
+#modal-log-perf .log-perf-actions{flex-shrink:0;display:flex;gap:8px;padding:12px 0 max(16px,env(safe-area-inset-bottom));background:var(--bg2);border-top:1px solid var(--border);}
 
 /* ── NOTIFICATION BADGE ── */
 .notif-badge{position:absolute;top:-3px;right:-3px;background:var(--red);color:#fff;font-size:9px;font-weight:800;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;pointer-events:none;line-height:1;}
@@ -2318,18 +2328,17 @@ select.finp{cursor:pointer;}
 
 <!-- LOG PERFORMANCE MODAL -->
 <div class="modal-overlay hidden" id="modal-log-perf" onclick="modalOutsideClose(event,'modal-log-perf')">
-  <div class="modal-sheet">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
     <div class="modal-title" id="log-perf-title">Log Performance</div>
+    <div class="log-perf-body">
     <div style="font-size:12px;color:var(--text2);margin-bottom:14px;" id="log-perf-desc"></div>
+    <div class="perf-ex-hint" id="log-perf-hint" style="display:none;"></div>
 
     <div class="flabel">Date completed</div>
-    <input class="finp" type="date" id="log-perf-date" style="margin-bottom:14px;"/>
+    <input class="finp" type="date" id="log-perf-date" style="margin-bottom:14px;font-size:16px;"/>
 
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-      <div class="flabel" style="margin-bottom:0;">Exercises completed</div>
-    </div>
-    <div class="ex-row-hdr" style="grid-template-columns:2fr 1fr 1fr 1fr;"><span>Exercise</span><span>Sets</span><span>Reps</span><span id="log-perf-wt-hdr">Wt.</span></div>
+    <div class="flabel">Exercises</div>
     <div id="log-perf-ex-rows"></div>
 
     <div class="flabel" style="margin-top:10px;">How did it feel? (RPE 1–10)</div>
@@ -2339,11 +2348,11 @@ select.finp{cursor:pointer;}
     </div>
 
     <div class="flabel">Notes</div>
-    <textarea class="finp" id="log-perf-notes" placeholder="How it went, what felt good or tough..."></textarea>
-
-    <div class="gap-8 mt-8">
-      <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-log-perf')">Cancel</button>
-      <button class="btn btn-primary" style="flex:2" id="log-perf-save-btn" onclick="saveClientPerformance()">Save Log</button>
+    <textarea class="finp" id="log-perf-notes" placeholder="How it went, what felt good or tough..." style="font-size:16px;"></textarea>
+    </div>
+    <div class="log-perf-actions">
+      <button type="button" class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-log-perf')">Cancel</button>
+      <button type="button" class="btn btn-primary" style="flex:2" id="log-perf-save-btn" onclick="saveClientPerformance()">Save Log</button>
     </div>
   </div>
 </div>
@@ -4602,12 +4611,69 @@ function exBlockFields(block){
   return {nameInp:nameInp, extras:extras, rpeInp:rpeInp};
 }
 
+function asExerciseList(raw){
+  if(!raw) return [];
+  if(Array.isArray(raw)) return raw.filter(Boolean);
+  if(typeof raw==='string'){
+    try{ return asExerciseList(JSON.parse(raw)); }catch(err){ return []; }
+  }
+  if(typeof raw==='object'){
+    return Object.keys(raw).sort().map(function(k){ return raw[k]; }).filter(Boolean);
+  }
+  return [];
+}
+
+function isoDateOnly(d){
+  if(!d) return new Date().toISOString().split('T')[0];
+  const s=String(d);
+  if(/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0,10);
+  const parsed=new Date(s);
+  if(!isNaN(parsed.getTime())) return parsed.toISOString().split('T')[0];
+  return new Date().toISOString().split('T')[0];
+}
+
+function findHistoryEntry(c, sessionId){
+  const id=String(sessionId||'');
+  return (c.history||[]).find(function(x){ return String(x.id||'')===id; })||null;
+}
+
+function dashToEmpty(v){
+  if(v==null||v===''||v==='-') return '';
+  return String(v);
+}
+
+function makePerfField(cls, placeholder, value, opts){
+  opts=opts||{};
+  const inp=document.createElement('input');
+  inp.className='finp '+(cls||'');
+  inp.placeholder=placeholder||'';
+  inp.autocomplete='off';
+  inp.inputMode=opts.inputMode||'text';
+  if(opts.type) inp.type=opts.type;
+  inp.value=dashToEmpty(value);
+  return inp;
+}
+
 function readExBlock(block, unit){
+  const nameInp=block.querySelector('.perf-ex-name')||block.querySelector('.perf-ex-input-row input')||(exBlockFields(block).nameInp);
+  const name=(nameInp&&nameInp.value.trim())||'';
+  if(!name) return null;
+  const setsInp=block.querySelector('.perf-ex-sets');
+  const repsInp=block.querySelector('.perf-ex-reps');
+  const wtInp=block.querySelector('.perf-ex-weight');
+  const rpeInp=block.querySelector('.ex-rpe-slider');
+  if(setsInp||repsInp||wtInp){
+    return {
+      name:name,
+      sets:(setsInp&&setsInp.value)||'-',
+      reps:(repsInp&&repsInp.value)||'-',
+      weight:(wtInp&&wtInp.value)||'-',
+      unit:unit||trainerUnit,
+      rpe:rpeInp?parseInt(rpeInp.value,10):null
+    };
+  }
   const perf=block.querySelectorAll('.perf-ex-input-row input');
   if(perf.length){
-    const name=(perf[0]&&perf[0].value.trim())||'';
-    if(!name) return null;
-    const rpeInp=block.querySelector('.ex-rpe-slider');
     return {
       name:name,
       sets:(perf[1]&&perf[1].value)||'-',
@@ -4618,8 +4684,6 @@ function readExBlock(block, unit){
     };
   }
   const f=exBlockFields(block);
-  const name=(f.nameInp&&f.nameInp.value.trim())||'';
-  if(!name) return null;
   return {
     name:name,
     sets:(f.extras[0]&&f.extras[0].value)||'-',
@@ -4695,8 +4759,8 @@ function sessionHistoryCardHTML(h, viewerUnit, client){
     body+
     (h.notes?'<div style="padding:8px 14px 10px;font-size:12px;color:var(--text2);border-top:1px solid var(--border);">'+escapeHtml(h.notes)+'</div>':'')+
     '<div class="card-actions">'+
-      '<button type="button" class="btn btn-secondary btn-sm" onclick="editSession(\''+escapeHtml(h.id||'')+'\',\''+escapeHtml(client&&client.id||'')+'\',event)">Edit</button>'+
-      '<button type="button" class="btn btn-danger btn-sm" onclick="deleteSession(\''+escapeHtml(h.id||'')+'\',\''+escapeHtml(client&&client.id||'')+'\',event)">Delete</button>'+
+      '<button type="button" class="btn btn-secondary btn-sm" data-sid="'+escapeHtml(h.id||'')+'" data-cid="'+escapeHtml(client&&client.id||'')+'" onclick="editSession(this.dataset.sid,this.dataset.cid,event)">Edit</button>'+
+      '<button type="button" class="btn btn-danger btn-sm" data-sid="'+escapeHtml(h.id||'')+'" data-cid="'+escapeHtml(client&&client.id||'')+'" onclick="deleteSession(this.dataset.sid,this.dataset.cid,event)">Delete</button>'+
     '</div>'+
   '</div>';
 }
@@ -4980,54 +5044,116 @@ function openLogPerfModal(assignedId, e, sessionId, clientId){
   if(!c) return;
   const viewerUnit=activeRole==='client'?clientUnit:trainerUnit;
   const modal=document.getElementById('modal-log-perf');
-  const h=sessionId?(c.history||[]).find(function(x){return x.id===sessionId;}):null;
+  const h=sessionId?findHistoryEntry(c, sessionId):null;
   const programId=(h&&h.assignedId)||assignedId||'';
-  const a=(c.assigned||[]).find(function(x){return x.id===programId;});
-  modal.dataset.assignedId=programId;
-  modal.dataset.sessionId=sessionId||'';
+  const a=(c.assigned||[]).find(function(x){return x.id===programId;})||assignedWorkoutForHistory(h, c);
+  modal.dataset.assignedId=(a&&a.id)||programId||'';
+  modal.dataset.sessionId=(h&&h.id)||'';
   modal.dataset.clientId=cid;
-  document.getElementById('log-perf-wt-hdr').textContent=viewerUnit;
   const saveBtn=document.getElementById('log-perf-save-btn');
+  const hint=document.getElementById('log-perf-hint');
+  const dateEl=document.getElementById('log-perf-date');
+  const notesEl=document.getElementById('log-perf-notes');
+  const rpeEl=document.getElementById('log-perf-rpe');
+  const rpeVal=document.getElementById('log-perf-rpe-val');
   if(h){
     document.getElementById('log-perf-title').textContent='Edit session';
-    document.getElementById('log-perf-desc').textContent=h.type||'';
-    document.getElementById('log-perf-date').value=h.date||new Date().toISOString().split('T')[0];
-    document.getElementById('log-perf-rpe').value=h.rpe||7;
-    document.getElementById('log-perf-rpe-val').textContent=String(h.rpe||7);
-    document.getElementById('log-perf-notes').value=h.notes||'';
+    document.getElementById('log-perf-desc').textContent=(h.type||'')+(h.rpe!=null?' · session RPE '+h.rpe:'');
+    dateEl.value=isoDateOnly(h.date);
+    rpeEl.value=h.rpe||7;
+    rpeVal.textContent=String(h.rpe||7);
+    notesEl.value=h.notes||'';
     if(saveBtn) saveBtn.textContent='Save changes';
-    const exes=(h.exercises&&h.exercises.length)?h.exercises:((a&&a.exercises)||[]);
-    fillPerfExRows(exes, viewerUnit);
+    const logged=asExerciseList(h.exercises);
+    const missing=!logged.some(hasDoneLoad);
+    if(hint){
+      hint.style.display=missing?'block':'none';
+      hint.textContent=missing?'This log did not keep the numbers you entered. Assigned targets are shown below — fill in what you actually did, then save.':'';
+    }
+    fillPerfExRows(buildPerfRowModels(h, a, false), viewerUnit);
   } else {
     if(!a) return;
     document.getElementById('log-perf-title').textContent='Log: '+a.title;
     document.getElementById('log-perf-desc').textContent=a.desc||'';
-    document.getElementById('log-perf-date').value=new Date().toISOString().split('T')[0];
-    document.getElementById('log-perf-rpe').value=7;
-    document.getElementById('log-perf-rpe-val').textContent='7';
-    document.getElementById('log-perf-notes').value='';
+    dateEl.value=isoDateOnly(null);
+    rpeEl.value=7;
+    rpeVal.textContent='7';
+    notesEl.value='';
     if(saveBtn) saveBtn.textContent='Save Log';
-    fillPerfExRows(a.exercises, viewerUnit);
+    if(hint) hint.style.display='none';
+    fillPerfExRows(buildPerfRowModels({exercises:[]}, a, true), viewerUnit);
   }
   openModal('modal-log-perf');
+}
+
+function hasDoneLoad(ex){
+  return !!(dashToEmpty(ex&&ex.sets)||dashToEmpty(ex&&ex.reps)||dashToEmpty(ex&&ex.weight));
+}
+
+function buildPerfRowModels(h, program, prefillAssignedIntoDone){
+  const done=asExerciseList(h&&h.exercises);
+  const plan=asExerciseList(program&&program.exercises);
+  const n=Math.max(done.length, plan.length);
+  const out=[];
+  const count=n||1;
+  for(let i=0;i<count;i++){
+    const d=done[i]||{};
+    const p=plan[i]||d.prescribed||null;
+    const useDone=hasDoneLoad(d);
+    out.push({
+      name:d.name||(p&&p.name)||'',
+      sets:useDone?d.sets:(prefillAssignedIntoDone&&p?p.sets:''),
+      reps:useDone?d.reps:(prefillAssignedIntoDone&&p?p.reps:''),
+      weight:useDone?d.weight:(prefillAssignedIntoDone&&p?p.weight:''),
+      unit:d.unit||(p&&p.unit),
+      rpe:d.rpe,
+      prescribed:d.prescribed||p||null
+    });
+  }
+  return out;
 }
 
 function fillPerfExRows(exList, viewerUnit){
   const rows=document.getElementById('log-perf-ex-rows');
   rows.innerHTML='';
-  const list=(exList&&exList.length)?exList:[{name:'',sets:'',reps:'',weight:'',unit:viewerUnit}];
-  list.forEach(function(ex){
-    const row=document.createElement('div');
-    row.className='perf-ex-input-row';
-    row.innerHTML=
-      '<input class="finp" value="'+(ex.name||'')+'" placeholder="Exercise" style="padding:7px 9px;font-size:12px;"/>'+
-      '<input class="finp" value="'+(ex.sets&&ex.sets!=='-'?ex.sets:'')+'" placeholder="3" type="number" style="padding:7px 9px;font-size:12px;text-align:center;"/>'+
-      '<input class="finp" value="'+(ex.reps&&ex.reps!=='-'?ex.reps:'')+'" placeholder="10" style="padding:7px 9px;font-size:12px;text-align:center;"/>'+
-      '<input class="finp" value="'+(ex.weight&&ex.weight!=='-'?displayWeightForViewer(ex.weight, ex.unit||'kg', viewerUnit):'')+'" placeholder="'+viewerUnit+'" style="padding:7px 9px;font-size:12px;text-align:center;"/>';
+  const list=asExerciseList(exList);
+  const items=list.length?list:[{name:'',sets:'',reps:'',weight:'',unit:viewerUnit}];
+  items.forEach(function(ex){
+    const card=document.createElement('div');
+    card.className='perf-ex-card';
+    const nameLbl=document.createElement('div');
+    nameLbl.className='flabel';
+    nameLbl.textContent='Exercise';
+    const nameInp=makePerfField('perf-ex-name','Exercise', ex.name||'');
+    card.appendChild(nameLbl);
+    card.appendChild(nameInp);
+    const assignedTxt=ex.prescribed?formatExLoad(ex.prescribed, viewerUnit):'';
+    if(assignedTxt && assignedTxt!=='—'){
+      const asg=document.createElement('div');
+      asg.className='perf-ex-assigned';
+      asg.innerHTML='Assigned <b></b>';
+      asg.querySelector('b').textContent=assignedTxt;
+      card.appendChild(asg);
+    }
+    const doneLbl=document.createElement('div');
+    doneLbl.className='flabel';
+    doneLbl.textContent='Done';
+    card.appendChild(doneLbl);
+    const grid=document.createElement('div');
+    grid.className='perf-ex-done-grid';
+    const wt=ex.weight&&ex.weight!=='-'?displayWeightForViewer(ex.weight, ex.unit||'kg', viewerUnit):'';
+    grid.appendChild(makePerfField('perf-ex-sets','Sets', ex.sets, {inputMode:'numeric'}));
+    grid.appendChild(makePerfField('perf-ex-reps','Reps', ex.reps, {inputMode:'text'}));
+    grid.appendChild(makePerfField('perf-ex-weight', viewerUnit, wt, {inputMode:'decimal'}));
+    card.appendChild(grid);
     const rpeRow=document.createElement('div');
     rpeRow.className='ex-rpe-row';
+    rpeRow.style.borderBottom='none';
+    rpeRow.style.marginBottom='0';
+    rpeRow.style.paddingTop='10px';
     const rpeS=document.createElement('input');
-    rpeS.type='range';rpeS.min='1';rpeS.max='10';rpeS.value=String(ex.rpe||7);
+    rpeS.type='range';rpeS.min='1';rpeS.max='10';
+    rpeS.value=String(ex.rpe||7);
     rpeS.className='ex-rpe-slider';
     const rpeV=document.createElement('span');
     rpeV.className='ex-rpe-val';rpeV.textContent=String(ex.rpe||7);
@@ -5039,7 +5165,7 @@ function fillPerfExRows(exList, viewerUnit){
     rpeRow.appendChild(rpeV);
     const block=document.createElement('div');
     block.className='ex-block';
-    block.appendChild(row);
+    block.appendChild(card);
     block.appendChild(rpeRow);
     rows.appendChild(block);
   });
@@ -5054,7 +5180,7 @@ function deleteSession(sessionId, clientId, e){
   if(e){ e.preventDefault(); e.stopPropagation(); }
   const c=DB.clients.find(function(x){return x.id===clientId;});
   if(!c) return;
-  const h=(c.history||[]).find(function(x){return x.id===sessionId;});
+  const h=findHistoryEntry(c, sessionId);
   if(!h) return;
   if(!confirm('Delete this session from history?')) return;
   c.history=(c.history||[]).filter(function(x){return x.id!==sessionId;});
