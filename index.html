@@ -2431,18 +2431,19 @@ select.finp{cursor:pointer;}
 
 <!-- WEARABLES MODAL -->
 <div class="modal-overlay hidden" id="modal-wearables" onclick="modalOutsideClose(event,'modal-wearables')">
-  <div class="modal-sheet" style="max-height:95vh;">
-    <div class="modal-handle"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+  <div class="modal-sheet" style="max-height:95vh;" onclick="event.stopPropagation()">
+    <div class="modal-handle" onclick="closeWearablesModal()" style="cursor:pointer;"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px;">
       <div class="modal-title" style="margin-bottom:0;">Heart Rate & Zones</div>
       <div style="display:flex;align-items:center;gap:8px;">
         <span style="font-size:11px;color:var(--text3);">Voice coach</span>
-        <div id="voice-toggle" onclick="toggleVoiceCoach()" style="width:40px;height:22px;background:var(--lime);border-radius:11px;position:relative;cursor:pointer;transition:background .2s;">
-          <div id="voice-toggle-knob" style="position:absolute;top:3px;left:3px;width:16px;height:16px;background:#0a0a0a;border-radius:50%;transition:transform .2s;transform:translateX(18px);"></div>
-        </div>
+        <button type="button" id="voice-toggle" onclick="toggleVoiceCoach()" aria-label="Toggle voice coach" style="width:40px;height:22px;background:var(--lime);border:none;border-radius:11px;position:relative;cursor:pointer;padding:0;">
+          <span id="voice-toggle-knob" style="position:absolute;top:3px;left:3px;width:16px;height:16px;background:#0a0a0a;border-radius:50%;transition:transform .2s;transform:translateX(18px);display:block;"></span>
+        </button>
+        <button type="button" class="icon-btn" onclick="closeWearablesModal()" aria-label="Close" title="Close">✕</button>
       </div>
     </div>
-    <div id="voice-status-bar" style="font-size:11px;color:var(--lime);margin-bottom:12px;min-height:14px;font-style:italic;" id="voice-last-cue"></div>
+    <div id="voice-status-bar" style="font-size:11px;color:var(--lime);margin-bottom:12px;min-height:14px;font-style:italic;"></div>
 
     <!-- Goal selector -->
     <div style="margin-bottom:14px;">
@@ -2456,20 +2457,21 @@ select.finp{cursor:pointer;}
         <option value="hiit">HIIT — alternate Zone 4–5 and recovery</option>
         <option value="custom">Custom range</option>
       </select>
-      <div id="hr-custom-range" style="display:none;margin-top:8px;display:none;">
+      <div id="hr-custom-range" style="display:none;margin-top:8px;">
         <div style="display:flex;gap:8px;align-items:center;">
-          <input class="finp" type="number" id="hr-custom-min" placeholder="Min BPM" style="margin-bottom:0;flex:1;"/>
+          <input class="finp" type="number" id="hr-custom-min" placeholder="Min BPM" style="margin-bottom:0;flex:1;font-size:16px;" oninput="onCustomHrRange()"/>
           <span style="color:var(--text3);">–</span>
-          <input class="finp" type="number" id="hr-custom-max" placeholder="Max BPM" style="margin-bottom:0;flex:1;"/>
+          <input class="finp" type="number" id="hr-custom-max" placeholder="Max BPM" style="margin-bottom:0;flex:1;font-size:16px;" oninput="onCustomHrRange()"/>
         </div>
       </div>
+      <div id="hr-age-note" style="display:none;font-size:11px;color:var(--text3);margin-top:8px;"></div>
     </div>
 
     <!-- HR display -->
     <div style="background:var(--bg3);border-radius:var(--r);padding:20px;margin-bottom:14px;text-align:center;position:relative;">
       <div class="hr-display" id="wearable-hr-val" style="color:var(--lime);">—</div>
       <div class="hr-bpm">bpm</div>
-      <div style="font-size:13px;font-weight:600;margin-top:8px;" id="wearable-zone-label" style="color:var(--text2);">Connect a device to see live data</div>
+      <div style="font-size:13px;font-weight:600;margin-top:8px;color:var(--text2);" id="wearable-zone-label">Move the test slider or connect a device</div>
       <div id="hr-target-label" style="font-size:11px;color:var(--text3);margin-top:4px;"></div>
     </div>
 
@@ -2555,9 +2557,12 @@ select.finp{cursor:pointer;}
 
 <!-- MUSIC LIBRARY MODAL (trainer assigns, client sees) -->
 <div class="modal-overlay hidden" id="modal-music-library" onclick="modalOutsideClose(event,'modal-music-library')">
-  <div class="modal-sheet" style="max-height:95vh;">
-    <div class="modal-handle"></div>
-    <div class="modal-title">Playlist Library</div>
+  <div class="modal-sheet" style="max-height:95vh;" onclick="event.stopPropagation()">
+    <div class="modal-handle" onclick="closeModal('modal-music-library')" style="cursor:pointer;"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;">
+      <div class="modal-title" style="margin-bottom:0;">Playlist Library</div>
+      <button type="button" class="icon-btn" onclick="closeModal('modal-music-library')" aria-label="Close">✕</button>
+    </div>
     <div style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.5;">Add playlists from Spotify, Apple Music, or Amazon Music. Paste any playlist link.</div>
     <div class="tab-bar" style="margin-bottom:14px;">
       <div class="tab-btn active" onclick="switchMusicTab('zone')">By Zone</div>
@@ -2571,6 +2576,7 @@ select.finp{cursor:pointer;}
       <div id="general-playlist-list"></div>
       <button class="btn btn-secondary btn-full" style="margin-top:8px;" onclick="openAddPlaylistModal('general',null)">+ Add playlist</button>
     </div>
+    <button type="button" class="btn btn-secondary btn-full" style="margin-top:12px;" onclick="closeModal('modal-music-library')">Done</button>
   </div>
 </div>
 
@@ -3100,7 +3106,7 @@ function refreshWorkoutViews(c){
 }
 
 function switchClientTab(tab){
-  document.querySelectorAll('.tab-btn').forEach((b,i)=>{
+  document.querySelectorAll('#panel-client .tab-btn').forEach((b,i)=>{
     const tabs=['notes','history','assigned','profile'];
     b.classList.toggle('active',tabs[i]===tab);
   });
@@ -3124,9 +3130,14 @@ function openModal(id){
     document.getElementById('ms-time').value='09:00';
     document.getElementById('ms-notes').value='';
   }
+  if(id==='modal-wearables' && typeof initWearablesModal==='function') initWearablesModal();
 }
 function closeModal(id){document.getElementById(id).classList.add('hidden');}
-function modalOutsideClose(e,id){if(e.target===document.getElementById(id))closeModal(id);}
+function modalOutsideClose(e,id){
+  if(e.target!==document.getElementById(id)) return;
+  if(id==='modal-wearables' && typeof closeWearablesModal==='function'){ closeWearablesModal(); return; }
+  closeModal(id);
+}
 
 // ══════════════════════════════════════════════════
 //  TRAINER INIT
@@ -6016,24 +6027,44 @@ const HR_ZONES = [
 ];
 
 function getHRZone(hr, maxHR){
-  const pct=(hr/maxHR)*100;
-  return HR_ZONES.find(function(z){return pct>=z.min&&pct<z.max;})||HR_ZONES[4];
+  const pct=Math.min(100, Math.max(0, (hr/Math.max(maxHR,1))*100));
+  for(let i=0;i<HR_ZONES.length;i++){
+    const z=HR_ZONES[i];
+    const top=i===HR_ZONES.length-1?101:z.max;
+    if(pct>=z.min && pct<top) return z;
+  }
+  return HR_ZONES[HR_ZONES.length-1];
 }
 
 function connectWearable(provider){
-  showToast(provider.charAt(0).toUpperCase()+provider.slice(1)+' connection requires backend — see developer notes');
-  /* ── BACKEND ACTIVATION ──────────────────────────────
-     For Apple Health (requires native app):
-       HealthKit.requestAuthorization({read:['HKQuantityTypeIdentifierHeartRate']})
-       .then(()=>subscribeHeartRate(clientId));
-     
-     For Google Fit / Garmin (web OAuth):
-       window.location.href = '__BACKEND_URL__/auth/'+provider+'?client_id='+currentClientId;
-     
-     Once connected, open WebSocket:
-       const ws = new WebSocket(WEARABLES_BACKEND_WS+'?clientId='+currentClientId);
-       ws.onmessage = (e) => { const d=JSON.parse(e.data); updateHRDisplay(d.hr); };
-  ── END BACKEND ACTIVATION ─────────────────────────── */
+  const names={apple:'Apple Health',google:'Google Fit',garmin:'Garmin Connect',whoop:'Whoop'};
+  const label=names[provider]||provider;
+  const status=document.getElementById('wearable-'+provider+'-status');
+  if(status) status.textContent='Unavailable in web app';
+  showToast(label+' live heart rate needs a native app or backend. Use the test slider for now.');
+}
+
+function initWearablesModal(){
+  const c=DB.clients.find(function(x){return x.id===currentClientId;});
+  const note=document.getElementById('hr-age-note');
+  if(note){
+    if(!c||!c.age){
+      note.style.display='block';
+      note.textContent='Zones assume age 30. Add your age in Profile for a better max-HR estimate.';
+    } else {
+      note.style.display='none';
+    }
+  }
+  onGoalChange();
+  const slider=document.getElementById('hr-sim-slider');
+  const start=lastHR||parseInt(slider&&slider.value,10)||130;
+  if(slider) slider.value=String(start);
+  const prevVoice=voiceEnabled;
+  voiceEnabled=false;
+  simulateHR(start);
+  voiceEnabled=prevVoice;
+  setMusicPlatform(currentMusicPlatform);
+  renderGeneralPlaylists();
 }
 
 // ── VOICE COACH STATE ──────────────────────────────────
@@ -6129,6 +6160,16 @@ function toggleVoiceCoach(){
   if(voiceEnabled) speak("Voice coach is on. I'll guide you through your workout.");
 }
 
+function onCustomHrRange(){
+  updateHRTargetLabel();
+  if(lastHR!=null){
+    const prevVoice=voiceEnabled;
+    voiceEnabled=false;
+    updateHRDisplay(lastHR);
+    voiceEnabled=prevVoice;
+  }
+}
+
 function onGoalChange(){
   const goal = document.getElementById('hr-goal-select').value;
   const customRange = document.getElementById('hr-custom-range');
@@ -6207,9 +6248,8 @@ function updateHRDisplay(hr){
   const above   = hr>range.max;
 
   if(goal==='hiit'){
-    // HIIT: alternate push/recover cues based on HR
-    if(hr>=range.min) cueType='hiitWork';
-    else cueType='hiitRest';
+    const phase=hr>=range.min?'hiitWork':'hiitRest';
+    if(lastSpokenZone!==phase && now-lastSpokenTime>=minInterval) cueType=phase;
   } else if(hr>maxHR*0.95){
     // Always warn at near-max
     if(lastSpokenZone!=='z5'&&now-lastSpokenTime>minInterval){
@@ -6232,7 +6272,9 @@ function updateHRDisplay(hr){
   if(cueType){
     speak(cue||pickCue(cueType));
     lastSpokenTime=now;
-    lastSpokenZone=inZone?'inZone':below?'below':'above';
+    if(goal==='hiit') lastSpokenZone=cueType;
+    else if(cueType==='z5Warning') lastSpokenZone='z5';
+    else lastSpokenZone=inZone?'inZone':below?'below':'above';
   }
 }
 
@@ -6546,15 +6588,6 @@ updateHRDisplay = function(hr){
   if(zoneKey!==lastMusicZone){
     lastMusicZone=zoneKey;
     renderZoneSuggestion(zoneKey);
-    // Voice announce playlist suggestion
-    if(voiceEnabled&&window.speechSynthesis){
-      const def=DEFAULT_ZONE_PLAYLISTS[zoneKey];
-      if(def){
-        setTimeout(function(){
-          speak("You've entered "+zone.name+". I suggest "+def.name+" for this zone — tap the playlist to open it.");
-        },2000);
-      }
-    }
   }
 };
 
