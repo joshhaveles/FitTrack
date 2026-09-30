@@ -247,6 +247,10 @@ input,select,textarea,button{font-family:-apple-system,BlinkMacSystemFont,'Segoe
 .session-name{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .session-meta{font-size:12px;color:var(--text2);margin-top:2px;}
 .session-time{font-family:'DM Mono',monospace;font-size:12px;color:var(--text3);flex-shrink:0;}
+#c-upcoming .session-card{cursor:default;align-items:flex-start;}
+#c-upcoming .session-card:active{transform:none;background:var(--bg2);}
+#c-upcoming .session-name{white-space:normal;}
+#c-upcoming .session-meta{white-space:normal;}
 .chip{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;}
 .chip-lime{background:var(--lime-dim);color:var(--lime);}
 .chip-blue{background:var(--blue-dim);color:var(--blue);}
@@ -856,7 +860,7 @@ select.finp{cursor:pointer;}
 /* Daily view */
 .day-timeline{padding:0 16px 16px;}
 .time-slot{display:flex;gap:10px;min-height:32px;position:relative;}
-.time-slot-label{font-family:"DM Mono",monospace;font-size:10px;color:var(--text3);min-width:36px;padding-top:3px;flex-shrink:0;}
+.time-slot-label{font-family:"DM Mono",monospace;font-size:10px;color:var(--text3);min-width:52px;padding-top:3px;flex-shrink:0;}
 .time-slot-line{flex:1;border-top:1px solid var(--border);position:relative;}
 .time-slot-event{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r-xs);padding:8px 10px;margin-bottom:4px;cursor:pointer;transition:all .15s;border-left:3px solid;}
 .time-slot-event:hover{background:var(--bg3);}
@@ -1449,6 +1453,8 @@ select.finp{cursor:pointer;}
         <!-- Other stats -->
         <div class="stats-row" id="c-stats" style="flex:1;padding:0;margin:0;"></div>
       </div>
+      <div class="feed-section-label">UPCOMING SESSIONS</div>
+      <div id="c-upcoming"></div>
       <div class="feed-section-label">FROM YOUR TRAINER</div>
       <div id="c-feed"></div>
     </div>
@@ -3228,6 +3234,13 @@ function switchTab(role, tab){
   if(role==='t'&&tab==='messages') initTrainerMessageTab();
   if(role==='c'&&tab==='settings') loadClientSettingsTab();
   if(role==='c'&&tab==='messages') renderClientMessages();
+  if(role==='c'&&tab==='home'){
+    const cl=(DB.clients||[]).find(x=>x.id===currentClientId);
+    if(cl){
+      renderClientUpcoming(cl);
+      renderClientFeed(cl);
+    }
+  }
 }
 
 function openPanel(id){
@@ -3407,6 +3420,36 @@ function dateStr(d){
 }
 function todayStr(){return dateStr(new Date());}
 
+function hourFromSessionTime(t){
+  const h=parseInt(String(t||'').split(':')[0],10);
+  return isNaN(h)?9:Math.min(23,Math.max(0,h));
+}
+
+function formatHourLabel(h){
+  const hr=((h%24)+24)%24;
+  if(hr===0) return '12:00 AM';
+  if(hr===12) return '12:00 PM';
+  return (hr>12?hr-12:hr)+':00'+(hr>=12?' PM':' AM');
+}
+
+function formatApptTime(t){
+  const p=String(t||'').split(':');
+  const h=parseInt(p[0],10);
+  if(isNaN(h)) return t||'';
+  const m=(p[1]||'00').slice(0,2);
+  const ampm=h>=12?'PM':'AM';
+  const h12=(h%12)||12;
+  return h12+':'+m+' '+ampm;
+}
+
+function sessionStartDate(s){
+  const d=new Date((s.date||'')+'T12:00:00');
+  if(isNaN(d.getTime())) return new Date(0);
+  const p=String(s.time||'00:00').split(':');
+  d.setHours(parseInt(p[0],10)||0, parseInt(p[1],10)||0, 0, 0);
+  return d;
+}
+
 function renderSchedule(){
   if(calView==='day')   renderDayView();
   else if(calView==='week') renderWeekView();
@@ -3421,10 +3464,15 @@ function renderDayView(){
   document.getElementById('cal-period-label').innerHTML=`${label}${isToday?' <span class="chip chip-lime" style="font-size:9px;padding:2px 6px;vertical-align:middle;">TODAY</span>':''}`;
   const sessions=DB.schedule.filter(s=>s.date===ds).sort((a,b)=>a.time.localeCompare(b.time));
   let html='<div class="day-timeline">';
-  const hours=Array.from({length:14},(_,i)=>i+6); // 6am–7pm
-  hours.forEach(h=>{
-    const timeLabel=(h>12?h-12:h)+':00'+(h>=12?' PM':' AM');
-    const slotSessions=sessions.filter(s=>{const sh=parseInt(String(s.time||'').split(':')[0],10);return sh===h;});
+  let startH=6, endH=22;
+  sessions.forEach(function(s){
+    const h=hourFromSessionTime(s.time);
+    if(h<startH) startH=h;
+    if(h>endH) endH=h;
+  });
+  for(let h=startH;h<=endH;h++){
+    const timeLabel=formatHourLabel(h);
+    const slotSessions=sessions.filter(s=>hourFromSessionTime(s.time)===h);
     html+=`<div class="time-slot">
       <div class="time-slot-label">${timeLabel}</div>
       <div class="time-slot-line">
@@ -3438,7 +3486,7 @@ function renderDayView(){
         }).join('')}
       </div>
     </div>`;
-  });
+  }
   html+='</div>';
   if(!sessions.length) html+='<div class="empty-state" style="padding:10px 0 30px;"><div class="empty-icon">📅</div><div class="empty-msg">No sessions this day</div></div>';
   document.getElementById('t-schedule-list').innerHTML=html;
@@ -5131,6 +5179,7 @@ function initClient(c){
     <div class="stat-box"><div class="stat-n">${c.streak}</div><div class="stat-l">Streak wks</div></div>
     <div class="stat-box"><div class="stat-n">${c.assigned.length}</div><div class="stat-l">Programs</div></div>
   `;
+  renderClientUpcoming(c);
   renderClientFeed(c);
   renderClientWorkouts(c);
   renderClientVideos(c);
@@ -5148,6 +5197,36 @@ function initClient(c){
   switchTab('c','home');
   // Apply saved unit pref to settings UI
   setTimeout(()=>setClientUnit(clientUnit), 50);
+}
+
+function upcomingSessionsForClient(clientId){
+  const now=new Date();
+  return (DB.schedule||[]).filter(function(s){
+    if(s.clientId!==clientId) return false;
+    return sessionStartDate(s).getTime()>=now.getTime()-60*1000;
+  }).sort(function(a,b){return sessionStartDate(a)-sessionStartDate(b);}).slice(0,6);
+}
+
+function renderClientUpcoming(c){
+  const el=document.getElementById('c-upcoming');
+  if(!el||!c) return;
+  const list=upcomingSessionsForClient(c.id);
+  if(!list.length){
+    el.innerHTML='<div class="empty-state" style="padding:8px 16px 4px;"><div class="empty-msg">No sessions on the calendar yet</div></div>';
+    return;
+  }
+  const trainer=clientName(DB.trainer,'your trainer');
+  el.innerHTML=list.map(function(s){
+    const when=new Date((s.date||'')+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+    const time=formatApptTime(s.time);
+    return `<div class="session-card">
+      <div class="session-dot" style="background:${c.color||'var(--lime)'};margin-top:6px;"></div>
+      <div class="session-info">
+        <div class="session-name">${escapeHtml(when)} · ${escapeHtml(time)}</div>
+        <div class="session-meta">${escapeHtml(s.type||'Session')} · ${s.duration||60} min · with ${escapeHtml(trainer)}</div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function renderClientFeed(c){
