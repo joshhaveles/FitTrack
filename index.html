@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover"/>
+<meta http-equiv="Cache-Control" content="no-cache"/>
 <meta name="theme-color" content="#121212"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
@@ -195,6 +196,8 @@ input,select,textarea,button{font-family:-apple-system,BlinkMacSystemFont,'Segoe
   .client-grid .client-tile{padding:20px;}
   .detail-panel{position:fixed;}
   .modal-overlay{align-items:center;padding:20px;}
+  #modal-subscription{align-items:center;padding:24px;}
+  #modal-subscription .modal-sheet{height:auto;max-height:min(88vh,840px);border-radius:16px;margin-bottom:0;}
   .modal-sheet{border-radius:16px;margin-bottom:0;max-height:88vh;max-width:560px;width:100%;}
   .scroll-area{border-radius:0;flex:1;}
 
@@ -367,6 +370,7 @@ select.finp{cursor:pointer;}
 /* ── MODAL ── */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:100;display:flex;align-items:flex-end;justify-content:center;}
 .modal-overlay.hidden{display:none;}
+#modal-subscription{z-index:560;align-items:stretch;padding:max(12px,env(safe-area-inset-top)) 0 0;box-sizing:border-box;}
 .modal-sheet{background:var(--bg2);border-radius:20px 20px 0 0;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding:20px 20px max(20px,env(safe-area-inset-bottom));}
 .modal-sheet::-webkit-scrollbar{display:none;}
 .modal-handle{width:36px;height:3px;background:var(--bg5);border-radius:2px;margin:0 auto 18px;}
@@ -448,8 +452,8 @@ select.finp{cursor:pointer;}
 /* ── MORE MENU ── */
 .more-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:150;opacity:0;pointer-events:none;transition:opacity .25s;}
 .more-overlay.open{opacity:1;pointer-events:all;}
-.more-sheet{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-radius:20px 20px 0 0;padding:12px 20px max(28px,env(safe-area-inset-bottom));z-index:151;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);box-shadow:0 -4px 32px rgba(0,0,0,.5);}
-.more-sheet.open{transform:translateY(0);}
+.more-sheet{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-radius:20px 20px 0 0;padding:12px 20px max(28px,env(safe-area-inset-bottom));z-index:151;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);box-shadow:0 -4px 32px rgba(0,0,0,.5);pointer-events:none;visibility:hidden;}
+.more-sheet.open{transform:translateY(0);pointer-events:auto;visibility:visible;}
 .more-handle{width:36px;height:4px;background:var(--bg4);border-radius:2px;margin:0 auto 20px;}
 .more-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px;}
 .more-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
@@ -685,9 +689,15 @@ select.finp{cursor:pointer;}
 #modal-log-perf .modal-sheet{display:flex;flex-direction:column;max-height:min(92dvh,92vh);overflow:hidden;padding-bottom:0;}
 #modal-log-perf .log-perf-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:8px;}
 #modal-log-perf .log-perf-actions{flex-shrink:0;display:flex;gap:8px;padding:12px 0 max(16px,env(safe-area-inset-bottom));background:var(--bg2);border-top:1px solid var(--border);}
-#modal-subscription .modal-sheet{display:flex;flex-direction:column;max-height:min(92dvh,92vh);overflow:hidden;padding-bottom:0;}
+#modal-subscription .modal-sheet{display:flex;flex-direction:column;max-height:none;height:100%;width:100%;max-width:560px;margin:0 auto;overflow:hidden;padding:12px 16px 0;border-radius:16px 16px 0 0;box-sizing:border-box;}
+#modal-subscription .sub-sheet-top{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:10px;background:var(--bg2);position:relative;z-index:2;}
 #modal-subscription .sub-sheet-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:8px;}
-#modal-subscription .sub-sheet-actions{flex-shrink:0;padding:12px 0 max(16px,env(safe-area-inset-bottom));background:var(--bg2);border-top:1px solid var(--border);}
+#modal-subscription .sub-sheet-actions{flex-shrink:0;padding:12px 0 max(20px,env(safe-area-inset-bottom));background:var(--bg2);border-top:1px solid var(--border);}
+#modal-subscription .sub-done-btn{min-height:44px;padding:0 16px;flex-shrink:0;}
+@media(min-width:768px){
+  #modal-subscription{align-items:center;padding:24px;}
+  #modal-subscription .modal-sheet{height:auto;max-height:min(88vh,840px);border-radius:16px;margin-bottom:0;}
+}
 
 /* ── NOTIFICATION BADGE ── */
 .notif-badge{position:absolute;top:-3px;right:-3px;background:var(--red);color:#fff;font-size:9px;font-weight:800;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;pointer-events:none;line-height:1;}
@@ -986,7 +996,7 @@ select.finp{cursor:pointer;}
                 <div class="avatar-menu-name" id="trainer-menu-name">Jordan Reed</div>
                 <div class="avatar-menu-role">Personal Trainer</div>
               </div>
-              <div class="avatar-menu-item" onclick="openModal('modal-subscription');closeAllAvatarMenus();">
+              <div class="avatar-menu-item" onclick="openSubscriptionModal()">
                 <span>💳</span> Subscription plan
               </div>
               <div class="avatar-menu-item danger" onclick="doLogout()">
@@ -1228,6 +1238,7 @@ select.finp{cursor:pointer;}
     <!-- TRAINER: PAYMENTS TAB -->
     <div id="t-tab-payments" class="scroll-area hidden" style="flex:1;">
       <div class="topbar">
+        <button type="button" class="icon-btn" style="width:40px;height:40px;" onclick="switchTab('t','home')" aria-label="Back">‹</button>
         <div class="topbar-title">Payments</div>
         <div class="icon-btn" onclick="openCreateInvoiceModal()" title="New invoice">＋</div>
       </div>
@@ -1307,6 +1318,7 @@ select.finp{cursor:pointer;}
           <div class="avatar-sm" style="background:var(--lime-dim);color:var(--lime);width:34px;height:34px;" id="trainer-avatar-sidebar">JR</div>
           <div>
             <div style="font-size:13px;font-weight:600;" id="trainer-name-sidebar">Jordan Reed</div>
+            <div style="font-size:11px;color:var(--text3);cursor:pointer;" onclick="openSubscriptionModal()">Subscription</div>
             <div style="font-size:11px;color:var(--text3);cursor:pointer;" onclick="doLogout()">Sign out</div>
           </div>
           <div style="margin-left:auto;">
@@ -1940,12 +1952,11 @@ select.finp{cursor:pointer;}
 </div>
 
 <!-- SUBSCRIPTION PLANS MODAL -->
-<div class="modal-overlay hidden" id="modal-subscription" onclick="modalOutsideClose(event,'modal-subscription')">
-  <div class="modal-sheet" style="max-height:92vh;" onclick="event.stopPropagation()">
-    <div class="modal-handle" onclick="closeModal('modal-subscription')" style="cursor:pointer;"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;">
-      <div class="modal-title" style="margin-bottom:0;">FitTrack Plans</div>
-      <button type="button" class="icon-btn" style="width:40px;height:40px;min-width:40px;flex-shrink:0;" onclick="closeModal('modal-subscription')" aria-label="Close" title="Close">✕</button>
+<div class="modal-overlay hidden" id="modal-subscription" onclick="closeSubscriptionModal()">
+  <div class="modal-sheet" onclick="event.stopPropagation()" role="dialog" aria-labelledby="sub-sheet-title">
+    <div class="sub-sheet-top">
+      <div class="modal-title" id="sub-sheet-title" style="margin-bottom:0;">FitTrack Plans</div>
+      <button type="button" class="btn btn-secondary sub-done-btn" onclick="closeSubscriptionModal()">Done</button>
     </div>
     <div class="sub-sheet-body">
     <div style="font-size:13px;color:var(--text2);margin-bottom:20px;">Choose the plan that fits your practice. All plans include a 14-day free trial.</div>
@@ -2003,7 +2014,7 @@ select.finp{cursor:pointer;}
     <div class="stripe-badge" style="margin-top:12px;"><span class="stripe-logo">stripe</span> Subscriptions powered by Stripe Billing</div>
     </div>
     <div class="sub-sheet-actions">
-      <button type="button" class="btn btn-secondary btn-full" onclick="closeModal('modal-subscription')">Close</button>
+      <button type="button" class="btn btn-primary btn-full" onclick="closeSubscriptionModal()">Done</button>
     </div>
   </div>
 </div>
@@ -2633,13 +2644,22 @@ select.finp{cursor:pointer;}
 <div class="more-overlay" id="more-overlay" onclick="closeMoreMenu()"></div>
 <div class="more-sheet" id="more-sheet">
   <div class="more-handle"></div>
-  <div class="more-title">More tools</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px;">
+    <div class="more-title" style="margin-bottom:0;">More tools</div>
+    <button type="button" class="btn btn-secondary sub-done-btn" onclick="closeMoreMenu()">Done</button>
+  </div>
   <div class="more-grid">
     <div class="more-item" onclick="moreNav('log')">
       <div class="more-item-icon" style="background:rgba(0,230,118,.12);">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--lime)" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/><circle cx="12" cy="12" r="9"/></svg>
       </div>
       <span class="more-item-label">Log Session</span>
+    </div>
+    <div class="more-item" onclick="closeMoreMenu();openSubscriptionModal()">
+      <div class="more-item-icon" style="background:rgba(0,230,118,.12);">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--lime)" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+      </div>
+      <span class="more-item-label">Subscription</span>
     </div>
     <div class="more-item" onclick="moreNav('payments')">
       <div class="more-item-icon" style="background:rgba(91,164,245,.12);">
@@ -5677,13 +5697,22 @@ function connectStripe(){
 
 // ── SUBSCRIPTION PLANS ────────────────────────────────
 function openSubscriptionModal(){
-  // Highlight current plan
+  if(typeof closeAllAvatarMenus==='function') closeAllAvatarMenus();
+  if(typeof closeMoreMenu==='function') closeMoreMenu();
   ['starter','pro','elite'].forEach(function(p){
     const badge=document.getElementById('plan-'+p+'-badge');
     if(badge) badge.style.display=(DB.subscription&&DB.subscription.plan===p)?'inline-flex':'none';
   });
   openModal('modal-subscription');
 }
+function closeSubscriptionModal(){
+  closeModal('modal-subscription');
+}
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Escape') return;
+  const sub=document.getElementById('modal-subscription');
+  if(sub && !sub.classList.contains('hidden')) closeSubscriptionModal();
+});
 
 // ══ MEDICAL INVOICE ══════════════════════════════════
 let currentMedInvoiceId = null;
@@ -6603,7 +6632,7 @@ function selectPlan(plan){
        window.location.href = d.checkoutUrl;
      });
   ── END BACKEND ACTIVATION ─────────────────────────── */
-  closeModal('modal-subscription');
+  closeSubscriptionModal();
   showToast('Subscription requires backend — see developer notes');
 }
 
