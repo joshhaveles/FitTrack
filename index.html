@@ -685,6 +685,9 @@ select.finp{cursor:pointer;}
 #modal-log-perf .modal-sheet{display:flex;flex-direction:column;max-height:min(92dvh,92vh);overflow:hidden;padding-bottom:0;}
 #modal-log-perf .log-perf-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:8px;}
 #modal-log-perf .log-perf-actions{flex-shrink:0;display:flex;gap:8px;padding:12px 0 max(16px,env(safe-area-inset-bottom));background:var(--bg2);border-top:1px solid var(--border);}
+#modal-subscription .modal-sheet{display:flex;flex-direction:column;max-height:min(92dvh,92vh);overflow:hidden;padding-bottom:0;}
+#modal-subscription .sub-sheet-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:8px;}
+#modal-subscription .sub-sheet-actions{flex-shrink:0;padding:12px 0 max(16px,env(safe-area-inset-bottom));background:var(--bg2);border-top:1px solid var(--border);}
 
 /* ── NOTIFICATION BADGE ── */
 .notif-badge{position:absolute;top:-3px;right:-3px;background:var(--red);color:#fff;font-size:9px;font-weight:800;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;pointer-events:none;line-height:1;}
@@ -1938,9 +1941,13 @@ select.finp{cursor:pointer;}
 
 <!-- SUBSCRIPTION PLANS MODAL -->
 <div class="modal-overlay hidden" id="modal-subscription" onclick="modalOutsideClose(event,'modal-subscription')">
-  <div class="modal-sheet" style="max-height:92vh;">
-    <div class="modal-handle"></div>
-    <div class="modal-title">FitTrack Plans</div>
+  <div class="modal-sheet" style="max-height:92vh;" onclick="event.stopPropagation()">
+    <div class="modal-handle" onclick="closeModal('modal-subscription')" style="cursor:pointer;"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;">
+      <div class="modal-title" style="margin-bottom:0;">FitTrack Plans</div>
+      <button type="button" class="icon-btn" style="width:40px;height:40px;min-width:40px;flex-shrink:0;" onclick="closeModal('modal-subscription')" aria-label="Close" title="Close">✕</button>
+    </div>
+    <div class="sub-sheet-body">
     <div style="font-size:13px;color:var(--text2);margin-bottom:20px;">Choose the plan that fits your practice. All plans include a 14-day free trial.</div>
 
     <div class="plan-card" id="plan-starter">
@@ -1994,6 +2001,10 @@ select.finp{cursor:pointer;}
       🔧 <b style="color:var(--text);">Backend required.</b> Stripe Billing handles subscription management. A developer sets up the <code style="background:var(--bg4);padding:1px 4px;border-radius:3px;">price_id</code> for each plan.
     </div>
     <div class="stripe-badge" style="margin-top:12px;"><span class="stripe-logo">stripe</span> Subscriptions powered by Stripe Billing</div>
+    </div>
+    <div class="sub-sheet-actions">
+      <button type="button" class="btn btn-secondary btn-full" onclick="closeModal('modal-subscription')">Close</button>
+    </div>
   </div>
 </div>
 
