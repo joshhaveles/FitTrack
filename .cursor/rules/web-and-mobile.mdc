@@ -1,0 +1,20 @@
+---
+description: Every change must work well on web and mobile unless Joshua says otherwise
+alwaysApply: true
+---
+
+# Web and mobile by default
+
+Treat FitTrack as one PWA used on phones, tablets, and desktop browsers. For every fix, feature, or UI change, make both **web and mobile** work well unless Joshua explicitly says the work is for one surface only.
+
+## Required
+
+- Design and test for a phone-width viewport (~390px) and a desktop layout (~1280px).
+- Do not ship a change that only works on desktop because a sheet fills the screen, tap targets are too small, values are clipped, or a control sits below the fold with no way back.
+- Prefer stacked labeled layouts, 16px input text, sticky close/save actions, and `type="button"` on modal buttons. Do not rely on tapping outside a full-width sheet to dismiss it.
+- Set input values in JavaScript (`.value =`), not only HTML `value=""` attributes, so iOS shows and saves them.
+- After UI work, verify the changed flow on both viewports before calling it done.
+
+## Exceptions
+
+Only skip mobile or web if Joshua says so in that request (for example “desktop only” or “don’t worry about phone”).
