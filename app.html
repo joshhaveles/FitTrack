@@ -947,6 +947,17 @@ select.finp{cursor:pointer;}
 .ex-rpe-slider{flex:1;accent-color:var(--lime);height:3px;cursor:pointer;}
 .ex-rpe-val{font-family:"DM Mono",monospace;font-size:12px;color:var(--lime);font-weight:600;min-width:16px;text-align:right;}
 .ex-block{margin-bottom:4px;}
+.log-ex-hdr{grid-template-columns:1fr 72px 36px;}
+.log-ex-head{display:grid;grid-template-columns:minmax(0,1fr) 72px 36px;gap:6px;align-items:center;margin-bottom:8px;}
+.log-ex-head .ex-wrap{min-width:0;}
+.log-ex-head .finp{margin-bottom:0;min-height:44px;font-size:16px;}
+.log-ex-block{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px;}
+.log-ex-block .ex-rpe-row{border-bottom:none;margin-bottom:0;padding-top:4px;}
+.set-log-hdr{display:grid;grid-template-columns:52px 1fr 1fr;gap:8px;margin:0 0 4px;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;}
+.set-log-row{display:grid;grid-template-columns:52px 1fr 1fr;gap:8px;align-items:center;margin-bottom:8px;}
+.set-log-n{font-size:12px;font-weight:700;color:var(--text2);}
+.set-log-row .finp{margin-bottom:0;min-height:44px;font-size:16px;text-align:center;}
+.set-log-add{margin:0 0 4px;min-height:40px;width:100%;}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1164,7 +1175,7 @@ select.finp{cursor:pointer;}
             <div class="form-block-title" style="margin-bottom:0">Exercises</div>
             <button class="btn btn-secondary btn-sm" onclick="addExRow()">+ Add</button>
           </div>
-          <div class="ex-row-hdr"><span>Exercise</span><span>Sets</span><span>Reps</span><span id="ex-wt-hdr">Wt.</span><span></span></div>
+          <div class="ex-row-hdr log-ex-hdr"><span>Exercise</span><span>Sets</span><span></span></div>
           <div id="ex-rows"></div>
         </div>
         <div class="form-block">
@@ -4770,7 +4781,8 @@ function setUnit(u){
   document.querySelectorAll('#unit-kg,#unit-lbs,#unit-kg-sb,#unit-lbs-sb').forEach(el=>{
     if(el) el.classList.toggle('active', el.id==='unit-'+u||el.id==='unit-'+u+'-sb');
   });
-  document.querySelectorAll('.wt-input').forEach(inp=>{inp.placeholder=u;});
+  document.querySelectorAll('.wt-input,.set-log-wt').forEach(inp=>{inp.placeholder=u;});
+  document.querySelectorAll('.set-log-hdr span:last-child').forEach(function(el){el.textContent=u;});
   const hdr=document.getElementById('ex-wt-hdr');
   const ahdr=document.getElementById('assign-wt-hdr');
   if(hdr) hdr.textContent=u;
@@ -5027,6 +5039,110 @@ function dashToEmpty(v){
   return String(v);
 }
 
+function parseSetCount(v){
+  const n=parseInt(String(v==null?'':v).replace(/[^\d].*/,''),10);
+  if(isNaN(n)||n<1) return 0;
+  return Math.min(12,n);
+}
+
+function setLogsFromEx(ex){
+  if(ex&&Array.isArray(ex.setLogs)&&ex.setLogs.length){
+    return ex.setLogs.map(function(s){
+      return {reps:dashToEmpty(s&&s.reps),weight:dashToEmpty(s&&s.weight)};
+    });
+  }
+  const n=Math.max(1,parseSetCount(ex&&ex.sets)||1);
+  const reps=dashToEmpty(ex&&ex.reps);
+  const wt=dashToEmpty(ex&&ex.weight);
+  const out=[];
+  for(let i=0;i<n;i++) out.push({reps:reps,weight:wt});
+  return out;
+}
+
+function bestWeightFromEx(ex){
+  let best=0;
+  (ex&&ex.setLogs||[]).forEach(function(s){
+    const w=parseFloat(s&&s.weight);
+    if(!isNaN(w)&&w>best) best=w;
+  });
+  const w=parseFloat(ex&&ex.weight);
+  if(!isNaN(w)&&w>best) best=w;
+  return best;
+}
+
+function summarizeSetLogs(setLogs){
+  const logs=(setLogs||[]).filter(function(s){return dashToEmpty(s.reps)||dashToEmpty(s.weight);});
+  const use=logs.length?logs:setLogs||[];
+  const reps=use.map(function(s){return dashToEmpty(s.reps);}).filter(Boolean);
+  const wts=use.map(function(s){return dashToEmpty(s.weight);}).filter(Boolean);
+  const uniq=function(arr){return arr.filter(function(v,i){return arr.indexOf(v)===i;});};
+  const r=uniq(reps);
+  const w=uniq(wts);
+  return {
+    sets:String(use.length||setLogs.length||0),
+    reps:r.length===1?r[0]:(reps.join(', ')||'-'),
+    weight:w.length===1?w[0]:(wts.join(', ')||'-')
+  };
+}
+
+function makeSetLogRow(i, unit, reps, weight){
+  const row=document.createElement('div');
+  row.className='set-log-row';
+  const lab=document.createElement('div');
+  lab.className='set-log-n';
+  lab.textContent='Set '+(i+1);
+  const r=makePerfField('set-log-reps','Reps', reps||'', {inputMode:'numeric'});
+  const w=makePerfField('set-log-wt', unit||'kg', weight||'', {inputMode:'decimal'});
+  row.appendChild(lab);
+  row.appendChild(r);
+  row.appendChild(w);
+  return row;
+}
+
+function readSetLogRows(block){
+  return [].slice.call(block.querySelectorAll('.set-log-row')).map(function(row){
+    const repsInp=row.querySelector('.set-log-reps');
+    const wtInp=row.querySelector('.set-log-wt');
+    return {reps:((repsInp&&repsInp.value)||'').trim(),weight:((wtInp&&wtInp.value)||'').trim()};
+  });
+}
+
+function syncSetLogRows(block, unit){
+  const setsInp=block.querySelector('.log-ex-sets');
+  let n=parseSetCount(setsInp&&setsInp.value);
+  if(!n) n=1;
+  const list=block.querySelector('.set-log-list');
+  if(!list) return;
+  const prev=readSetLogRows(block);
+  list.innerHTML='';
+  for(let i=0;i<n;i++){
+    const p=prev[i]||{};
+    list.appendChild(makeSetLogRow(i, unit, p.reps, p.weight));
+  }
+  if(setsInp&&!setsInp.value) setsInp.value=String(n);
+}
+
+function addSetLogRow(block, unit){
+  const setsInp=block.querySelector('.log-ex-sets');
+  const cur=parseSetCount(setsInp&&setsInp.value)||readSetLogRows(block).length||0;
+  const n=Math.min(12,cur+1);
+  if(setsInp) setsInp.value=String(n);
+  syncSetLogRows(block, unit);
+}
+
+function fillSetLogRows(block, ex, unit, viewerUnit){
+  const logs=setLogsFromEx(ex);
+  const setsInp=block.querySelector('.log-ex-sets');
+  if(setsInp) setsInp.value=String(logs.length||3);
+  const list=block.querySelector('.set-log-list');
+  if(!list) return;
+  list.innerHTML='';
+  logs.forEach(function(s,i){
+    const wt=s.weight?displayWeightForViewer(s.weight, (ex&&ex.unit)||'kg', viewerUnit||unit||'kg'):'';
+    list.appendChild(makeSetLogRow(i, viewerUnit||unit||'kg', s.reps, wt));
+  });
+}
+
 function makePerfField(cls, placeholder, value, opts){
   opts=opts||{};
   const inp=document.createElement('input');
@@ -5043,10 +5159,24 @@ function readExBlock(block, unit){
   const nameInp=block.querySelector('.perf-ex-name')||block.querySelector('.perf-ex-input-row input')||(exBlockFields(block).nameInp);
   const name=(nameInp&&nameInp.value.trim())||'';
   if(!name) return null;
+  const rpeInp=block.querySelector('.ex-rpe-slider');
+  const setRows=block.querySelectorAll('.set-log-row');
+  if(setRows.length){
+    const setLogs=readSetLogRows(block);
+    const sum=summarizeSetLogs(setLogs);
+    return {
+      name:name,
+      sets:sum.sets||'-',
+      reps:sum.reps||'-',
+      weight:sum.weight||'-',
+      setLogs:setLogs,
+      unit:unit||trainerUnit,
+      rpe:rpeInp?parseInt(rpeInp.value,10):null
+    };
+  }
   const setsInp=block.querySelector('.perf-ex-sets');
   const repsInp=block.querySelector('.perf-ex-reps');
   const wtInp=block.querySelector('.perf-ex-weight');
-  const rpeInp=block.querySelector('.ex-rpe-slider');
   if(setsInp||repsInp||wtInp){
     return {
       name:name,
@@ -5081,6 +5211,16 @@ function readExBlock(block, unit){
 
 function formatExLoad(ex, viewerUnit){
   if(!ex) return '—';
+  if(Array.isArray(ex.setLogs)&&ex.setLogs.length){
+    const vu=viewerUnit||'kg';
+    return ex.setLogs.map(function(s,i){
+      const bits=[];
+      if(dashToEmpty(s.reps)) bits.push(s.reps+' reps');
+      const wt=displayWeightForViewer(s.weight, ex.unit||'kg', vu);
+      if(wt&&wt!=='-'&&dashToEmpty(s.weight)) bits.push(wt+' '+vu);
+      return 'S'+(i+1)+' '+(bits.join(' @ ')||'—');
+    }).join(' · ');
+  }
   const bits=[];
   if(ex.sets && ex.sets!=='-') bits.push(ex.sets+' ×');
   if(ex.reps && ex.reps!=='-') bits.push(String(ex.reps));
@@ -5126,12 +5266,23 @@ function sessionHistoryCardHTML(h, viewerUnit, client){
     body='<div class="hist-ex-list">'+exes.map(function(e){
       const pre=prescribedForHistoryEx(h,e,client);
       const assigned=pre?formatExLoad(pre, unit):'';
-      const done=formatExLoad(e, unit);
       const rpe=e.rpe?(' · RPE '+e.rpe):'';
+      let doneHtml='';
+      if(Array.isArray(e.setLogs)&&e.setLogs.length){
+        doneHtml=e.setLogs.map(function(s,i){
+          const bits=[];
+          if(dashToEmpty(s.reps)) bits.push(s.reps+' reps');
+          const wt=displayWeightForViewer(s.weight, e.unit||'kg', unit);
+          if(wt&&wt!=='-'&&dashToEmpty(s.weight)) bits.push(wt+' '+unit);
+          return '<div class="hist-ex-line hist-ex-done"><span>Set '+(i+1)+'</span><span class="hist-ex-val">'+escapeHtml(bits.join(' · ')||'—')+'</span></div>';
+        }).join('')+(e.rpe?'<div class="hist-ex-line"><span>RPE</span><span class="hist-ex-val">'+escapeHtml(String(e.rpe))+'</span></div>':'');
+      } else {
+        doneHtml='<div class="hist-ex-line hist-ex-done"><span>Done</span><span class="hist-ex-val">'+escapeHtml(formatExLoad(e, unit))+rpe+'</span></div>';
+      }
       return '<div class="hist-ex">'+
         '<div class="hist-ex-name">'+escapeHtml(e.name||'Exercise')+'</div>'+
         (assigned?'<div class="hist-ex-line"><span>Assigned</span><span class="hist-ex-val">'+escapeHtml(assigned)+'</span></div>':'')+
-        '<div class="hist-ex-line hist-ex-done"><span>Done</span><span class="hist-ex-val">'+escapeHtml(done)+rpe+'</span></div>'+
+        doneHtml+
       '</div>';
     }).join('')+'</div>';
   }
@@ -5150,12 +5301,72 @@ function sessionHistoryCardHTML(h, viewerUnit, client){
   '</div>';
 }
 
+function makeLogExBlock(containerId, unit){
+  unit=unit||trainerUnit;
+  const block=document.createElement('div');
+  block.className='ex-block log-ex-block';
+  const head=document.createElement('div');
+  head.className='log-ex-head';
+  const exWrap=makeExInput(containerId);
+  const sets=document.createElement('input');
+  sets.className='finp log-ex-sets';
+  sets.placeholder='Sets';
+  sets.inputMode='numeric';
+  sets.value='3';
+  sets.setAttribute('aria-label','Sets');
+  sets.addEventListener('change',function(){syncSetLogRows(block, unit);});
+  const del=document.createElement('button');
+  del.className='ex-remove';
+  del.textContent='×';
+  del.type='button';
+  del.setAttribute('aria-label','Remove exercise');
+  del.onclick=function(){block.remove();};
+  head.appendChild(exWrap);
+  head.appendChild(sets);
+  head.appendChild(del);
+  block.appendChild(head);
+  const hdr=document.createElement('div');
+  hdr.className='set-log-hdr';
+  hdr.innerHTML='<span></span><span>Reps</span><span></span>';
+  hdr.lastChild.textContent=unit;
+  block.appendChild(hdr);
+  const list=document.createElement('div');
+  list.className='set-log-list';
+  block.appendChild(list);
+  const addBtn=document.createElement('button');
+  addBtn.type='button';
+  addBtn.className='btn btn-secondary btn-sm set-log-add';
+  addBtn.textContent='+ Add set';
+  addBtn.onclick=function(){addSetLogRow(block, unit);};
+  block.appendChild(addBtn);
+  const rpeRow=document.createElement('div');
+  rpeRow.className='ex-rpe-row';
+  const rpeSlider=document.createElement('input');
+  rpeSlider.type='range';rpeSlider.min='1';rpeSlider.max='10';rpeSlider.value='7';
+  rpeSlider.className='ex-rpe-slider';
+  const rpeValSpan=document.createElement('span');
+  rpeValSpan.className='ex-rpe-val';rpeValSpan.textContent='7';
+  rpeSlider.addEventListener('input',function(){rpeValSpan.textContent=this.value;});
+  const rpeLabel=document.createElement('span');
+  rpeLabel.className='ex-rpe-label';rpeLabel.textContent='Ex. RPE';
+  rpeRow.appendChild(rpeLabel);
+  rpeRow.appendChild(rpeSlider);
+  rpeRow.appendChild(rpeValSpan);
+  block.appendChild(rpeRow);
+  syncSetLogRows(block, unit);
+  return block;
+}
+
 function fillExBlock(block, ex){
   const f=exBlockFields(block);
   if(f.nameInp) f.nameInp.value=ex.name||'';
-  if(f.extras[0]) f.extras[0].value=ex.sets&&ex.sets!=='-'?ex.sets:'';
-  if(f.extras[1]) f.extras[1].value=ex.reps&&ex.reps!=='-'?ex.reps:'';
-  if(f.extras[2]) f.extras[2].value=ex.weight&&ex.weight!=='-'?ex.weight:'';
+  if(block.querySelector('.set-log-list')){
+    fillSetLogRows(block, ex, trainerUnit, trainerUnit);
+  } else {
+    if(f.extras[0]) f.extras[0].value=ex.sets&&ex.sets!=='-'?ex.sets:'';
+    if(f.extras[1]) f.extras[1].value=ex.reps&&ex.reps!=='-'?ex.reps:'';
+    if(f.extras[2]) f.extras[2].value=ex.weight&&ex.weight!=='-'?ex.weight:'';
+  }
   const rpeVal=block.querySelector('.ex-rpe-val');
   if(f.rpeInp&&ex.rpe){f.rpeInp.value=ex.rpe;if(rpeVal) rpeVal.textContent=ex.rpe;}
 }
@@ -5163,14 +5374,13 @@ function fillExBlock(block, ex){
 function initExRows(){
   const c=document.getElementById('ex-rows');
   c.innerHTML='';
-  c.appendChild(makeExRow('ex-rows'));
-  c.appendChild(makeExRow('ex-rows'));
+  c.appendChild(makeLogExBlock('ex-rows'));
+  c.appendChild(makeLogExBlock('ex-rows'));
 }
 
 function addExRow(){
-  const row=makeExRow('ex-rows');
+  const row=makeLogExBlock('ex-rows');
   document.getElementById('ex-rows').appendChild(row);
-  // Focus the exercise input
   row.querySelector('input').focus();
 }
 
@@ -5203,13 +5413,13 @@ function saveSession(){
 
   const pbs=[];
   exercises.forEach(ex=>{
-    const newW=parseFloat(ex.weight);
+    const newW=bestWeightFromEx(ex);
     if(!newW||isNaN(newW)) return;
     let prevBest=0;
     c.history.forEach(sess=>{
       (sess.exercises||[]).forEach(e=>{
         if(e.name&&e.name.toLowerCase()===ex.name.toLowerCase()){
-          const w=parseFloat(e.weight);
+          const w=bestWeightFromEx(e);
           if(w>prevBest) prevBest=w;
         }
       });
@@ -5597,6 +5807,7 @@ function openLogPerfModal(assignedId, e, sessionId, clientId, scheduleId){
 }
 
 function hasDoneLoad(ex){
+  if(ex&&Array.isArray(ex.setLogs)&&ex.setLogs.some(function(s){return dashToEmpty(s.reps)||dashToEmpty(s.weight);})) return true;
   return !!(dashToEmpty(ex&&ex.sets)||dashToEmpty(ex&&ex.reps)||dashToEmpty(ex&&ex.weight));
 }
 
@@ -5610,11 +5821,13 @@ function buildPerfRowModels(h, program, prefillAssignedIntoDone){
     const d=done[i]||{};
     const p=plan[i]||d.prescribed||null;
     const useDone=hasDoneLoad(d);
+    const source=useDone?d:(prefillAssignedIntoDone&&p?p:{sets:'3'});
     out.push({
       name:d.name||(p&&p.name)||'',
-      sets:useDone?d.sets:(prefillAssignedIntoDone&&p?p.sets:''),
-      reps:useDone?d.reps:(prefillAssignedIntoDone&&p?p.reps:''),
-      weight:useDone?d.weight:(prefillAssignedIntoDone&&p?p.weight:''),
+      sets:source.sets,
+      reps:source.reps,
+      weight:source.weight,
+      setLogs:setLogsFromEx(source),
       unit:d.unit||(p&&p.unit),
       rpe:d.rpe,
       prescribed:d.prescribed||p||null
@@ -5647,15 +5860,23 @@ function fillPerfExRows(exList, viewerUnit){
     }
     const doneLbl=document.createElement('div');
     doneLbl.className='flabel';
-    doneLbl.textContent='Done';
+    doneLbl.textContent='How many sets';
     card.appendChild(doneLbl);
-    const grid=document.createElement('div');
-    grid.className='perf-ex-done-grid';
-    const wt=ex.weight&&ex.weight!=='-'?displayWeightForViewer(ex.weight, ex.unit||'kg', viewerUnit):'';
-    grid.appendChild(makePerfField('perf-ex-sets','Sets', ex.sets, {inputMode:'numeric'}));
-    grid.appendChild(makePerfField('perf-ex-reps','Reps', ex.reps, {inputMode:'text'}));
-    grid.appendChild(makePerfField('perf-ex-weight', viewerUnit, wt, {inputMode:'decimal'}));
-    card.appendChild(grid);
+    const sets=makePerfField('log-ex-sets','Sets', (ex.setLogs&&ex.setLogs.length)||ex.sets||'3', {inputMode:'numeric'});
+    card.appendChild(sets);
+    const hdr=document.createElement('div');
+    hdr.className='set-log-hdr';
+    hdr.innerHTML='<span></span><span>Reps</span><span></span>';
+    hdr.lastChild.textContent=viewerUnit||'kg';
+    card.appendChild(hdr);
+    const setList=document.createElement('div');
+    setList.className='set-log-list';
+    card.appendChild(setList);
+    const addBtn=document.createElement('button');
+    addBtn.type='button';
+    addBtn.className='btn btn-secondary btn-sm set-log-add';
+    addBtn.textContent='+ Add set';
+    card.appendChild(addBtn);
     const rpeRow=document.createElement('div');
     rpeRow.className='ex-rpe-row';
     rpeRow.style.borderBottom='none';
@@ -5677,6 +5898,9 @@ function fillPerfExRows(exList, viewerUnit){
     block.className='ex-block';
     block.appendChild(card);
     block.appendChild(rpeRow);
+    sets.addEventListener('change',function(){syncSetLogRows(block, viewerUnit);});
+    addBtn.onclick=function(){addSetLogRow(block, viewerUnit);};
+    fillSetLogRows(block, ex, viewerUnit, viewerUnit);
     rows.appendChild(block);
   });
 }
@@ -5768,11 +5992,11 @@ function saveClientPerformance(){
   addNotification('trainer','session',clientName(c)+' logged a workout','Completed: '+(a?a.title:type)+' \u00b7 RPE '+rpe);
   const pbs=[];
   exercises.forEach(function(ex){
-    const newW=parseFloat(ex.weight);
+    const newW=bestWeightFromEx(ex);
     if(!newW||isNaN(newW)) return;
     let prevBest=0;
     c.history.slice(1).forEach(function(sess){
-      (sess.exercises||[]).forEach(function(e){if(e.name&&e.name.toLowerCase()===ex.name.toLowerCase()){const w=parseFloat(e.weight);if(w>prevBest)prevBest=w;}});
+      (sess.exercises||[]).forEach(function(e){if(e.name&&e.name.toLowerCase()===ex.name.toLowerCase()){const w=bestWeightFromEx(e);if(w>prevBest)prevBest=w;}});
     });
     if(newW>prevBest) pbs.push({name:ex.name,value:newW,prev:prevBest,unit:viewerUnit,type:'exercise',icon:'\ud83c\udfc6'});
   });
