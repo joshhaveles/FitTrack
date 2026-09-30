@@ -194,6 +194,7 @@ input,select,textarea,button{font-family:-apple-system,BlinkMacSystemFont,'Segoe
   .feed-section-label{padding:0 32px;}
   #c-feed .note-item,.note-item{margin:0 32px 10px;}
   .assigned-card,.workout-card,.video-card{margin:0 32px 14px;}
+  #c-today-session .c-today-card,#c-upcoming .session-card{margin-left:32px;margin-right:32px;}
   .cal-view-toggle{max-width:300px;}
   .month-grid{padding:0 32px 20px;}
   .day-timeline{padding:0 32px 20px;}
@@ -251,6 +252,11 @@ input,select,textarea,button{font-family:-apple-system,BlinkMacSystemFont,'Segoe
 #c-upcoming .session-card:active{transform:none;background:var(--bg2);}
 #c-upcoming .session-name{white-space:normal;}
 #c-upcoming .session-meta{white-space:normal;}
+.c-today-card{margin:0 16px 12px;padding:16px;background:var(--bg2);border:1px solid rgba(0,230,118,.28);border-radius:var(--r);box-shadow:0 4px 16px rgba(0,0,0,.35);}
+.c-today-kicker{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--lime);margin-bottom:6px;}
+.c-today-title{font-size:18px;font-weight:800;line-height:1.3;}
+.c-today-meta{font-size:13px;color:var(--text2);margin:6px 0 14px;line-height:1.45;}
+.c-today-log{min-height:48px;font-size:16px;}
 .chip{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;}
 .chip-lime{background:var(--lime-dim);color:var(--lime);}
 .chip-blue{background:var(--blue-dim);color:var(--blue);}
@@ -1462,6 +1468,8 @@ select.finp{cursor:pointer;}
         <!-- Other stats -->
         <div class="stats-row" id="c-stats" style="flex:1;padding:0;margin:0;"></div>
       </div>
+      <div class="feed-section-label">TODAY</div>
+      <div id="c-today-session"></div>
       <div class="feed-section-label">UPCOMING SESSIONS</div>
       <div id="c-upcoming"></div>
       <div class="feed-section-label">FROM YOUR TRAINER</div>
@@ -3248,6 +3256,7 @@ function switchTab(role, tab){
   if(role==='c'&&tab==='home'){
     const cl=(DB.clients||[]).find(x=>x.id===currentClientId);
     if(cl){
+      renderClientTodaySession(cl);
       renderClientUpcoming(cl);
       renderClientFeed(cl);
     }
@@ -3265,6 +3274,8 @@ function refreshWorkoutViews(c){
   if(!c) return;
   if(currentClientId===c.id && document.getElementById('c-history')){
     renderClientWorkouts(c);
+    if(typeof renderClientTodaySession==='function') renderClientTodaySession(c);
+    if(typeof renderClientUpcoming==='function') renderClientUpcoming(c);
     if(typeof renderClientFeed==='function') renderClientFeed(c);
   }
   if(activeClientPanel===c.id){
@@ -5280,6 +5291,7 @@ function initClient(c){
     <div class="stat-box"><div class="stat-n">${c.streak}</div><div class="stat-l">Streak wks</div></div>
     <div class="stat-box"><div class="stat-n">${c.assigned.length}</div><div class="stat-l">Programs</div></div>
   `;
+  renderClientTodaySession(c);
   renderClientUpcoming(c);
   renderClientFeed(c);
   renderClientWorkouts(c);
@@ -5300,10 +5312,77 @@ function initClient(c){
   setTimeout(()=>setClientUnit(clientUnit), 50);
 }
 
+function todaysAppointmentsForClient(clientId){
+  const ds=todayStr();
+  return (DB.schedule||[]).filter(function(s){
+    return s.clientId===clientId && s.date===ds;
+  }).sort(function(a,b){return String(a.time||'').localeCompare(String(b.time||''));});
+}
+
+function matchAssignedToAppointment(c, appt){
+  const list=(c&&c.assigned)||[];
+  if(!list.length) return null;
+  const type=String(appt&&appt.type||'').toLowerCase().trim();
+  if(type){
+    const exact=list.find(function(a){return String(a.title||'').toLowerCase().trim()===type;});
+    if(exact) return exact;
+    const partial=list.find(function(a){
+      const t=String(a.title||'').toLowerCase();
+      return t.indexOf(type)!==-1 || type.indexOf(t)!==-1;
+    });
+    if(partial) return partial;
+  }
+  return list[0];
+}
+
+function todaySessionCardHTML(c, appt, program){
+  const time=appt?formatApptTime(appt.time):'';
+  const title=appt
+    ?(time+' · '+(appt.type||'Session'))
+    :(program?program.title:"Today's workout");
+  const meta=[];
+  if(appt) meta.push((appt.duration||60)+' min');
+  if(program && appt) meta.push(program.title);
+  else if(program && !appt) meta.push('Assigned by your trainer');
+  else if(appt) meta.push('Log how it went');
+  const sid=appt&&appt.id?String(appt.id):'';
+  const aid=program&&program.id?String(program.id):'';
+  return `<div class="c-today-card">
+    <div class="c-today-kicker">Today</div>
+    <div class="c-today-title">${escapeHtml(title)}</div>
+    <div class="c-today-meta">${escapeHtml(meta.join(' · '))}</div>
+    <button type="button" class="btn btn-primary btn-full c-today-log" data-schedule-id="${escapeHtml(sid)}" data-assigned-id="${escapeHtml(aid)}" onclick="openTodaySessionLog(this)">Log this session</button>
+  </div>`;
+}
+
+function renderClientTodaySession(c){
+  const el=document.getElementById('c-today-session');
+  if(!el||!c) return;
+  const appts=todaysAppointmentsForClient(c.id);
+  const assigned=c.assigned||[];
+  if(!appts.length && !assigned.length){
+    el.innerHTML='<div class="empty-state" style="padding:8px 16px 4px;"><div class="empty-msg">Nothing on for today</div></div>';
+    return;
+  }
+  if(!appts.length){
+    el.innerHTML=todaySessionCardHTML(c, null, assigned[0]);
+    return;
+  }
+  el.innerHTML=appts.map(function(s){return todaySessionCardHTML(c, s, matchAssignedToAppointment(c, s));}).join('');
+}
+
+function openTodaySessionLog(btn){
+  const scheduleId=(btn&&btn.getAttribute('data-schedule-id'))||'';
+  const assignedId=(btn&&btn.getAttribute('data-assigned-id'))||'';
+  openLogPerfModal(assignedId||null, null, null, currentClientId, scheduleId||'');
+}
+
 function upcomingSessionsForClient(clientId){
   const now=new Date();
+  const ds=todayStr();
   return (DB.schedule||[]).filter(function(s){
     if(s.clientId!==clientId) return false;
+    if(s.date===ds) return false;
     return sessionStartDate(s).getTime()>=now.getTime()-60*1000;
   }).sort(function(a,b){return sessionStartDate(a)-sessionStartDate(b);}).slice(0,6);
 }
@@ -5313,7 +5392,8 @@ function renderClientUpcoming(c){
   if(!el||!c) return;
   const list=upcomingSessionsForClient(c.id);
   if(!list.length){
-    el.innerHTML='<div class="empty-state" style="padding:8px 16px 4px;"><div class="empty-msg">No sessions on the calendar yet</div></div>';
+    const todayN=todaysAppointmentsForClient(c.id).length;
+    el.innerHTML='<div class="empty-state" style="padding:8px 16px 4px;"><div class="empty-msg">'+(todayN?'Nothing else booked yet':'No sessions on the calendar yet')+'</div></div>';
     return;
   }
   const trainer=clientName(DB.trainer,'your trainer');
@@ -5458,7 +5538,7 @@ function assignedCardHTML(a, viewerUnit, clientObj){
 }
 
 
-function openLogPerfModal(assignedId, e, sessionId, clientId){
+function openLogPerfModal(assignedId, e, sessionId, clientId, scheduleId){
   if(e) e.stopPropagation();
   const cid=clientId||currentClientId;
   const c=DB.clients.find(function(x){return x.id===cid;});
@@ -5468,9 +5548,11 @@ function openLogPerfModal(assignedId, e, sessionId, clientId){
   const h=sessionId?findHistoryEntry(c, sessionId):null;
   const programId=(h&&h.assignedId)||assignedId||'';
   const a=(c.assigned||[]).find(function(x){return x.id===programId;})||assignedWorkoutForHistory(h, c);
+  const appt=(!h && scheduleId)?(DB.schedule||[]).find(function(s){return s.id===scheduleId;}):null;
   modal.dataset.assignedId=(a&&a.id)||programId||'';
   modal.dataset.sessionId=(h&&h.id)||'';
   modal.dataset.clientId=cid;
+  modal.dataset.scheduleId=(appt&&appt.id)||'';
   const saveBtn=document.getElementById('log-perf-save-btn');
   const hint=document.getElementById('log-perf-hint');
   const dateEl=document.getElementById('log-perf-date');
@@ -5493,16 +5575,23 @@ function openLogPerfModal(assignedId, e, sessionId, clientId){
     }
     fillPerfExRows(buildPerfRowModels(h, a, false), viewerUnit);
   } else {
-    if(!a) return;
-    document.getElementById('log-perf-title').textContent='Log: '+a.title;
-    document.getElementById('log-perf-desc').textContent=a.desc||'';
-    dateEl.value=isoDateOnly(null);
+    const heading=a?'Log: '+a.title:(appt?'Log: '+(appt.type||'Session'):'Log session');
+    document.getElementById('log-perf-title').textContent=heading;
+    document.getElementById('log-perf-desc').textContent=a&&a.desc?a.desc:'';
+    dateEl.value=todayStr();
     rpeEl.value=7;
     rpeVal.textContent='7';
     notesEl.value='';
     if(saveBtn) saveBtn.textContent='Save Log';
     if(hint) hint.style.display='none';
     fillPerfExRows(buildPerfRowModels({exercises:[]}, a, true), viewerUnit);
+    if(appt){
+      dateEl.value=appt.date||todayStr();
+      notesEl.value=appt.notes||'';
+      const time=formatApptTime(appt.time);
+      const dur=appt.duration||60;
+      document.getElementById('log-perf-desc').textContent=time+' · '+dur+' min'+(a&&a.desc?' · '+a.desc:'');
+    }
   }
   openModal('modal-log-perf');
 }
@@ -5620,6 +5709,7 @@ function saveClientPerformance(){
   if(!c) return;
   const assignedId=modal.dataset.assignedId;
   const sessionId=modal.dataset.sessionId;
+  const scheduleId=modal.dataset.scheduleId;
   const a=(c.assigned||[]).find(function(x){return x.id===assignedId;});
   const date=document.getElementById('log-perf-date').value||new Date().toISOString().split('T')[0];
   const rpe=parseInt(document.getElementById('log-perf-rpe').value)||7;
@@ -5648,18 +5738,34 @@ function saveClientPerformance(){
     h.rpe=rpe;
     h.notes=notes;
     h.exercises=exercises;
+    modal.dataset.scheduleId='';
     saveData(DB);
     closeModal('modal-log-perf');
     refreshWorkoutViews(c);
     showToast('Session updated ✓');
     return;
   }
-  c.history.unshift({id:(typeof newId==='function'?newId():('cp'+Date.now())),date:date,type:(a?a.title:'Self-logged')+' (self-logged)',duration:0,rpe:rpe,notes:notes,exercises:exercises,selfLogged:true,assignedId:assignedId||null});
+  let histId=(typeof newId==='function'?newId():('cp'+Date.now()));
+  let apptTime=null;
+  let duration=0;
+  let type=(a?a.title:'Self-logged')+' (self-logged)';
+  if(scheduleId){
+    const appt=(DB.schedule||[]).find(function(s){return s.id===scheduleId;});
+    if(appt){
+      histId=appt.id;
+      apptTime=appt.time||null;
+      duration=appt.duration||60;
+      type=a?a.title:(appt.type||'Session');
+      DB.schedule=(DB.schedule||[]).filter(function(s){return s.id!==scheduleId;});
+    }
+  }
+  c.history.unshift({id:histId,date:date,time:apptTime,type:type,duration:duration,rpe:rpe,notes:notes,exercises:exercises,selfLogged:true,assignedId:assignedId||null});
   if(a){if(!a.completions)a.completions=[];a.completions.unshift({date:date,rpe:rpe,notes:notes});}
   c.sessions=(c.sessions||0)+1;
   saveData(DB);
   closeModal('modal-log-perf');
-  addNotification('trainer','session',clientName(c)+' logged a workout','Completed: '+(a?a.title:'self-logged')+' \u00b7 RPE '+rpe);
+  modal.dataset.scheduleId='';
+  addNotification('trainer','session',clientName(c)+' logged a workout','Completed: '+(a?a.title:type)+' \u00b7 RPE '+rpe);
   const pbs=[];
   exercises.forEach(function(ex){
     const newW=parseFloat(ex.weight);
