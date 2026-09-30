@@ -13,13 +13,13 @@
 <script>
 (function(){
   if(location.protocol==='file:') return;
-  if(/[?&]v=sched2(?:&|$)/.test(location.search)) return;
+  if(/[?&]v=ex1(?:&|$)/.test(location.search)) return;
   var u=new URL(location.href);
-  u.searchParams.set('v','sched2');
+  u.searchParams.set('v','ex1');
   location.replace(u.href);
 })();
 </script>
-<link rel="manifest" href="manifest.json?v=sched2"/>
+<link rel="manifest" href="manifest.json?v=ex1"/>
 <link rel="icon" href="icon-192.png"/>
 <link rel="apple-touch-icon" href="icon-192.png"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
@@ -669,6 +669,19 @@ select.finp{cursor:pointer;}
 .lib-filter-bar::-webkit-scrollbar{display:none;}
 .lib-filter-chip{font-size:11px;font-weight:700;padding:5px 12px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--text3);cursor:pointer;white-space:nowrap;transition:all .15s;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}
 .lib-filter-chip.active{background:var(--lime-dim);color:var(--lime);border-color:rgba(212,245,60,.3);}
+.lib-section-label{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;padding:4px 16px 10px;}
+.lib-section-label.spaced{padding-top:8px;}
+.my-ex-add{margin:0 16px 16px;}
+.my-ex-card{cursor:default;}
+.my-ex-card:hover{transform:none;border-color:var(--border);background:var(--bg2);}
+.my-ex-card .lib-card-actions{flex-wrap:wrap;justify-content:flex-end;}
+.my-ex-card .lib-card-actions .btn{min-height:40px;}
+.ex-opt-save{color:var(--lime);font-weight:700;min-height:44px;}
+.ex-opt-cat.mine{color:var(--lime);}
+#modal-custom-ex .modal-sheet{display:flex;flex-direction:column;max-height:min(90dvh,90vh);overflow:hidden;padding-bottom:0;}
+#modal-custom-ex .cex-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+#modal-custom-ex .cex-actions{flex-shrink:0;display:flex;gap:8px;padding:12px 0 max(16px,env(safe-area-inset-bottom));background:var(--bg2);border-top:1px solid var(--border);}
+#modal-custom-ex .finp,#modal-custom-ex select.finp{font-size:16px;min-height:44px;}
 .cat-strength{background:rgba(91,164,245,.12);color:var(--blue);}
 .cat-cardio{background:rgba(245,147,91,.12);color:var(--orange);}
 .cat-hiit{background:rgba(245,91,91,.12);color:var(--red);}
@@ -1248,14 +1261,18 @@ select.finp{cursor:pointer;}
           <div class="icon-btn" onclick="openCreateTemplateModal()">＋</div>
         </div>
       </div>
+      <div class="lib-section-label">My exercises</div>
+      <div id="custom-ex-list"></div>
+      <button type="button" class="btn btn-secondary btn-full my-ex-add" onclick="openCustomExModal()">+ Add exercise</button>
+      <div class="lib-section-label spaced">Workout templates</div>
       <div class="lib-filter-bar" id="lib-filter-bar">
-        <button class="lib-filter-chip active" onclick="filterLibrary('all')">All</button>
-        <button class="lib-filter-chip" onclick="filterLibrary('Strength')">Strength</button>
-        <button class="lib-filter-chip" onclick="filterLibrary('Cardio')">Cardio</button>
-        <button class="lib-filter-chip" onclick="filterLibrary('HIIT')">HIIT</button>
-        <button class="lib-filter-chip" onclick="filterLibrary('Mobility')">Mobility</button>
-        <button class="lib-filter-chip" onclick="filterLibrary('Full body')">Full body</button>
-        <button class="lib-filter-chip" onclick="filterLibrary('Custom')">Custom</button>
+        <button type="button" class="lib-filter-chip active" onclick="filterLibrary('all')">All</button>
+        <button type="button" class="lib-filter-chip" onclick="filterLibrary('Strength')">Strength</button>
+        <button type="button" class="lib-filter-chip" onclick="filterLibrary('Cardio')">Cardio</button>
+        <button type="button" class="lib-filter-chip" onclick="filterLibrary('HIIT')">HIIT</button>
+        <button type="button" class="lib-filter-chip" onclick="filterLibrary('Mobility')">Mobility</button>
+        <button type="button" class="lib-filter-chip" onclick="filterLibrary('Full body')">Full body</button>
+        <button type="button" class="lib-filter-chip" onclick="filterLibrary('Custom')">Custom</button>
       </div>
       <div id="lib-list" style="padding-bottom:16px;"></div>
     </div>
@@ -2296,6 +2313,35 @@ select.finp{cursor:pointer;}
   </div>
 </div>
 
+<!-- CUSTOM EXERCISE MODAL -->
+<div class="modal-overlay hidden" id="modal-custom-ex" onclick="modalOutsideClose(event,'modal-custom-ex')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="custom-ex-title">Add exercise</div>
+    <div class="cex-body">
+      <input type="hidden" id="edit-custom-ex-id"/>
+      <div class="flabel">Name</div>
+      <input class="finp" id="cex-name" placeholder="e.g. Hack squat" autocomplete="off"/>
+      <div class="flabel">Category</div>
+      <select class="finp" id="cex-cat">
+        <option>Custom</option>
+        <option>Chest</option>
+        <option>Back</option>
+        <option>Shoulders</option>
+        <option>Arms</option>
+        <option>Legs</option>
+        <option>Core</option>
+        <option>Cardio</option>
+        <option>Olympic</option>
+      </select>
+    </div>
+    <div class="cex-actions">
+      <button type="button" class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-custom-ex')">Cancel</button>
+      <button type="button" class="btn btn-primary" style="flex:2" onclick="saveCustomExModal()">Save</button>
+    </div>
+  </div>
+</div>
+
 <!-- CREATE TEMPLATE MODAL -->
 <div class="modal-overlay hidden" id="modal-create-template" onclick="modalOutsideClose(event,'modal-create-template')">
   <div class="modal-sheet">
@@ -2917,6 +2963,7 @@ function loadData(){
   if(!d.notifications) d.notifications={trainer:[],clients:{}};
   if(!d.notifications.trainer) d.notifications.trainer=[];
   if(!d.notifications.clients) d.notifications.clients={};
+  if(!Array.isArray(d.customExercises)) d.customExercises=[];
   if(d.clients) d.clients.forEach(c=>{
     if(!c.videos) c.videos=[];
     if(!c.assigned) c.assigned=[];
@@ -4463,15 +4510,20 @@ function openShareVideoModal(){
 function filterSvExDropdown(){
   const inp=document.getElementById('sv-exercise');
   const drop=document.getElementById('sv-ex-drop');
-  const q=inp.value.trim().toLowerCase();
+  if(!inp||!drop) return;
+  const raw=inp.value.trim();
+  const q=raw.toLowerCase();
   const all=getExerciseNames();
-  const filtered=q.length===0?all.slice(0,20):all.filter(e=>e.name.toLowerCase().includes(q)).slice(0,20);
-  if(!filtered.length){drop.style.display='none';return;}
-  drop.innerHTML=filtered.map(e=>
-    `<div class="ex-opt" data-name="${e.name}" onmousedown="pickSvExercise('${e.name.replace(/'/g,"\'")}')">
-      ${e.name}<span class="ex-opt-cat">${e.cat}</span>
-    </div>`
-  ).join('');
+  const filtered=q.length===0?all.slice(0,20):all.filter(function(e){return e.name.toLowerCase().includes(q);}).slice(0,20);
+  const n=fillExDropdown(drop, filtered, raw, true);
+  if(!n){drop.style.display='none';return;}
+  drop.querySelectorAll('.ex-opt').forEach(function(opt){
+    opt.addEventListener('mousedown',function(e){
+      e.preventDefault();
+      if(opt.getAttribute('data-save')==='1') saveCustomExerciseFromSv(raw);
+      else pickSvExercise(opt.getAttribute('data-name'));
+    });
+  });
   drop.style.display='block';
 }
 
@@ -4862,20 +4914,66 @@ function getVideoForExercise(exName){
   return getVideoForExerciseForClient(exName, c);
 }
 
+function ensureCustomExercises(){
+  if(!Array.isArray(DB.customExercises)) DB.customExercises=[];
+  return DB.customExercises;
+}
+
 function getExerciseNames(){
-  // Merge library with any custom exercises from all clients' histories
-  const fromHistory=new Set();
-  DB.clients.forEach(c=>{
-    (c.history||[]).forEach(s=>{
-      (s.exercises||[]).forEach(e=>{if(e.name) fromHistory.add(e.name);});
-    });
-    (c.assigned||[]).forEach(a=>{
-      (a.exercises||[]).forEach(e=>{if(e.name) fromHistory.add(e.name);});
-    });
-  });
-  const libNames=new Set(EXERCISE_LIBRARY.map(e=>e.name.toLowerCase()));
-  const extras=[...fromHistory].filter(n=>!libNames.has(n.toLowerCase())).map(n=>({name:n,cat:'Custom'}));
-  return [...EXERCISE_LIBRARY,...extras];
+  const custom=ensureCustomExercises().map(function(e){
+    return {name:e.name,cat:e.cat||'Custom',mine:true};
+  }).sort(function(a,b){return a.name.localeCompare(b.name);});
+  const mineKeys=new Set(custom.map(function(e){return e.name.toLowerCase();}));
+  const lib=EXERCISE_LIBRARY.filter(function(e){return !mineKeys.has(e.name.toLowerCase());});
+  return custom.concat(lib);
+}
+
+function exerciseNameTaken(name, exceptId){
+  const k=(name||'').trim().toLowerCase();
+  if(!k) return 'empty';
+  if(EXERCISE_LIBRARY.some(function(e){return e.name.toLowerCase()===k;})) return 'builtin';
+  const hit=ensureCustomExercises().find(function(e){return e.name.toLowerCase()===k && e.id!==exceptId;});
+  return hit?'custom':null;
+}
+
+function upsertCustomExercise(opts){
+  const n=((opts&&opts.name)||'').trim();
+  if(!n) return {ok:false,msg:'Add an exercise name'};
+  const taken=exerciseNameTaken(n, opts&&opts.id);
+  if(taken==='builtin') return {ok:false,msg:'That name is already in the built-in list'};
+  if(taken==='custom') return {ok:false,msg:'You already saved that exercise'};
+  const list=ensureCustomExercises();
+  const cat=(opts&&opts.cat)||'Custom';
+  if(opts&&opts.id){
+    const row=list.find(function(x){return x.id===opts.id;});
+    if(!row) return {ok:false,msg:'Exercise not found'};
+    row.name=n;
+    row.cat=cat;
+    saveData(DB);
+    return {ok:true,ex:row};
+  }
+  const ex={
+    id:(typeof newId==='function'?newId():('cex'+Date.now()+Math.random().toString(36).slice(2,6))),
+    name:n,
+    cat:cat
+  };
+  list.push(ex);
+  saveData(DB);
+  return {ok:true,ex:ex};
+}
+
+function saveCustomExerciseFromPicker(uid, name){
+  const r=upsertCustomExercise({name:name,cat:'Custom'});
+  if(!r.ok){showToast(r.msg);return;}
+  pickExercise(uid, r.ex.name);
+  showToast('Saved to My exercises ✓');
+}
+
+function saveCustomExerciseFromSv(name){
+  const r=upsertCustomExercise({name:name,cat:'Custom'});
+  if(!r.ok){showToast(r.msg);return;}
+  pickSvExercise(r.ex.name);
+  showToast('Saved to My exercises ✓');
 }
 
 function makeExInput(containerId){
@@ -4899,24 +4997,40 @@ function makeExInput(containerId){
   return wrap;
 }
 
+function fillExDropdown(drop, items, q, canSave){
+  const ql=(q||'').toLowerCase();
+  const exact=!!ql && getExerciseNames().some(function(e){return e.name.toLowerCase()===ql;});
+  const html=[];
+  if(canSave&&q&&!exact){
+    html.push('<div class="ex-opt ex-opt-save" data-save="1">Save “'+escapeHtml(q)+'” to my exercises</div>');
+  }
+  items.forEach(function(e){
+    html.push('<div class="ex-opt" data-name="'+escapeHtml(e.name)+'">'+escapeHtml(e.name)+'<span class="ex-opt-cat'+(e.mine?' mine':'')+'">'+escapeHtml(e.cat||'')+'</span></div>');
+  });
+  drop.innerHTML=html.join('');
+  return html.length;
+}
+
 function filterExDropdown(uid){
   const inp=document.getElementById(uid);
   const drop=document.getElementById(uid+'_drop');
   if(!inp||!drop) return;
   const q=inp.value.trim();
-  // Show indicator for exact match
   if(q) showExVideoIndicator(uid, q);
   const ql=q.toLowerCase();
   const all=getExerciseNames();
   const filtered = ql.length===0
     ? all.slice(0,20)
-    : all.filter(e=>e.name.toLowerCase().includes(ql)).slice(0,20);
-  if(!filtered.length){drop.style.display='none';return;}
-  drop.innerHTML=filtered.map((e,i)=>
-    `<div class="ex-opt" data-name="${e.name}" onmousedown="pickExercise('${uid}','${e.name.replace(/'/g,"\'")}')">
-      ${e.name}<span class="ex-opt-cat">${e.cat}</span>
-    </div>`
-  ).join('');
+    : all.filter(function(e){return e.name.toLowerCase().includes(ql);}).slice(0,20);
+  const n=fillExDropdown(drop, filtered, q, true);
+  if(!n){drop.style.display='none';return;}
+  drop.querySelectorAll('.ex-opt').forEach(function(opt){
+    opt.addEventListener('mousedown',function(e){
+      e.preventDefault();
+      if(opt.getAttribute('data-save')==='1') saveCustomExerciseFromPicker(uid, q);
+      else pickExercise(uid, opt.getAttribute('data-name'));
+    });
+  });
   drop.style.display='block';
 }
 
@@ -4960,7 +5074,14 @@ function exKeyNav(e, uid){
   let idx=[...opts].indexOf(cur);
   if(e.key==='ArrowDown'){e.preventDefault();idx=Math.min(idx+1,opts.length-1);}
   else if(e.key==='ArrowUp'){e.preventDefault();idx=Math.max(idx-1,0);}
-  else if(e.key==='Enter'&&cur){e.preventDefault();pickExercise(uid,cur.dataset.name);return;}
+  else if(e.key==='Enter'&&cur){
+    e.preventDefault();
+    if(cur.getAttribute('data-save')==='1'){
+      const inp=document.getElementById(uid);
+      saveCustomExerciseFromPicker(uid, inp?inp.value.trim():'');
+    } else pickExercise(uid, cur.dataset.name||cur.getAttribute('data-name'));
+    return;
+  }
   else if(e.key==='Escape'){drop.style.display='none';return;}
   opts.forEach(o=>o.classList.remove('highlighted'));
   if(opts[idx]) opts[idx].classList.add('highlighted');
@@ -7998,10 +8119,71 @@ function catClass(cat){
   return m[cat]||'cat-custom';
 }
 
+function renderCustomExerciseList(){
+  const el=document.getElementById('custom-ex-list');
+  if(!el) return;
+  const list=ensureCustomExercises().slice().sort(function(a,b){return a.name.localeCompare(b.name);});
+  if(!list.length){
+    el.innerHTML='<div class="empty-state" style="padding:8px 16px 12px;"><div class="empty-msg" style="font-size:13px;">No custom exercises yet. Add ones you use that are not in the built-in list.</div></div>';
+    return;
+  }
+  el.innerHTML=list.map(function(e){
+    return '<div class="lib-card my-ex-card">'+
+      '<div class="lib-card-head">'+
+        '<span class="lib-card-cat '+catClass(e.cat)+'">'+escapeHtml(e.cat||'Custom')+'</span>'+
+        '<div class="lib-card-title">'+escapeHtml(e.name)+'</div>'+
+      '</div>'+
+      '<div class="lib-card-meta">'+
+        '<span class="lib-card-ex-count">Shows in the picker</span>'+
+        '<div class="lib-card-actions">'+
+          '<button type="button" class="btn btn-secondary btn-sm" onclick="openCustomExModal(\''+e.id+'\')">Edit</button>'+
+          '<button type="button" class="btn btn-danger btn-sm" onclick="deleteCustomExercise(\''+e.id+'\')">Delete</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function openCustomExModal(id){
+  const editId=id||'';
+  document.getElementById('edit-custom-ex-id').value=editId;
+  const nameEl=document.getElementById('cex-name');
+  const catEl=document.getElementById('cex-cat');
+  const row=editId?ensureCustomExercises().find(function(x){return x.id===editId;}):null;
+  document.getElementById('custom-ex-title').textContent=row?'Edit exercise':'Add exercise';
+  nameEl.value=row?row.name:'';
+  const want=row&&row.cat?row.cat:'Custom';
+  catEl.selectedIndex=0;
+  for(let i=0;i<catEl.options.length;i++){
+    if(catEl.options[i].value===want||catEl.options[i].text===want){catEl.selectedIndex=i;break;}
+  }
+  openModal('modal-custom-ex');
+  setTimeout(function(){nameEl.focus();},50);
+}
+
+function saveCustomExModal(){
+  const id=document.getElementById('edit-custom-ex-id').value||'';
+  const nameEl=document.getElementById('cex-name');
+  const catEl=document.getElementById('cex-cat');
+  const r=upsertCustomExercise({id:id||undefined,name:nameEl.value,cat:catEl.value});
+  if(!r.ok){showToast(r.msg);return;}
+  closeModal('modal-custom-ex');
+  renderLibrary();
+  showToast(id?'Exercise updated ✓':'Exercise saved ✓');
+}
+
+function deleteCustomExercise(id){
+  if(!confirm('Remove this exercise from your list? Workouts that already use it are not changed.')) return;
+  DB.customExercises=ensureCustomExercises().filter(function(x){return x.id!==id;});
+  saveData(DB);
+  renderLibrary();
+  showToast('Exercise removed');
+}
+
 function renderLibrary(){
   if(!DB.workoutLibrary) DB.workoutLibrary=[];
+  renderCustomExerciseList();
   const filtered=libFilter==='all'?DB.workoutLibrary:DB.workoutLibrary.filter(t=>t.cat===libFilter);
-  // Update filter chips
   document.querySelectorAll('.lib-filter-chip').forEach(btn=>{
     const val=btn.textContent==='All'?'all':btn.textContent;
     btn.classList.toggle('active',val===libFilter);

@@ -34,7 +34,8 @@
       stripeConnected: false,
       subscription: { plan: 'trial', status: 'active' },
       notifications: { trainer: [], clients: {} },
-      exerciseVideos: {}
+      exerciseVideos: {},
+      customExercises: []
     };
   }
   window.emptyCloudData = emptyData;
@@ -312,6 +313,7 @@
       plan: (trainerRow && trainerRow.subscription_plan) || 'trial',
       status: (trainerRow && trainerRow.subscription_status) || 'active'
     };
+    db.customExercises = (trainerRow && Array.isArray(trainerRow.custom_exercises)) ? trainerRow.custom_exercises : [];
 
     window.cloudReady = true;
     return { role: role, user: user, db: db };
@@ -351,7 +353,8 @@
           unit: (typeof trainerUnit !== 'undefined' ? trainerUnit : 'kg'),
           stripe_connected: !!db.stripeConnected,
           subscription_plan: (db.subscription && db.subscription.plan) || 'trial',
-          subscription_status: (db.subscription && db.subscription.status) || 'active'
+          subscription_status: (db.subscription && db.subscription.status) || 'active',
+          custom_exercises: Array.isArray(db.customExercises) ? db.customExercises : []
         }), 'trainers');
       }
 
