@@ -721,6 +721,25 @@ select.finp{cursor:pointer;}
 #modal-log-perf .modal-sheet{display:flex;flex-direction:column;max-height:min(92dvh,92vh);overflow:hidden;padding-bottom:0;}
 #modal-log-perf .log-perf-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:8px;}
 #modal-log-perf .log-perf-actions{flex-shrink:0;display:flex;gap:8px;padding:12px 0 max(16px,env(safe-area-inset-bottom));background:var(--bg2);border-top:1px solid var(--border);}
+
+/* ── IMPORT NOTES ── */
+#modal-import-notes .modal-sheet{display:flex;flex-direction:column;max-height:min(92dvh,92vh);overflow:hidden;padding-bottom:0;}
+#modal-import-notes .import-notes-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:8px;}
+#modal-import-notes .import-notes-actions{flex-shrink:0;display:flex;flex-direction:column;gap:8px;padding:12px 0 max(16px,env(safe-area-inset-bottom));background:var(--bg2);border-top:1px solid var(--border);}
+#modal-import-notes .finp{font-size:16px;}
+.import-notes-hint{font-size:12px;color:var(--text2);line-height:1.55;margin:-6px 0 12px;}
+.import-notes-sample{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 12px;white-space:pre-wrap;margin-bottom:12px;line-height:1.5;}
+.import-session-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:10px;}
+.import-session-card.excluded{opacity:.45;}
+.import-session-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;}
+.import-session-top input[type=checkbox]{width:20px;height:20px;margin-top:2px;flex-shrink:0;accent-color:var(--lime);}
+.import-ex-mini{font-size:12px;color:var(--text2);padding:4px 0;border-top:1px solid var(--border);font-family:'DM Mono',monospace;}
+.import-ex-mini:first-of-type{border-top:none;margin-top:4px;}
+.import-warn{font-size:11px;color:var(--orange);line-height:1.45;margin-top:8px;}
+.import-step-label{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px;}
+@media(min-width:768px){
+  #modal-import-notes .modal-sheet{max-width:520px;margin:0 auto;}
+}
 #modal-subscription .modal-sheet{display:flex;flex-direction:column;max-height:none;height:100%;width:100%;max-width:560px;margin:0 auto;overflow:hidden;padding:12px 16px 0;border-radius:16px 16px 0 0;box-sizing:border-box;}
 #modal-subscription .sub-sheet-top{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:10px;background:var(--bg2);position:relative;z-index:2;}
 #modal-subscription .sub-sheet-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:8px;}
@@ -1320,6 +1339,13 @@ select.finp{cursor:pointer;}
             <div class="ai-feature-icon">📝</div>
             <div class="ai-feature-text"><b>Session notes</b>Describe what happened in a session and get a polished note to save to the client's profile.</div>
           </div>
+          <div class="ai-feature-row">
+            <div class="ai-feature-icon">📥</div>
+            <div class="ai-feature-text"><b>Import Android notes</b>Paste old Google Keep / Samsung Notes workout logs — the agent deciphers sessions and imports them into a client's history. Works on-device today.</div>
+          </div>
+          <div style="margin:4px 0 8px;">
+            <button type="button" class="btn btn-primary btn-full" style="font-size:13px;" onclick="openImportNotesFromAI()">Import notes → history</button>
+          </div>
         </div>
         <div style="margin:0 16px 16px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;">
           <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:6px;">🔧 Developer activation</div>
@@ -1343,6 +1369,7 @@ select.finp{cursor:pointer;}
           <button class="ai-quick-btn" onclick="aiQuickPrompt('substitute')">🔄 Exercise substitution</button>
           <button class="ai-quick-btn" onclick="aiQuickPrompt('note')">📝 Write session note</button>
           <button class="ai-quick-btn" onclick="aiQuickPrompt('deload')">😴 Deload week</button>
+          <button type="button" class="ai-quick-btn" onclick="openImportNotesFromAI()">📥 Import notes</button>
         </div>
         <div class="ai-messages" id="ai-messages"></div>
         <div class="ai-input-bar">
@@ -1796,6 +1823,9 @@ select.finp{cursor:pointer;}
 
     <!-- History tab -->
     <div class="tab-content" id="ct-history">
+      <div style="padding:0 16px 10px;display:flex;justify-content:flex-end;">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="openImportNotesModal()">Import from notes</button>
+      </div>
       <div class="hist-search-wrap">
         <input class="finp" id="panel-history-search" type="search" placeholder="Search an exercise, sets, or weight" autocomplete="off" enterkeyhint="search" oninput="renderPanelHistory()"/>
         <div class="hist-search-meta" id="panel-history-search-meta"></div>
@@ -2005,8 +2035,65 @@ select.finp{cursor:pointer;}
     <div class="flabel">Note</div>
     <textarea class="finp" id="note-text" placeholder="Session observations, progress, reminders..." style="min-height:100px;"></textarea>
     <div class="gap-8 mt-8">
-      <button class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-add-note')">Cancel</button>
-      <button class="btn btn-primary" style="flex:2" onclick="saveNote()">Save Note</button>
+      <button type="button" class="btn btn-secondary" style="flex:1" onclick="closeModal('modal-add-note')">Cancel</button>
+      <button type="button" class="btn btn-primary" style="flex:2" onclick="saveNote()">Save Note</button>
+    </div>
+  </div>
+</div>
+
+<!-- IMPORT WORKOUTS FROM ANDROID NOTES -->
+<div class="modal-overlay hidden" id="modal-import-notes" onclick="modalOutsideClose(event,'modal-import-notes')">
+  <div class="modal-sheet" onclick="event.stopPropagation()" role="dialog" aria-labelledby="import-notes-title">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="import-notes-title" style="margin-bottom:6px;">Import from notes</div>
+    <div class="import-notes-body" id="import-notes-body">
+      <div id="import-notes-step-paste">
+        <div class="import-notes-hint">Paste workouts from Google Keep, Samsung Notes, or any Android note. The agent splits sessions by date, reads sets/reps/weight, then you review before they land in history.</div>
+        <div class="flabel">Client</div>
+        <select class="finp" id="import-notes-client"></select>
+        <div class="fgrid-2">
+          <div>
+            <div class="flabel">Weight unit</div>
+            <select class="finp" id="import-notes-unit">
+              <option value="kg">kg</option>
+              <option value="lb">lb</option>
+            </select>
+          </div>
+          <div>
+            <div class="flabel">Fallback date</div>
+            <input class="finp" type="date" id="import-notes-fallback-date"/>
+          </div>
+        </div>
+        <div class="flabel">Workout notes</div>
+        <textarea class="finp" id="import-notes-text" placeholder="Paste notes here…" style="min-height:160px;"></textarea>
+        <div class="flabel" style="margin-top:4px;">Example format</div>
+        <div class="import-notes-sample" id="import-notes-sample">2025-03-04 Push
+Bench Press 80x8,8,7
+OHP 3x8 @40
+Cable Fly 3x12 @25
+
+3/10/25 Legs
+Squat 3x5 @185
+RDL 135x8,8,8</div>
+        <button type="button" class="btn btn-secondary btn-sm" style="margin-bottom:8px;" onclick="fillImportNotesSample()">Use sample</button>
+      </div>
+      <div id="import-notes-step-review" class="hidden">
+        <div class="import-step-label">Review sessions</div>
+        <div class="import-notes-hint" id="import-notes-review-meta"></div>
+        <div id="import-notes-review-list"></div>
+        <div class="import-warn" id="import-notes-warnings"></div>
+      </div>
+    </div>
+    <div class="import-notes-actions">
+      <div id="import-notes-actions-paste">
+        <button type="button" class="btn btn-primary btn-full" onclick="runImportNotesAgent()">Decipher workouts</button>
+        <button type="button" class="btn btn-secondary btn-full" onclick="closeModal('modal-import-notes')">Cancel</button>
+      </div>
+      <div id="import-notes-actions-review" class="hidden">
+        <button type="button" class="btn btn-primary btn-full" id="import-notes-confirm-btn" onclick="confirmImportNotes()">Import into history</button>
+        <button type="button" class="btn btn-secondary btn-full" onclick="backToImportNotesPaste()">Edit notes</button>
+        <button type="button" class="btn btn-secondary btn-full" onclick="closeModal('modal-import-notes')">Cancel</button>
+      </div>
     </div>
   </div>
 </div>
@@ -2920,6 +3007,7 @@ select.finp{cursor:pointer;}
 </div>
 <div id="notif-overlay" style="display:none;position:fixed;inset:0;z-index:299;" onclick="closeNotifPanel()"></div>
 <script src="cloud.js?v=sync1"></script>
+<script src="notes-import.js?v=1"></script>
 <div class="alert-banner" id="alert-banner" onclick="handleAlertClick()">
   <div class="alert-icon" id="alert-icon"></div>
   <div class="alert-body">
@@ -4333,6 +4421,221 @@ function saveNote(){
 }
 
 function openAddNoteModal(){openModal('modal-add-note');}
+
+// ══════════════════════════════════════════════════
+//  IMPORT ANDROID / KEEP NOTES → HISTORY
+// ══════════════════════════════════════════════════
+let importNotesDraft = { sessions: [], warnings: [], clientId: null, unit: 'kg' };
+
+function openImportNotesFromAI(){
+  const sel=document.getElementById('ai-client-ctx');
+  const cid=sel&&sel.value?sel.value:(activeClientPanel||null);
+  if(cid) activeClientPanel=cid;
+  openImportNotesModal(cid);
+}
+
+function openImportNotesModal(preferredClientId){
+  const clientId=preferredClientId||activeClientPanel||null;
+  const sel=document.getElementById('import-notes-client');
+  if(sel){
+    sel.innerHTML=(DB.clients||[]).map(function(c){
+      return '<option value="'+escapeHtml(c.id)+'">'+escapeHtml(clientName(c))+'</option>';
+    }).join('');
+    if(clientId && (DB.clients||[]).some(function(c){return c.id===clientId;})) sel.value=clientId;
+  }
+  const unitEl=document.getElementById('import-notes-unit');
+  if(unitEl) unitEl.value=trainerUnit||'kg';
+  const dateEl=document.getElementById('import-notes-fallback-date');
+  if(dateEl) dateEl.value=todayStr();
+  const textEl=document.getElementById('import-notes-text');
+  if(textEl){ textEl.value=''; }
+  importNotesDraft={sessions:[],warnings:[],clientId:null,unit:trainerUnit||'kg'};
+  showImportNotesStep('paste');
+  openModal('modal-import-notes');
+  setTimeout(function(){
+    if(textEl){ textEl.focus(); }
+  }, 80);
+}
+
+function fillImportNotesSample(){
+  const sample=document.getElementById('import-notes-sample');
+  const textEl=document.getElementById('import-notes-text');
+  if(sample&&textEl) textEl.value=sample.textContent||'';
+}
+
+function showImportNotesStep(step){
+  const paste=document.getElementById('import-notes-step-paste');
+  const review=document.getElementById('import-notes-step-review');
+  const actPaste=document.getElementById('import-notes-actions-paste');
+  const actReview=document.getElementById('import-notes-actions-review');
+  const isPaste=step!=='review';
+  if(paste) paste.classList.toggle('hidden', !isPaste);
+  if(review) review.classList.toggle('hidden', isPaste);
+  if(actPaste) actPaste.classList.toggle('hidden', !isPaste);
+  if(actReview) actReview.classList.toggle('hidden', isPaste);
+}
+
+function backToImportNotesPaste(){
+  showImportNotesStep('paste');
+}
+
+function runImportNotesAgent(){
+  const api=window.FitTrackNotesImport;
+  if(!api||typeof api.parseWorkoutNotes!=='function'){
+    showToast('Notes import agent failed to load');
+    return;
+  }
+  const textEl=document.getElementById('import-notes-text');
+  const text=(textEl&&textEl.value||'').trim();
+  if(!text){ showToast('Paste some workout notes first'); return; }
+  const clientSel=document.getElementById('import-notes-client');
+  const clientId=clientSel?clientSel.value:'';
+  if(!clientId){ showToast('Select a client'); return; }
+  const unitEl=document.getElementById('import-notes-unit');
+  const unit=unitEl&&unitEl.value==='lb'?'lb':'kg';
+  const dateEl=document.getElementById('import-notes-fallback-date');
+  const fallback=dateEl&&dateEl.value?dateEl.value:todayStr();
+
+  const result=api.parseWorkoutNotes(text,{unit:unit,defaultDate:fallback});
+  if(!result.sessions||!result.sessions.length){
+    showToast('No workouts found — check the format');
+    return;
+  }
+  importNotesDraft={
+    sessions:result.sessions.map(function(s){
+      return {
+        date:s.date,
+        type:s.type||'Strength training',
+        duration:s.duration||60,
+        rpe:s.rpe!=null?s.rpe:7,
+        notes:s.notes||'',
+        exercises:s.exercises||[],
+        include:true
+      };
+    }),
+    warnings:result.warnings||[],
+    clientId:clientId,
+    unit:unit
+  };
+  renderImportNotesReview();
+  showImportNotesStep('review');
+}
+
+function renderImportNotesReview(){
+  const list=document.getElementById('import-notes-review-list');
+  const meta=document.getElementById('import-notes-review-meta');
+  const warnEl=document.getElementById('import-notes-warnings');
+  const api=window.FitTrackNotesImport;
+  const sessions=importNotesDraft.sessions||[];
+  const included=sessions.filter(function(s){return s.include!==false;}).length;
+  if(meta){
+    meta.textContent='Found '+sessions.length+' session'+(sessions.length===1?'':'s')+
+      ' · '+included+' selected to import. Uncheck any you want to skip, then confirm.';
+  }
+  if(!list) return;
+  list.innerHTML=sessions.map(function(s,idx){
+    const summary=api&&api.formatSessionSummary?api.formatSessionSummary(s):((s.exercises||[]).length+' exercises');
+    const exHtml=(s.exercises||[]).map(function(e){
+      const bits=[];
+      if(e.sets&&e.sets!=='-') bits.push(e.sets+'×');
+      if(e.reps&&e.reps!=='-') bits.push(e.reps);
+      if(e.weight&&e.weight!=='-') bits.push('@ '+e.weight+(e.unit?' '+e.unit:''));
+      return '<div class="import-ex-mini"><b style="color:var(--text);font-family:inherit;">'+escapeHtml(e.name||'Exercise')+'</b> · '+escapeHtml(bits.join(' ')||'—')+'</div>';
+    }).join('');
+    return '<div class="import-session-card'+(s.include===false?' excluded':'')+'" data-idx="'+idx+'">'+
+      '<div class="import-session-top">'+
+        '<input type="checkbox" '+(s.include!==false?'checked':'')+' onchange="toggleImportSession('+idx+',this.checked)" aria-label="Include session"/>'+
+        '<div style="flex:1;min-width:0;">'+
+          '<div class="fgrid-2" style="margin-bottom:0;">'+
+            '<div><div class="flabel">Date</div><input class="finp" type="date" value="'+escapeHtml(s.date||'')+'" onchange="updateImportSessionField('+idx+',\'date\',this.value)"/></div>'+
+            '<div><div class="flabel">Type</div><input class="finp" value="'+escapeHtml(s.type||'')+'" onchange="updateImportSessionField('+idx+',\'type\',this.value)"/></div>'+
+          '</div>'+
+          '<div class="fgrid-2">'+
+            '<div><div class="flabel">Duration (min)</div><input class="finp" type="number" inputmode="numeric" value="'+escapeHtml(String(s.duration||60))+'" onchange="updateImportSessionField('+idx+',\'duration\',this.value)"/></div>'+
+            '<div><div class="flabel">RPE</div><input class="finp" type="number" min="1" max="10" inputmode="numeric" value="'+escapeHtml(String(s.rpe!=null?s.rpe:7))+'" onchange="updateImportSessionField('+idx+',\'rpe\',this.value)"/></div>'+
+          '</div>'+
+          '<div style="font-size:11px;color:var(--text3);margin-top:2px;">'+escapeHtml(summary)+'</div>'+
+          exHtml+
+        '</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+  if(warnEl){
+    const warns=importNotesDraft.warnings||[];
+    warnEl.textContent=warns.length?('Parser notes: '+warns.slice(0,5).join(' · ')):'';
+  }
+  const btn=document.getElementById('import-notes-confirm-btn');
+  if(btn) btn.textContent='Import '+included+' session'+(included===1?'':'s')+' into history';
+}
+
+function toggleImportSession(idx, on){
+  if(!importNotesDraft.sessions[idx]) return;
+  importNotesDraft.sessions[idx].include=!!on;
+  renderImportNotesReview();
+}
+
+function updateImportSessionField(idx, field, value){
+  const s=importNotesDraft.sessions[idx];
+  if(!s) return;
+  if(field==='date') s.date=value;
+  else if(field==='type') s.type=value||'Strength training';
+  else if(field==='duration') s.duration=parseInt(value,10)||60;
+  else if(field==='rpe') s.rpe=Math.min(10,Math.max(1,parseInt(value,10)||7));
+}
+
+function confirmImportNotes(){
+  const clientId=importNotesDraft.clientId||((document.getElementById('import-notes-client')||{}).value);
+  const c=(DB.clients||[]).find(function(x){return x.id===clientId;});
+  if(!c){ showToast('Client not found'); return; }
+  const toImport=(importNotesDraft.sessions||[]).filter(function(s){return s.include!==false;});
+  if(!toImport.length){ showToast('Select at least one session'); return; }
+  if(!c.history) c.history=[];
+  let added=0;
+  toImport.forEach(function(s){
+    const id=typeof newId==='function'?newId():('h'+Date.now()+Math.random().toString(16).slice(2));
+    const exercises=(s.exercises||[]).map(function(e){
+      const setLogs=Array.isArray(e.setLogs)?e.setLogs.map(function(sl){
+        return {reps:dashToEmpty(sl.reps),weight:dashToEmpty(sl.weight),rir:dashToEmpty(sl.rir)};
+      }):[];
+      const sum=setLogs.length?summarizeSetLogs(setLogs):{sets:e.sets||'-',reps:e.reps||'-',weight:e.weight||'-'};
+      return {
+        name:e.name,
+        sets:sum.sets||'-',
+        reps:sum.reps||'-',
+        weight:sum.weight||'-',
+        unit:e.unit||importNotesDraft.unit||'kg',
+        setLogs:setLogs
+      };
+    });
+    c.history.unshift({
+      id:id,
+      date:isoDateOnly(s.date),
+      time:null,
+      type:s.type||'Strength training',
+      duration:parseInt(s.duration,10)||60,
+      rpe:s.rpe!=null?s.rpe:7,
+      notes:(s.notes?s.notes+' · ':'')+'Imported from notes',
+      exercises:exercises,
+      selfLogged:false
+    });
+    added++;
+  });
+  c.sessions=(c.sessions||0)+added;
+  // Keep history newest-first by date then id
+  c.history.sort(function(a,b){
+    const d=String(b.date||'').localeCompare(String(a.date||''));
+    return d!==0?d:String(b.id||'').localeCompare(String(a.id||''));
+  });
+  saveData(DB);
+  activeClientPanel=c.id;
+  document.getElementById('panel-client-goal').textContent=c.goal+' · '+c.sessions+' sessions';
+  renderTrainerStats();
+  renderClientGrid();
+  switchClientTab('history');
+  renderPanelHistory();
+  closeModal('modal-import-notes');
+  showToast('Imported '+added+' session'+(added===1?'':'s')+' for '+clientName(c)+' ✓');
+}
 
 let assignSelectedClients=new Set();
 
