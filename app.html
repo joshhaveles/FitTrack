@@ -13,13 +13,13 @@
 <script>
 (function(){
   if(location.protocol==='file:') return;
-  if(/[?&]v=hist1(?:&|$)/.test(location.search)) return;
+  if(/[?&]v=notes1(?:&|$)/.test(location.search)) return;
   var u=new URL(location.href);
-  u.searchParams.set('v','hist1');
+  u.searchParams.set('v','notes1');
   location.replace(u.href);
 })();
 </script>
-<link rel="manifest" href="manifest.json?v=hist1"/>
+<link rel="manifest" href="manifest.json?v=notes1"/>
 <link rel="icon" href="icon-192.png"/>
 <link rel="apple-touch-icon" href="icon-192.png"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
@@ -3007,7 +3007,7 @@ RDL 135x8,8,8</div>
 </div>
 <div id="notif-overlay" style="display:none;position:fixed;inset:0;z-index:299;" onclick="closeNotifPanel()"></div>
 <script src="cloud.js?v=sync1"></script>
-<script src="notes-import.js?v=1"></script>
+<script src="notes-import.js?v=notes1"></script>
 <div class="alert-banner" id="alert-banner" onclick="handleAlertClick()">
   <div class="alert-icon" id="alert-icon"></div>
   <div class="alert-body">

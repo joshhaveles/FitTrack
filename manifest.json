@@ -2,7 +2,7 @@
  "name": "FitTrack",
  "short_name": "FitTrack",
  "description": "AI-powered fitness coaching and tracking.",
- "start_url": "/FitTrack/app.html?v=hist1",
+ "start_url": "/FitTrack/app.html?v=notes1",
  "display": "standalone",
  "background_color": "#121212",
  "theme_color": "#00e676",
