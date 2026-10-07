@@ -257,6 +257,18 @@ input,select,textarea,button{font-family:-apple-system,BlinkMacSystemFont,'Segoe
 .c-today-title{font-size:18px;font-weight:800;line-height:1.3;}
 .c-today-meta{font-size:13px;color:var(--text2);margin:6px 0 14px;line-height:1.45;}
 .c-today-log{min-height:48px;font-size:16px;}
+.c-today-actions{display:flex;flex-direction:column;gap:8px;}
+.c-today-own{min-height:48px;font-size:15px;}
+.c-own-session-card{margin:0 16px 12px;padding:16px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);}
+.c-own-session-card .c-today-kicker{color:var(--text2);}
+#client-fab{display:none;}
+.perf-ex-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px;}
+.perf-ex-card-head .flabel{margin-bottom:0;}
+.perf-ex-remove{flex-shrink:0;width:36px;height:36px;border:none;border-radius:10px;background:var(--bg4);color:var(--text2);font-size:18px;cursor:pointer;line-height:1;}
+.perf-ex-remove:active{transform:scale(.95);}
+.perf-add-ex{margin:4px 0 12px;min-height:44px;font-size:15px;}
+#log-perf-title-wrap{margin-bottom:14px;}
+.hist-origin{color:var(--lime);font-size:10px;font-weight:700;}
 .chip{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;}
 .chip-lime{background:var(--lime-dim);color:var(--lime);}
 .chip-blue{background:var(--blue-dim);color:var(--blue);}
@@ -721,6 +733,7 @@ select.finp{cursor:pointer;}
 #modal-log-perf .modal-sheet{display:flex;flex-direction:column;max-height:min(92dvh,92vh);overflow:hidden;padding-bottom:0;}
 #modal-log-perf .log-perf-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:8px;}
 #modal-log-perf .log-perf-actions{flex-shrink:0;display:flex;gap:8px;padding:12px 0 max(16px,env(safe-area-inset-bottom));background:var(--bg2);border-top:1px solid var(--border);}
+#modal-log-perf .finp{font-size:16px;}
 
 /* ── IMPORT NOTES ── */
 #modal-import-notes .modal-sheet{display:flex;flex-direction:column;max-height:min(92dvh,92vh);overflow:hidden;padding-bottom:0;}
@@ -1543,6 +1556,7 @@ select.finp{cursor:pointer;}
       <div class="topbar">
         <div class="topbar-title">My Workouts</div>
         <div style="display:flex;align-items:center;gap:8px;">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="openClientOwnSessionLog()" style="min-height:36px;font-size:13px;">＋ Own workout</button>
           <div class="avatar-sm" style="background:var(--lime-dim);color:var(--lime);cursor:pointer;font-size:12px;font-weight:700;" id="c-avatar2" onclick="toggleAvatarMenu('client-menu2')"></div>
         </div>
       </div>
@@ -1789,6 +1803,7 @@ select.finp{cursor:pointer;}
       </div>
     </div>
   </div>
+  <button type="button" class="fab" id="client-fab" onclick="openClientOwnSessionLog()" title="Log my workout">＋</button>
 </div>
 
 <!-- ═══════════════════════════════ CLIENT DETAIL PANEL ═══════════════════════════════ -->
@@ -2624,11 +2639,17 @@ RDL 135x8,8,8</div>
     <div style="font-size:12px;color:var(--text2);margin-bottom:14px;" id="log-perf-desc"></div>
     <div class="perf-ex-hint" id="log-perf-hint" style="display:none;"></div>
 
+    <div id="log-perf-title-wrap" class="hidden">
+      <div class="flabel">Workout name</div>
+      <input class="finp" type="text" id="log-perf-session-title" placeholder="e.g. Push day, trail run, home circuit" autocomplete="off" style="font-size:16px;"/>
+    </div>
+
     <div class="flabel">Date completed</div>
     <input class="finp" type="date" id="log-perf-date" style="margin-bottom:14px;font-size:16px;"/>
 
     <div class="flabel">Exercises</div>
     <div id="log-perf-ex-rows"></div>
+    <button type="button" class="btn btn-secondary btn-full perf-add-ex hidden" id="log-perf-add-ex" onclick="addPerfExRow()">+ Add exercise</button>
 
     <div class="flabel" style="margin-top:10px;">How did it feel? (RPE 1–10)</div>
     <div class="rpe-wrap" style="margin-bottom:14px;">
@@ -3404,6 +3425,11 @@ function switchTab(role, tab){
     fab.style.display=showFab?'flex':'none';
     fab.onclick=tab==='schedule'?function(){openNewScheduledSession();}:function(){switchTab('t','log');};
     fab.title=tab==='schedule'?'Schedule session':'Log Session';
+  }
+  const clientFab=document.getElementById('client-fab');
+  if(clientFab){
+    const showClientFab=role==='c'&&['home','workouts'].includes(tab);
+    clientFab.style.display=showClientFab?'flex':'none';
   }
   if(role==='t'&&tab==='clients') renderClientGrid();
   if(role==='t'&&tab==='schedule') renderSchedule();
@@ -5469,10 +5495,20 @@ function asExerciseList(raw){
   if(typeof raw==='string'){
     try{ return asExerciseList(JSON.parse(raw)); }catch(err){ return []; }
   }
+  if(raw && typeof raw==='object' && raw.__ftMeta && Array.isArray(raw.items)){
+    return raw.items.filter(Boolean);
+  }
   if(typeof raw==='object'){
     return Object.keys(raw).sort().map(function(k){ return raw[k]; }).filter(Boolean);
   }
   return [];
+}
+
+function historyOriginLabel(h){
+  if(!h) return '';
+  if(h.clientDesigned) return 'client-designed';
+  if(h.selfLogged) return 'self-logged';
+  return '';
 }
 
 function isoDateOnly(d){
@@ -5806,10 +5842,11 @@ function sessionHistoryCardHTML(h, viewerUnit, client, filterExes){
       '</div>';
     }).join('')+'</div>';
   }
+  const origin=historyOriginLabel(h);
   return '<div class="workout-card">'+
     '<div class="workout-head">'+
       '<div><div class="workout-title">'+escapeHtml(h.type||'Session')+'</div>'+
-      '<div class="workout-date">'+formatDate(h.date)+dur+(h.rpe!=null?' · RPE '+h.rpe:'')+(h.selfLogged?' · <span style="color:var(--lime);font-size:10px;">self-logged</span>':'')+'</div></div>'+
+      '<div class="workout-date">'+formatDate(h.date)+dur+(h.rpe!=null?' · RPE '+h.rpe:'')+(origin?' · <span class="hist-origin">'+escapeHtml(origin)+'</span>':'')+'</div></div>'+
       '<span class="chip chip-gray">'+(exes.length||0)+' ex.</span>'+
     '</div>'+
     body+
@@ -6069,7 +6106,19 @@ function todaySessionCardHTML(c, appt, program){
     <div class="c-today-kicker">Today</div>
     <div class="c-today-title">${escapeHtml(title)}</div>
     <div class="c-today-meta">${escapeHtml(meta.join(' · '))}</div>
-    <button type="button" class="btn btn-primary btn-full c-today-log" data-schedule-id="${escapeHtml(sid)}" data-assigned-id="${escapeHtml(aid)}" onclick="openTodaySessionLog(this)">Log this session</button>
+    <div class="c-today-actions">
+      <button type="button" class="btn btn-primary btn-full c-today-log" data-schedule-id="${escapeHtml(sid)}" data-assigned-id="${escapeHtml(aid)}" onclick="openTodaySessionLog(this)">Log this session</button>
+      <button type="button" class="btn btn-secondary btn-full c-today-own" onclick="openClientOwnSessionLog()">Log my own workout</button>
+    </div>
+  </div>`;
+}
+
+function clientOwnSessionEmptyHTML(){
+  return `<div class="c-own-session-card">
+    <div class="c-today-kicker">Your workout</div>
+    <div class="c-today-title">Nothing assigned today</div>
+    <div class="c-today-meta">Build and log a session you designed — your trainer will see it in your history.</div>
+    <button type="button" class="btn btn-primary btn-full c-today-own" onclick="openClientOwnSessionLog()">Log my own workout</button>
   </div>`;
 }
 
@@ -6079,7 +6128,7 @@ function renderClientTodaySession(c){
   const appts=todaysAppointmentsForClient(c.id);
   const assigned=c.assigned||[];
   if(!appts.length && !assigned.length){
-    el.innerHTML='<div class="empty-state" style="padding:8px 16px 4px;"><div class="empty-msg">Nothing on for today</div></div>';
+    el.innerHTML=clientOwnSessionEmptyHTML();
     return;
   }
   if(!appts.length){
@@ -6093,6 +6142,11 @@ function openTodaySessionLog(btn){
   const scheduleId=(btn&&btn.getAttribute('data-schedule-id'))||'';
   const assignedId=(btn&&btn.getAttribute('data-assigned-id'))||'';
   openLogPerfModal(assignedId||null, null, null, currentClientId, scheduleId||'');
+}
+
+function openClientOwnSessionLog(){
+  if(!currentClientId) return;
+  openLogPerfModal(null, null, null, currentClientId, '', {clientDesigned:true});
 }
 
 function upcomingSessionsForClient(clientId){
@@ -6154,7 +6208,7 @@ function renderClientWorkouts(c){
   if(c.assigned&&c.assigned.length){
     html+=c.assigned.map(a=>assignedCardHTML(a,clientUnit,c)).join('');
   } else {
-    html+='<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-msg">No programs assigned yet</div></div>';
+    html+='<div class="empty-state" style="padding:8px 16px 16px;"><div class="empty-icon">📋</div><div class="empty-msg">No programs assigned yet</div><div class="empty-sub" style="margin:8px 0 14px;">You can still log a workout you designed yourself.</div><button type="button" class="btn btn-primary" style="min-height:48px;font-size:15px;" onclick="openClientOwnSessionLog()">Log my own workout</button></div>';
   }
   document.getElementById('c-assigned').innerHTML=html;
   renderClientHistoryList(c);
@@ -6277,8 +6331,9 @@ function assignedCardHTML(a, viewerUnit, clientObj){
 }
 
 
-function openLogPerfModal(assignedId, e, sessionId, clientId, scheduleId){
+function openLogPerfModal(assignedId, e, sessionId, clientId, scheduleId, opts){
   if(e) e.stopPropagation();
+  opts=opts||{};
   const cid=clientId||currentClientId;
   const c=DB.clients.find(function(x){return x.id===cid;});
   if(!c) return;
@@ -6288,23 +6343,33 @@ function openLogPerfModal(assignedId, e, sessionId, clientId, scheduleId){
   const programId=(h&&h.assignedId)||assignedId||'';
   const a=(c.assigned||[]).find(function(x){return x.id===programId;})||assignedWorkoutForHistory(h, c);
   const appt=(!h && scheduleId)?(DB.schedule||[]).find(function(s){return s.id===scheduleId;}):null;
+  const allowEditStructure=!!(opts.clientDesigned || (h&&h.clientDesigned));
   modal.dataset.assignedId=(a&&a.id)||programId||'';
   modal.dataset.sessionId=(h&&h.id)||'';
   modal.dataset.clientId=cid;
   modal.dataset.scheduleId=(appt&&appt.id)||'';
+  modal.dataset.clientDesigned=allowEditStructure?'1':'';
   const saveBtn=document.getElementById('log-perf-save-btn');
   const hint=document.getElementById('log-perf-hint');
   const dateEl=document.getElementById('log-perf-date');
   const notesEl=document.getElementById('log-perf-notes');
   const rpeEl=document.getElementById('log-perf-rpe');
   const rpeVal=document.getElementById('log-perf-rpe-val');
+  const titleWrap=document.getElementById('log-perf-title-wrap');
+  const titleInp=document.getElementById('log-perf-session-title');
+  const addExBtn=document.getElementById('log-perf-add-ex');
+  if(titleWrap) titleWrap.classList.toggle('hidden', !allowEditStructure);
+  if(addExBtn) addExBtn.classList.toggle('hidden', !allowEditStructure);
   if(h){
-    document.getElementById('log-perf-title').textContent='Edit session';
-    document.getElementById('log-perf-desc').textContent=(h.type||'')+(h.rpe!=null?' · session RPE '+h.rpe:'');
+    document.getElementById('log-perf-title').textContent=h.clientDesigned?'Edit my workout':'Edit session';
+    document.getElementById('log-perf-desc').textContent=h.clientDesigned
+      ?'Update the workout you designed. Your trainer will see the changes.'
+      :((h.type||'')+(h.rpe!=null?' · session RPE '+h.rpe:''));
     dateEl.value=isoDateOnly(h.date);
     rpeEl.value=h.rpe||7;
     rpeVal.textContent=String(h.rpe||7);
     notesEl.value=h.notes||'';
+    if(titleInp) titleInp.value=h.clientDesigned?(h.type||''):'';
     if(saveBtn) saveBtn.textContent='Save changes';
     const logged=asExerciseList(h.exercises);
     const missing=!logged.some(hasDoneLoad);
@@ -6312,7 +6377,18 @@ function openLogPerfModal(assignedId, e, sessionId, clientId, scheduleId){
       hint.style.display=missing?'block':'none';
       hint.textContent=missing?'This log did not keep the numbers you entered. Assigned targets are shown below — fill in what you actually did, then save.':'';
     }
-    fillPerfExRows(buildPerfRowModels(h, a, false), viewerUnit);
+    fillPerfExRows(buildPerfRowModels(h, a, false), viewerUnit, allowEditStructure);
+  } else if(allowEditStructure){
+    document.getElementById('log-perf-title').textContent='Log my own workout';
+    document.getElementById('log-perf-desc').textContent='Build the session yourself — it syncs to your trainer when you save.';
+    dateEl.value=todayStr();
+    rpeEl.value=7;
+    rpeVal.textContent='7';
+    notesEl.value='';
+    if(titleInp) titleInp.value='';
+    if(saveBtn) saveBtn.textContent='Save workout';
+    if(hint) hint.style.display='none';
+    fillPerfExRows([{name:'',sets:'',reps:'',weight:'',setLogs:[],unit:viewerUnit,prescribed:null}], viewerUnit, true);
   } else {
     const heading=a?'Log: '+a.title:(appt?'Log: '+(appt.type||'Session'):'Log session');
     document.getElementById('log-perf-title').textContent=heading;
@@ -6321,9 +6397,10 @@ function openLogPerfModal(assignedId, e, sessionId, clientId, scheduleId){
     rpeEl.value=7;
     rpeVal.textContent='7';
     notesEl.value='';
+    if(titleInp) titleInp.value='';
     if(saveBtn) saveBtn.textContent='Save Log';
     if(hint) hint.style.display='none';
-    fillPerfExRows(buildPerfRowModels({exercises:[]}, a, true), viewerUnit);
+    fillPerfExRows(buildPerfRowModels({exercises:[]}, a, true), viewerUnit, false);
     if(appt){
       dateEl.value=appt.date||todayStr();
       notesEl.value=appt.notes||'';
@@ -6333,6 +6410,9 @@ function openLogPerfModal(assignedId, e, sessionId, clientId, scheduleId){
     }
   }
   openModal('modal-log-perf');
+  if(allowEditStructure && titleInp){
+    setTimeout(function(){ try{ titleInp.focus(); }catch(err){} }, 80);
+  }
 }
 
 function hasDoneLoad(ex){
@@ -6365,58 +6445,91 @@ function buildPerfRowModels(h, program, prefillAssignedIntoDone){
   return out;
 }
 
-function fillPerfExRows(exList, viewerUnit){
+function fillPerfExRows(exList, viewerUnit, editableStructure){
   const rows=document.getElementById('log-perf-ex-rows');
   rows.innerHTML='';
   const list=asExerciseList(exList);
   const items=list.length?list:[{name:'',sets:'',reps:'',weight:'',unit:viewerUnit}];
-  items.forEach(function(ex){
-    const card=document.createElement('div');
-    card.className='perf-ex-card';
-    const nameLbl=document.createElement('div');
-    nameLbl.className='flabel';
-    nameLbl.textContent='Exercise';
-    const nameInp=makePerfField('perf-ex-name','Exercise', ex.name||'');
-    card.appendChild(nameLbl);
-    card.appendChild(nameInp);
-    const assignedTxt=ex.prescribed?formatExLoad(ex.prescribed, viewerUnit):'';
-    if(assignedTxt && assignedTxt!=='—'){
-      const asg=document.createElement('div');
-      asg.className='perf-ex-assigned';
-      asg.innerHTML='Assigned <b></b>';
-      asg.querySelector('b').textContent=assignedTxt;
-      card.appendChild(asg);
-    }
-    const doneLbl=document.createElement('div');
-    doneLbl.className='flabel';
-    doneLbl.textContent='How many sets';
-    card.appendChild(doneLbl);
-    const sets=makePerfField('log-ex-sets','Sets', (ex.setLogs&&ex.setLogs.length)?ex.setLogs.length:'', {inputMode:'numeric'});
-    card.appendChild(sets);
-    const hdr=document.createElement('div');
-    hdr.className='set-log-hdr';
-    hdr.innerHTML='<span></span><span>Reps</span><span></span>';
-    hdr.lastChild.textContent=viewerUnit||'kg';
-    hdr.style.display='none';
-    card.appendChild(hdr);
-    const setList=document.createElement('div');
-    setList.className='set-log-list';
-    card.appendChild(setList);
-    const addBtn=document.createElement('button');
-    addBtn.type='button';
-    addBtn.className='btn btn-secondary btn-sm set-log-add';
-    addBtn.textContent='+ Add set';
-    addBtn.style.display='none';
-    card.appendChild(addBtn);
-    const block=document.createElement('div');
-    block.className='ex-block';
-    block.appendChild(card);
-    sets.addEventListener('change',function(){syncSetLogRows(block, viewerUnit);});
-    sets.addEventListener('input',function(){syncSetLogRows(block, viewerUnit);});
-    addBtn.onclick=function(){addSetLogRow(block, viewerUnit);};
-    fillSetLogRows(block, ex, viewerUnit, viewerUnit);
-    rows.appendChild(block);
-  });
+  items.forEach(function(ex){ appendPerfExRow(ex, viewerUnit, !!editableStructure); });
+}
+
+function appendPerfExRow(ex, viewerUnit, editableStructure){
+  const rows=document.getElementById('log-perf-ex-rows');
+  if(!rows) return;
+  ex=ex||{name:'',sets:'',reps:'',weight:'',unit:viewerUnit};
+  const card=document.createElement('div');
+  card.className='perf-ex-card';
+  const head=document.createElement('div');
+  head.className='perf-ex-card-head';
+  const nameLbl=document.createElement('div');
+  nameLbl.className='flabel';
+  nameLbl.textContent='Exercise';
+  head.appendChild(nameLbl);
+  if(editableStructure){
+    const rem=document.createElement('button');
+    rem.type='button';
+    rem.className='perf-ex-remove';
+    rem.setAttribute('aria-label','Remove exercise');
+    rem.textContent='×';
+    rem.onclick=function(){
+      const block=card.closest('.ex-block');
+      if(block) block.remove();
+      if(!rows.querySelector('.ex-block')) addPerfExRow();
+    };
+    head.appendChild(rem);
+  }
+  card.appendChild(head);
+  const nameInp=makePerfField('perf-ex-name','Exercise', ex.name||'');
+  card.appendChild(nameInp);
+  const assignedTxt=ex.prescribed?formatExLoad(ex.prescribed, viewerUnit):'';
+  if(assignedTxt && assignedTxt!=='—'){
+    const asg=document.createElement('div');
+    asg.className='perf-ex-assigned';
+    asg.innerHTML='Assigned <b></b>';
+    asg.querySelector('b').textContent=assignedTxt;
+    card.appendChild(asg);
+  }
+  const doneLbl=document.createElement('div');
+  doneLbl.className='flabel';
+  doneLbl.textContent='How many sets';
+  card.appendChild(doneLbl);
+  const sets=makePerfField('log-ex-sets','Sets', (ex.setLogs&&ex.setLogs.length)?ex.setLogs.length:'', {inputMode:'numeric'});
+  card.appendChild(sets);
+  const hdr=document.createElement('div');
+  hdr.className='set-log-hdr';
+  hdr.innerHTML='<span></span><span>Reps</span><span></span>';
+  hdr.lastChild.textContent=viewerUnit||'kg';
+  hdr.style.display='none';
+  card.appendChild(hdr);
+  const setList=document.createElement('div');
+  setList.className='set-log-list';
+  card.appendChild(setList);
+  const addBtn=document.createElement('button');
+  addBtn.type='button';
+  addBtn.className='btn btn-secondary btn-sm set-log-add';
+  addBtn.textContent='+ Add set';
+  addBtn.style.display='none';
+  card.appendChild(addBtn);
+  const block=document.createElement('div');
+  block.className='ex-block';
+  block.appendChild(card);
+  sets.addEventListener('change',function(){syncSetLogRows(block, viewerUnit);});
+  sets.addEventListener('input',function(){syncSetLogRows(block, viewerUnit);});
+  addBtn.onclick=function(){addSetLogRow(block, viewerUnit);};
+  fillSetLogRows(block, ex, viewerUnit, viewerUnit);
+  rows.appendChild(block);
+  return block;
+}
+
+function addPerfExRow(){
+  const modal=document.getElementById('modal-log-perf');
+  const viewerUnit=activeRole==='client'?clientUnit:trainerUnit;
+  const block=appendPerfExRow({name:'',sets:'',reps:'',weight:'',setLogs:[],unit:viewerUnit}, viewerUnit, true);
+  if(block){
+    const nameInp=block.querySelector('.perf-ex-name');
+    if(nameInp) setTimeout(function(){ try{ nameInp.focus(); }catch(err){} }, 40);
+  }
+  if(modal) modal.dataset.clientDesigned='1';
 }
 
 function editSession(sessionId, clientId, e){
@@ -6448,10 +6561,13 @@ function saveClientPerformance(){
   const assignedId=modal.dataset.assignedId;
   const sessionId=modal.dataset.sessionId;
   const scheduleId=modal.dataset.scheduleId;
+  const clientDesigned=modal.dataset.clientDesigned==='1';
   const a=(c.assigned||[]).find(function(x){return x.id===assignedId;});
   const date=document.getElementById('log-perf-date').value||new Date().toISOString().split('T')[0];
   const rpe=parseInt(document.getElementById('log-perf-rpe').value)||7;
   const notes=document.getElementById('log-perf-notes').value;
+  const titleInp=document.getElementById('log-perf-session-title');
+  const customTitle=((titleInp&&titleInp.value)||'').trim();
   const viewerUnit=activeRole==='client'?clientUnit:trainerUnit;
   const rows=document.querySelectorAll('#log-perf-ex-rows .ex-block');
   const exercises=[];
@@ -6468,6 +6584,15 @@ function saveClientPerformance(){
     }
     exercises.push(ex);
   });
+  if(clientDesigned && !exercises.length){
+    showToast('Add at least one exercise');
+    return;
+  }
+  if(clientDesigned && !customTitle && !sessionId){
+    showToast('Name this workout');
+    if(titleInp) titleInp.focus();
+    return;
+  }
   if(!c.history) c.history=[];
   if(sessionId){
     const h=c.history.find(function(x){return x.id===sessionId;});
@@ -6476,6 +6601,11 @@ function saveClientPerformance(){
     h.rpe=rpe;
     h.notes=notes;
     h.exercises=exercises;
+    if(h.clientDesigned || clientDesigned){
+      h.clientDesigned=true;
+      h.selfLogged=true;
+      if(customTitle) h.type=customTitle;
+    }
     modal.dataset.scheduleId='';
     saveData(DB);
     closeModal('modal-log-perf');
@@ -6486,7 +6616,9 @@ function saveClientPerformance(){
   let histId=(typeof newId==='function'?newId():('cp'+Date.now()));
   let apptTime=null;
   let duration=0;
-  let type=(a?a.title:'Self-logged')+' (self-logged)';
+  let type=clientDesigned
+    ? customTitle
+    : ((a?a.title:'Self-logged')+' (self-logged)');
   if(scheduleId){
     const appt=(DB.schedule||[]).find(function(s){return s.id===scheduleId;});
     if(appt){
@@ -6497,13 +6629,29 @@ function saveClientPerformance(){
       DB.schedule=(DB.schedule||[]).filter(function(s){return s.id!==scheduleId;});
     }
   }
-  c.history.unshift({id:histId,date:date,time:apptTime,type:type,duration:duration,rpe:rpe,notes:notes,exercises:exercises,selfLogged:true,assignedId:assignedId||null});
-  if(a){if(!a.completions)a.completions=[];a.completions.unshift({date:date,rpe:rpe,notes:notes});}
+  c.history.unshift({
+    id:histId,
+    date:date,
+    time:apptTime,
+    type:type,
+    duration:duration,
+    rpe:rpe,
+    notes:notes,
+    exercises:exercises,
+    selfLogged:true,
+    assignedId:clientDesigned?null:(assignedId||null),
+    clientDesigned:!!clientDesigned
+  });
+  if(a && !clientDesigned){if(!a.completions)a.completions=[];a.completions.unshift({date:date,rpe:rpe,notes:notes});}
   c.sessions=(c.sessions||0)+1;
   saveData(DB);
   closeModal('modal-log-perf');
   modal.dataset.scheduleId='';
-  addNotification('trainer','session',clientName(c)+' logged a workout','Completed: '+(a?a.title:type)+' \u00b7 RPE '+rpe);
+  modal.dataset.clientDesigned='';
+  const notifDetail=clientDesigned
+    ? ('Designed & logged: '+type+' · RPE '+rpe)
+    : ('Completed: '+(a?a.title:type)+' \u00b7 RPE '+rpe);
+  addNotification('trainer','session',clientName(c)+(clientDesigned?' logged their own workout':' logged a workout'), notifDetail);
   const pbs=[];
   exercises.forEach(function(ex){
     const newW=bestWeightFromEx(ex);
@@ -6515,6 +6663,8 @@ function saveClientPerformance(){
     if(newW>prevBest) pbs.push({name:ex.name,value:newW,prev:prevBest,unit:viewerUnit,type:'exercise',icon:'\ud83c\udfc6'});
   });
   refreshWorkoutViews(c);
+  const hello=document.getElementById('c-hello-sub');
+  if(hello && currentClientId===c.id) hello.textContent=`${c.goal} · ${c.sessions} sessions completed`;
   const statEl=document.querySelector('#c-stats .stat-n');
   if(statEl) statEl.textContent=c.sessions;
   if(pbs.length>0){
@@ -6522,7 +6672,7 @@ function saveClientPerformance(){
     addNotification('trainer','pb',clientName(c)+' hit a Personal Best!','New PB on '+best.name+': '+best.value+best.unit);
     setTimeout(function(){showPB(best,clientName(c));},400);
   } else {
-    showToast('Workout logged \u2713');
+    showToast(clientDesigned?'Workout shared with your trainer \u2713':'Workout logged \u2713');
   }
 }
 

@@ -40,6 +40,27 @@
   }
   window.emptyCloudData = emptyData;
 
+  // Client-designed sessions pack a flag into exercises JSON so it survives
+  // round-trips without a dedicated sessions.client_designed column.
+  function packSessionExercises(exercises, clientDesigned) {
+    const list = Array.isArray(exercises) ? exercises : [];
+    if (!clientDesigned) return list;
+    return { __ftMeta: true, clientDesigned: true, items: list };
+  }
+
+  function unpackSessionExercises(raw) {
+    if (raw && typeof raw === 'object' && !Array.isArray(raw) && raw.__ftMeta) {
+      return {
+        exercises: Array.isArray(raw.items) ? raw.items : [],
+        clientDesigned: !!raw.clientDesigned
+      };
+    }
+    if (Array.isArray(raw)) return { exercises: raw, clientDesigned: false };
+    return { exercises: [], clientDesigned: false };
+  }
+  window.packSessionExercises = packSessionExercises;
+  window.unpackSessionExercises = unpackSessionExercises;
+
   function colorBgFor(color) {
     const map = {
       '#d4f53c': 'rgba(212,245,60,.15)',
@@ -201,6 +222,7 @@
       const history = sessions.filter(function (s) {
         return s.client_id === row.id && (s.status === 'completed' || s.self_logged);
       }).map(function (s) {
+        const unpacked = unpackSessionExercises(s.exercises);
         return {
           id: s.id,
           date: s.date,
@@ -208,9 +230,10 @@
           duration: s.duration || 60,
           rpe: s.rpe,
           notes: s.notes || '',
-          exercises: s.exercises || [],
+          exercises: unpacked.exercises,
           selfLogged: !!s.self_logged,
-          assignedId: s.assigned_id || null
+          assignedId: s.assigned_id || null,
+          clientDesigned: !!unpacked.clientDesigned
         };
       });
       const assignedList = assigned.filter(function (a) { return a.client_id === row.id; }).map(function (a) {
@@ -399,7 +422,7 @@
             status: 'completed',
             notes: s.notes || null,
             rpe: s.rpe || null,
-            exercises: s.exercises || [],
+            exercises: packSessionExercises(s.exercises || [], !!s.clientDesigned),
             self_logged: !!s.selfLogged,
             assigned_id: s.assignedId || null
           });
