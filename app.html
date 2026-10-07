@@ -13,13 +13,13 @@
 <script>
 (function(){
   if(location.protocol==='file:') return;
-  if(/[?&]v=own1(?:&|$)/.test(location.search)) return;
+  if(/[?&]v=own2(?:&|$)/.test(location.search)) return;
   var u=new URL(location.href);
-  u.searchParams.set('v','own1');
+  u.searchParams.set('v','own2');
   location.replace(u.href);
 })();
 </script>
-<link rel="manifest" href="manifest.json?v=own1"/>
+<link rel="manifest" href="manifest.json?v=own2"/>
 <link rel="icon" href="icon-192.png"/>
 <link rel="apple-touch-icon" href="icon-192.png"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
@@ -269,6 +269,10 @@ input,select,textarea,button{font-family:-apple-system,BlinkMacSystemFont,'Segoe
 .perf-add-ex{margin:4px 0 12px;min-height:44px;font-size:15px;}
 #log-perf-title-wrap{margin-bottom:14px;}
 .hist-origin{color:var(--lime);font-size:10px;font-weight:700;}
+#modal-log-perf .perf-ex-card .ex-wrap{display:block;width:100%;margin-bottom:8px;flex:none;}
+#modal-log-perf .perf-ex-card .ex-wrap .finp{margin-bottom:0;font-size:16px;}
+#modal-log-perf .ex-dropdown{z-index:260;max-height:220px;}
+.ex-opt-cat.recent{color:var(--text2);}
 .chip{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;}
 .chip-lime{background:var(--lime-dim);color:var(--lime);}
 .chip-blue{background:var(--blue-dim);color:var(--blue);}
@@ -3027,8 +3031,8 @@ RDL 135x8,8,8</div>
   <div class="scroll-area" id="notif-list" style="flex:1;"></div>
 </div>
 <div id="notif-overlay" style="display:none;position:fixed;inset:0;z-index:299;" onclick="closeNotifPanel()"></div>
-<script src="cloud.js?v=own1"></script>
-<script src="notes-import.js?v=own1"></script>
+<script src="cloud.js?v=own2"></script>
+<script src="notes-import.js?v=own2"></script>
 <div class="alert-banner" id="alert-banner" onclick="handleAlertClick()">
   <div class="alert-icon" id="alert-icon"></div>
   <div class="alert-body">
@@ -5275,13 +5279,40 @@ function ensureCustomExercises(){
   return DB.customExercises;
 }
 
+function recentClientExerciseNames(limit){
+  const c=DB.clients.find(function(x){return x.id===currentClientId;});
+  if(!c) return [];
+  const seen=new Set();
+  const out=[];
+  function pushName(n, cat){
+    const name=(n||'').trim();
+    if(!name) return;
+    const k=name.toLowerCase();
+    if(seen.has(k)) return;
+    seen.add(k);
+    out.push({name:name,cat:cat||'Recent',recent:true});
+  }
+  (c.history||[]).forEach(function(h){
+    (h.exercises||[]).forEach(function(e){ pushName(e&&e.name, 'Recent'); });
+  });
+  (c.assigned||[]).forEach(function(a){
+    (a.exercises||[]).forEach(function(e){ pushName(e&&e.name, 'Program'); });
+  });
+  return out.slice(0, limit||16);
+}
+
 function getExerciseNames(){
   const custom=ensureCustomExercises().map(function(e){
     return {name:e.name,cat:e.cat||'Custom',mine:true};
   }).sort(function(a,b){return a.name.localeCompare(b.name);});
   const mineKeys=new Set(custom.map(function(e){return e.name.toLowerCase();}));
   const lib=EXERCISE_LIBRARY.filter(function(e){return !mineKeys.has(e.name.toLowerCase());});
-  return custom.concat(lib);
+  const base=custom.concat(lib);
+  if(activeRole!=='client') return base;
+  const recent=recentClientExerciseNames(16);
+  if(!recent.length) return base;
+  const recentKeys=new Set(recent.map(function(e){return e.name.toLowerCase();}));
+  return recent.concat(base.filter(function(e){return !recentKeys.has(e.name.toLowerCase());}));
 }
 
 function exerciseNameTaken(name, exceptId){
@@ -5361,7 +5392,8 @@ function fillExDropdown(drop, items, q, canSave){
     html.push('<div class="ex-opt ex-opt-save" data-save="1">Save “'+escapeHtml(q)+'” to my exercises</div>');
   }
   items.forEach(function(e){
-    html.push('<div class="ex-opt" data-name="'+escapeHtml(e.name)+'">'+escapeHtml(e.name)+'<span class="ex-opt-cat'+(e.mine?' mine':'')+'">'+escapeHtml(e.cat||'')+'</span></div>');
+    const catClass=(e.mine?' mine':'')+(e.recent?' recent':'');
+    html.push('<div class="ex-opt" data-name="'+escapeHtml(e.name)+'">'+escapeHtml(e.name)+'<span class="ex-opt-cat'+catClass+'">'+escapeHtml(e.cat||'')+'</span></div>');
   });
   drop.innerHTML=html.join('');
   return html.length;
@@ -5378,7 +5410,8 @@ function filterExDropdown(uid){
   const filtered = ql.length===0
     ? all.slice(0,20)
     : all.filter(function(e){return e.name.toLowerCase().includes(ql);}).slice(0,20);
-  const n=fillExDropdown(drop, filtered, q, true);
+  // Only trainers persist new names into shared "My exercises".
+  const n=fillExDropdown(drop, filtered, q, activeRole==='trainer');
   if(!n){drop.style.display='none';return;}
   drop.querySelectorAll('.ex-opt').forEach(function(opt){
     opt.addEventListener('mousedown',function(e){
@@ -6479,8 +6512,21 @@ function appendPerfExRow(ex, viewerUnit, editableStructure){
     head.appendChild(rem);
   }
   card.appendChild(head);
-  const nameInp=makePerfField('perf-ex-name','Exercise', ex.name||'');
-  card.appendChild(nameInp);
+  let nameInp;
+  if(editableStructure){
+    const exWrap=makeExInput('log-perf-ex-rows');
+    nameInp=exWrap.querySelector('input');
+    if(nameInp){
+      nameInp.classList.add('perf-ex-name');
+      nameInp.placeholder='Type or pick exercise...';
+      nameInp.value=ex.name||'';
+      nameInp.style.fontSize='16px';
+    }
+    card.appendChild(exWrap);
+  } else {
+    nameInp=makePerfField('perf-ex-name','Exercise', ex.name||'');
+    card.appendChild(nameInp);
+  }
   const assignedTxt=ex.prescribed?formatExLoad(ex.prescribed, viewerUnit):'';
   if(assignedTxt && assignedTxt!=='—'){
     const asg=document.createElement('div');
@@ -6526,7 +6572,7 @@ function addPerfExRow(){
   const viewerUnit=activeRole==='client'?clientUnit:trainerUnit;
   const block=appendPerfExRow({name:'',sets:'',reps:'',weight:'',setLogs:[],unit:viewerUnit}, viewerUnit, true);
   if(block){
-    const nameInp=block.querySelector('.perf-ex-name');
+    const nameInp=block.querySelector('.perf-ex-name')||block.querySelector('.ex-wrap input');
     if(nameInp) setTimeout(function(){ try{ nameInp.focus(); }catch(err){} }, 40);
   }
   if(modal) modal.dataset.clientDesigned='1';
